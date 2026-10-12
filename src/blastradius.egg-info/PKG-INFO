@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: blastradius
+Version: 0.1.0
+Summary: Intent-aware change-impact agent: crawl a live app, ingest its spec, graph requirements/UI/code, and report a PR's blast radius.
+Requires-Python: >=3.12
+Requires-Dist: anthropic>=1.13
+Requires-Dist: pydantic>=2.7
+Requires-Dist: httpx>=0.28
+Requires-Dist: playwright>=1.55
+Requires-Dist: neo4j>=6.0
+Requires-Dist: typer>=0.12
+Requires-Dist: rich>=13
+Requires-Dist: pyyaml>=6
+Requires-Dist: tree-sitter>=0.25
+Requires-Dist: tree-sitter-typescript>=0.23
+Requires-Dist: rank-bm25>=0.2.2
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
+Requires-Dist: ruff>=0.6; extra == "dev"

@@ -1,0 +1,76 @@
+# Primary target. Evidence for every value is in docs/RECON.md section 1.
+name: hoppscotch
+display_name: Hoppscotch
+base_url: https://hoppscotch.io
+notes: >
+  Vue 3 CSR SPA on Vercel. Whole product usable without login. Hoppscotch is an API client, so egress is
+  allowlisted at the network layer and Send is restricted to its own echo endpoint.
+
+crawl:
+  seed_urls:
+    - https://hoppscotch.io/
+    - https://hoppscotch.io/graphql
+    - https://hoppscotch.io/realtime
+    - https://hoppscotch.io/settings
+  egress_allow:
+    - hoppscotch.io
+    - echo.hoppscotch.io
+  max_actions: 150
+  max_depth: 4
+  wall_clock_s: 900
+  action_delay_ms: 700
+  viewport: [1280, 800]
+  locale: en-US
+  timezone: UTC
+  block_service_workers: true
+  allow_local_writes: true
+  send_allowed_urls:
+    - https://echo.hoppscotch.io
+  widget_selectors:
+    - "[id^='crisp-']"
+    - ".crisp-client"
+    - "iframe[src*='crisp']"
+  dismiss_selectors:
+    - "button[aria-label='Close']"
+    - "button[aria-label='Dismiss']"
+  deny_url_patterns:
+    - "^https://hoppscotch\\.io/admin"
+    - "^https://hoppscotch\\.io/orgs"
+    - "^https://hoppscotch\\.io/(enter|join-team|profile|oauth)"
+  anchor:
+    title_regex: "(?i)hoppscotch"
+    min_interactive: 8
+
+spec:
+  kind: llms_full
+  url: https://docs.hoppscotch.io/llms-full.txt
+  include_pages:
+    - "documentation/features/"
+    - "getting-started/(rest|graphql|realtime)/"
+  exclude_pages:
+    - "self-host"
+    - "privacy"
+    - "terms"
+    - "security"
+    - "changelog"
+  edition_default: cloud-web
+  max_requirements: 160
+
+code:
+  repo: hoppscotch/hoppscotch
+  ref: main
+  adapter: vue
+  roots:
+    - packages/hoppscotch-common/src
+    - packages/hoppscotch-selfhost-web/src
+    - packages/hoppscotch-data/src
+  locale_files:
+    - packages/hoppscotch-common/locales/en.json
+  auto_import_dts: packages/hoppscotch-common/src/components.d.ts
+  global_files:
+    - packages/hoppscotch-common/src/layouts/default.vue
+  hub_packages:
+    - "@hoppscotch/data"
+  alias:
+    "~/": packages/hoppscotch-common/src/
+    "@app/": packages/hoppscotch-selfhost-web/src/
