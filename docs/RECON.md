@@ -78,6 +78,7 @@ Memos PR chain verified end to end: live DOM `separator "Resize sidebar"` -> `co
 | DataDome | cookie presence + body referencing `captcha-delivery.com` + 403 (`x-datadome-*` are internal API headers, **do not use**) | `datadome` cookie | S |
 | HUMAN / PerimeterX | body `Press & Hold`, `collector-*.perimeterx.net`, 403 | `_px3`, `_pxhd`, `_pxvid` | S |
 | Imperva | body `Request unsuccessful. Incapsula incident ID`, `_Incapsula_Resource` | `X-Iinfo`, `visid_incap_*`, `incap_ses_*` | S |
+| Vercel | header `x-vercel-mitigated: challenge\|deny` on any status; title `Vercel Security Checkpoint` (soft) | `server: Vercel`, `x-vercel-id` | R (synthesized from documented markers) |
 | Amazon robot check | 200 page, `Type the characters you see in this image`, form to `/errors/validateCaptcha` | none | R |
 | Vendor-agnostic | status in `{202,403,405,429,503}` with HTML where JSON/app expected; titles `Just a moment` / `Access Denied` / `Robot Check`; zero interactive elements after hydration; **fingerprint collapse** (many URLs, one fingerprint) | none | design |
 

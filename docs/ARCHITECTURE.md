@@ -88,17 +88,30 @@ signal (Hoppscotch's real shell is 5 KB).
 ```python
 # explorer.py
 def run_crawl(run, cfg: TargetConfig, llm, *, goals=None, source="live", recorded_dir=None,
-              max_actions=None) -> CrawlSummary
+              max_actions=None, artifact_subdir=None) -> CrawlSummary
+# artifact_subdir: when set, ALL artifacts go under crawl/<artifact_subdir>/ and the main crawl/ artifacts are
+# untouched (bounded goal-directed re-crawls). Screen/element ids are content hashes, so screens found by two
+# subdirs can share ids; the graph loader merges subdirs explicitly.
 ```
 
 Deterministic perception, fingerprinting, frontier, safety classes and budgets; the LLM is a *policy* that
-re-ranks candidates only (a heuristic policy must work with no API key). Output files per `models.py`.
+re-ranks candidates only (a heuristic policy must work with no API key). Output files per `models.py`, plus
+`crawl/stats.json` (egress hosts, soft-404 urls, policy blocks, restores) and `crawl/goal_effort.json`.
+Safety classes: NAVIGATE, CLICK_SAFE, LOCAL_WRITE, NETWORK_SIDE_EFFECT (Send re-checked at click time),
+AUTH, DESTRUCTIVE (label, href, and dialog context), EXTERNAL_WIDGET, EXTERNAL_LINK, DENIED_URL,
+UNKNOWN_CONTROL (nameless icon-only controls are not clicked unless a tooltip name was harvested or the icon is
+on the safe list). Egress is enforced at the route layer AND the network layer (redirect hops, WebSockets).
 
 ### spec/  (D30; cases 21-27, 73)
 
 ```python
 # ingest.py
 def run_ingest(run, cfg: TargetConfig, llm) -> list[Requirement]
+# spec/stats.json: status (ok | refused | failed | invalid_config), complete, sha256, http_status, content_type,
+# final_url, access_verdict, doc_version, app_version(+source), stale, stale_reason, dropped_by_reason
+# (not_in_source, code_marker, too_short, crosses_sentence, ...), polarity_downgraded, evidence_by_requirement.
+# Every refused/failed path overwrites requirements.json and pages.json with [] (no stale artifacts).
+# kind == 'gherkin' dispatches to blastradius.spec.gherkin.ingest_gherkin(run, cfg), which writes the artifacts.
 ```
 
 ### code/  (D10, D24; cases 29-36, 38)
@@ -110,6 +123,14 @@ class CodeAdapter(Protocol):
 def classify_file(path: str, cfg: CodeConfig) -> FileClass
 # index.py
 def run_index(run, cfg: TargetConfig, *, ref=None, pr_number=None) -> CodeIndex
+# code/overlay.py
+def run_overlay(run, cfg, base_index: CodeIndex, pr_number: int, head_repo: str, head_sha: str,
+                changed_paths: list[str], *, cache_root=None, remote=None) -> CodeIndex
+# in memory only: replaced files' stale edges must not be merged into the baseline graph. snapshot_id is the BASE
+# commit; stats.overlay_head_sha / overlay_added / overlay_modified / overlay_pull_ref_moved describe the head.
+# ensure_repo(..., worktree=None, lock_timeout=...): single-writer lock; per-sha worktrees keep a PR head from
+# clobbering the baseline checkout. stats.parse_errors / parse_partial describe unparsable files; resolved_tag_rate
+# is None when no tag pair was measured; hub_importers excludes tests (hub_importers_with_tests keeps the old number).
 ```
 
 ### graph/  (D08; schema in the plan section 6)
@@ -118,9 +139,9 @@ def run_index(run, cfg: TargetConfig, *, ref=None, pr_number=None) -> CodeIndex
 class GraphStore:
     @classmethod
     def from_settings(cls, settings: Settings, run: RunContext | None = None) -> "GraphStore"
-    def ensure_schema(self) -> None
-    def clear_target(self, target: str) -> None
-    def counts(self, target: str) -> dict[str, int]
+    def ensure_schema(self) -> int                    # statements applied
+    def clear_target(self, target: str) -> int        # nodes deleted
+    def counts(self, target: str | None = None) -> dict[str, int]   # labels and relationship types, zero-filled
     # idempotent MERGE writes keyed by (target, id); every node/edge carries run_id and bundle_hash
     def write_code(self, index: CodeIndex, run_id: str) -> dict
     def write_crawl(self, screens, transitions, run_id: str, bundle_hash: str | None) -> dict
@@ -129,6 +150,10 @@ class GraphStore:
     def write_gaps(self, gaps, run_id: str) -> dict
     def write_flows(self, flows, run_id: str) -> dict
     def read(self, template: str, **params) -> list[dict]   # named templates only; read transactions only
+# Canonical UIElement key = (owner_hint or '', role, casefold(name), ordinal, scope). Keys: CodeFile (target, path),
+# I18nKey (target, key), Route (target, pattern), Gap (target, id, bundle_hash). A layer is pruned only when its
+# artifact is complete (crawl: summary present, stop_reason frontier_empty, counts match; code: files > 0, not
+# parse-partial); otherwise it is loaded without pruning and graph/load.json notices say why.
 # queries.py + queries_*.py: named, parameterised Cypher templates (impact, absence_near, hub_degree, ...).
 # Every module graph/queries_*.py exposing TEMPLATES is merged (name collisions raise). No f-strings.
 # Links carry screen_ids; IMPLEMENTED_BY/REALIZED_BY store them and `impact` counts a screen only when the

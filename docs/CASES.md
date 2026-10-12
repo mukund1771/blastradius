@@ -46,7 +46,7 @@ Stages: `crawl` · `access` · `spec` · `code` · `pr` · `graph` · `reason` �
 | # | Case | Handling | Tier |
 |---|---|---|---|
 | 17 | **Challenge page ingested as the UI** (silent graph corruption) | `AccessVerdict` on every Capture; only `OK` creates Screen/UIElement; `SUSPECT` to needs-review; `BLOCKED` creates `ACCESS_RESTRICTED` gap; breaker after 2 | P0 |
-| 18 | Protected app, no owner cooperation | `RecordedSession` loader (html/har/png folder) through the same `Capture` interface | P1 |
+| 18 | Protected app, no owner cooperation | `RecordedSession` loader (folder of NNN.json + .html + .png; HAR-style header lists accepted, a whole `.har` is not read) through the same `Capture` interface | P1 |
 | 19 | Cooperative modes for the doc: staging, secret-header skip rule, service token, allowlisted egress | Document with vendor sources; non-cooperative bypass is a stated non-goal | DOC |
 | 20 | Second target set | Superseded by D15: Sylius slice | P1b |
 | 67 | **AWS WAF challenge arrives as `202`** (looks like success), CAPTCHA as `405`; no CORS headers so in-page JS cannot read it | Read `x-amzn-waf-action` at the network layer on every status | P0 |
