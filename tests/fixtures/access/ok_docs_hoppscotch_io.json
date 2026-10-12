@@ -1,6 +1,6 @@
 {
   "provenance": "measured",
-  "provenance_note": "GET https://docs.hoppscotch.io/ on 2026-10-12; status and headers verbatim (server cloudflare, cf-ray, cf-cache-status, and also x-vercel-id: layered CDNs). Body truncated to its first 6000 characters of 310902 bytes; the full body also classifies OK.",
+  "provenance_note": "GET https://docs.hoppscotch.io/ on 2026-10-12; status and headers verbatim (server cloudflare, cf-ray, cf-cache-status, and also x-vercel-id: layered CDNs). Body truncated to its first 6000 characters of 310902 bytes; the full 310,902-byte body was classified OK once, from a scratch copy outside the repo; this 6,000-character fixture cannot reproduce that claim.",
   "method": "GET",
   "url": "https://docs.hoppscotch.io/",
   "status": 200,

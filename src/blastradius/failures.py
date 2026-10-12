@@ -36,6 +36,8 @@ class FailureCode(StrEnum):
     # graph
     GRAPH_CONN_FAILED = "GRAPH_CONN_FAILED"
     GRAPH_WRITE_FAILED = "GRAPH_WRITE_FAILED"
+    GRAPH_READ_FAILED = "GRAPH_READ_FAILED"
+    GRAPH_PRUNE_SKIPPED = "GRAPH_PRUNE_SKIPPED"
     # reasoning
     PR_PATH_MISSING_AT_HEAD = "PR_PATH_MISSING_AT_HEAD"
     STALE_BASE = "STALE_BASE"
@@ -68,6 +70,8 @@ META: dict[FailureCode, tuple[str, bool, str]] = {
     FailureCode.CODE_PARSE_PARTIAL: ("code", False, "Some source files could not be parsed; the index is incomplete and says how many."),
     FailureCode.GRAPH_CONN_FAILED: ("graph", True, "Could not connect to Neo4j. Is Docker running? Run `blastradius doctor`."),
     FailureCode.GRAPH_WRITE_FAILED: ("graph", True, "A graph write failed."),
+    FailureCode.GRAPH_READ_FAILED: ("graph", True, "A graph read failed (query error, timeout, or transaction memory limit)."),
+    FailureCode.GRAPH_PRUNE_SKIPPED: ("graph", False, "An artifact was partial, so the graph kept its previous state for that layer instead of pruning."),
     FailureCode.PR_PATH_MISSING_AT_HEAD: ("reason", False, "A changed path does not exist in the indexed snapshot (stale base, rename, or new file)."),
     FailureCode.STALE_BASE: ("reason", False, "The PR base is behind main and overlaps changed files; the diff may not apply as shown."),
     FailureCode.VERIFIER_REJECTED: ("reason", True, "The report cited evidence that does not exist or overstated confidence."),

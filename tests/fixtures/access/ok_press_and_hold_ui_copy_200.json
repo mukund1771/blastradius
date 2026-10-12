@@ -1,0 +1,16 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "The wave-1 false positive: ordinary UI copy ('Press & hold to record') on a normal 200 page. The PerimeterX 'Press & Hold' marker is a block only on a 403 (RECON section 3).",
+  "method": "GET",
+  "url": "https://app.example.com/voice-notes",
+  "status": 200,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "server": "nginx"
+  },
+  "body": "<!doctype html><html lang=\"en\"><head><title>Voice notes</title></head><body><main><button id=\"rec\">Press &amp; hold to record</button><p>Reference #12 in the manual. Access Denied errors are explained in the guide.</p></main></body></html>\n",
+  "expected": {
+    "verdict": "OK",
+    "vendor": null
+  }
+}

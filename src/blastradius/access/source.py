@@ -8,15 +8,17 @@ same classifier, so a challenge page that was recorded is still quarantined (cas
 from __future__ import annotations
 
 import json
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from ..models import Capture
 from ..targets import AnchorConfig
 from .capture import make_capture, strip_secret_headers
-from .classify import classify_capture, extract_title
+from .classify import classify_capture, extract_title, normalise_headers
 
 CAP_REPLAY = "replay"   # captures() yields previously recorded states
 CAP_ACT = "act"         # act() can drive new transitions (live sources only)
@@ -32,17 +34,65 @@ class IngestSource(Protocol):
 
 @runtime_checkable
 class ActingSource(IngestSource, Protocol):
-    """Optional extension: sources with CAP_ACT in `capabilities` can perform an action and return its state."""
+    """Optional extension: sources with CAP_ACT in `capabilities` can perform an action and return its
+    state."""
 
     def act(self, action: str) -> Capture: ...
+
+
+class _Meta(BaseModel):
+    """One NNN.json. Keys this loader does not use (provenance notes, exporter fields) are ignored; the
+    ones it does use are checked, so a bad value is an error naming the file, not a crash further down."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    url: str = Field(min_length=1)
+    final_url: str | None = None
+    status: int | None = None
+    headers: dict[str, str] = Field(default_factory=dict)
+    title: str | None = None
+    parent_id: str | None = None
+    action: str | None = None
+    captured_at: str | None = None
+    interactive_count: int | None = None
+
+    @field_validator("status", "interactive_count", mode="before")
+    @classmethod
+    def _not_a_bool(cls, value: Any) -> Any:
+        if isinstance(value, bool):
+            raise ValueError("must be an integer, not a boolean")  # noqa: TRY004  (pydantic wants ValueError)
+        return value
+
+    @field_validator("headers", mode="before")
+    @classmethod
+    def _header_shapes(cls, value: Any) -> dict[str, str]:
+        """An object, or a HAR-style list of {name, value}; names are lower-cased, repeated names joined."""
+        if value is None:
+            return {}
+        if isinstance(value, Mapping):
+            return normalise_headers(value.items())
+        if isinstance(value, list) and all(
+                isinstance(e, Mapping) and isinstance(e.get("name"), str) and "value" in e for e in value):
+            return normalise_headers((e["name"], e["value"]) for e in value)
+        raise ValueError("must be an object or a HAR-style list of {name, value}")
+
+
+def _meta_error(path: Path, exc: ValidationError) -> ValueError:
+    detail = "; ".join(f"{'.'.join(str(p) for p in e['loc']) or 'meta'}: {e['msg']}" for e in exc.errors())
+    return ValueError(f"{path}: {detail}")
 
 
 class RecordedSession:
     """A folder of NNN.json (meta), NNN.html and NNN.png, replayed in numeric order.
 
-    Meta keys: url (required), final_url, status, headers, title, parent_id, action, captured_at, and an
-    optional interactive_count. Cookie, Set-Cookie and Authorization are stripped from imported headers
-    (HAR and trace exports hold live tokens). Files other than NNN.* are ignored.
+    Meta keys: url (required), final_url, status, headers (an object or a HAR-style list of {name, value}),
+    title, parent_id, action, captured_at, and an optional interactive_count. Cookie, Set-Cookie and
+    Authorization are stripped from imported headers (HAR and trace exports hold live tokens). Files other
+    than NNN.* (ASCII digits only) are ignored; a symlink resolving outside the folder is an error.
+
+    `html_path` and `screenshot_path` of the Captures are RELATIVE to `folder`: a consumer resolves them with
+    `session.folder / capture.html_path` (and stores its own run-relative copy): no local path is
+    persisted. A HAR file itself is not read (export its entries to NNN.json); only its header-list shape is.
     """
 
     kind = "recorded"
@@ -52,41 +102,57 @@ class RecordedSession:
         self.folder = Path(folder)
         if not self.folder.is_dir():
             raise FileNotFoundError(f"recorded session folder not found: {self.folder}")
+        self._root = self.folder.resolve()
         self.target = target or self.folder.name
         self.anchor = anchor
-        self._metas = sorted((p for p in self.folder.glob("*.json") if p.stem.isdigit()),
-                             key=lambda p: (int(p.stem), p.name))
+        metas = [p for p in self.folder.glob("*.json")
+                 if p.stem.isascii() and p.stem.isdecimal() and p.is_file()]
+        self._metas = sorted(metas, key=lambda p: (int(p.stem), p.name))
         if not self._metas:
             raise ValueError(f"no NNN.json meta files in {self.folder}")
+        for path in self._metas:
+            self._inside(path)
 
     def captures(self) -> Iterator[Capture]:
         for meta_path in self._metas:
             yield self._load(meta_path)
 
-    def _load(self, meta_path: Path) -> Capture:
+    def _inside(self, path: Path) -> Path:
+        if not path.resolve().is_relative_to(self._root):
+            raise ValueError(f"{path}: symlink resolves outside the session folder")
+        return path
+
+    def _sibling(self, meta_path: Path, suffix: str) -> Path | None:
+        path = meta_path.with_suffix(suffix)
+        return self._inside(path) if path.is_file() else None
+
+    def _read_meta(self, meta_path: Path) -> _Meta:
         try:
-            meta = json.loads(meta_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as exc:
+            raw = json.loads(meta_path.read_text(encoding="utf-8-sig"))
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
             raise ValueError(f"{meta_path}: invalid JSON ({exc})") from exc
-        if not isinstance(meta, dict) or not meta.get("url"):
-            raise ValueError(f"{meta_path}: meta must be an object with a 'url'")
-        html_file, png_file = meta_path.with_suffix(".html"), meta_path.with_suffix(".png")
-        body = html_file.read_text(encoding="utf-8", errors="replace") if html_file.is_file() else ""
-        headers = strip_secret_headers(meta.get("headers") or {})
-        url = str(meta["url"])
-        final_url = str(meta.get("final_url") or url)
-        title = meta.get("title") if meta.get("title") is not None else extract_title(body)
-        status = int(meta["status"]) if meta.get("status") is not None else None
-        interactive = meta.get("interactive_count")
-        access = classify_capture(status=status, headers=headers, title=title, body_text=body,
-                                  interactive_count=interactive, anchor=self.anchor, url=final_url,
+        if not isinstance(raw, dict):
+            raise ValueError(f"{meta_path}: meta must be a JSON object")  # noqa: TRY004  (the contract)
+        try:
+            return _Meta.model_validate(raw)
+        except ValidationError as exc:
+            raise _meta_error(meta_path, exc) from exc
+
+    def _load(self, meta_path: Path) -> Capture:
+        meta = self._read_meta(meta_path)
+        html_file, png_file = self._sibling(meta_path, ".html"), self._sibling(meta_path, ".png")
+        body = html_file.read_text(encoding="utf-8-sig", errors="replace") if html_file else ""
+        headers = strip_secret_headers(meta.headers)
+        final_url = meta.final_url or meta.url
+        title = meta.title if meta.title is not None else extract_title(body)
+        access = classify_capture(status=meta.status, headers=headers, title=title, body_text=body,
+                                  interactive_count=meta.interactive_count, anchor=self.anchor, url=final_url,
                                   rung="RECORDED")
-        captured_at = meta.get("captured_at") or datetime.fromtimestamp(
+        captured_at = meta.captured_at or datetime.fromtimestamp(
             meta_path.stat().st_mtime, UTC).isoformat(timespec="milliseconds")
         return make_capture(
-            target=self.target, url=url, final_url=final_url, status=status, headers=headers, title=title,
-            access=access, html_path=str(html_file) if html_file.is_file() else None,
-            screenshot_path=str(png_file) if png_file.is_file() else None, interactive_count=interactive,
-            source_kind="recorded", parent_id=meta.get("parent_id"), action=meta.get("action"),
-            captured_at=str(captured_at),
+            target=self.target, url=meta.url, final_url=final_url, status=meta.status, headers=headers,
+            title=title, access=access, html_path=html_file.name if html_file else None,
+            screenshot_path=png_file.name if png_file else None, interactive_count=meta.interactive_count,
+            source_kind="recorded", parent_id=meta.parent_id, action=meta.action, captured_at=captured_at,
         )

@@ -64,6 +64,20 @@ class LLMSchemaViolation(LLMError):
     code = FailureCode.LLM_SCHEMA_VIOLATION
 
 
+def make_client(*, max_retries: int = 3, timeout: float = 180.0) -> anthropic.Anthropic:
+    """The one place an Anthropic client is built (llm and doctor both use it).
+
+    Keys that are not scoped to a workspace must send the workspace id as a header; it comes from
+    ANTHROPIC_WORKSPACE_ID (a wrkspc_... id from the Console) and is never logged.
+    """
+    from .config import load_dotenv
+
+    load_dotenv()
+    workspace = os.environ.get("ANTHROPIC_WORKSPACE_ID", "").strip()
+    headers = {"anthropic-workspace-id": workspace} if workspace else None
+    return anthropic.Anthropic(max_retries=max_retries, timeout=timeout, default_headers=headers)
+
+
 def supports_effort(model: str) -> bool:
     return not model.startswith(_NO_EFFORT_PREFIXES)
 
@@ -91,10 +105,7 @@ class LLM:
     @property
     def client(self) -> Any:
         if self._client is None:
-            from .config import load_dotenv
-
-            load_dotenv()
-            self._client = anthropic.Anthropic(max_retries=3, timeout=180.0)
+            self._client = make_client()
         return self._client
 
     def model_for(self, tier: Tier) -> str:

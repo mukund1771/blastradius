@@ -1,0 +1,18 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "The Vercel checkpoint page delivered as HTTP 200 with the mitigation header stripped by a proxy: only the title betrays it, so it is a soft guard (SUSPECT), never a hard block (D13). x-vercel-id is presence and only labels the vendor.",
+  "method": "GET",
+  "url": "https://shop.example.com/",
+  "status": 200,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "server": "Vercel",
+    "x-vercel-id": "bom1::abcde-1791789239303-0123456789ab"
+  },
+  "body": "<!doctype html><html><head><title>Vercel Security Checkpoint</title></head><body><h1>We're verifying your browser</h1></body></html>\n",
+  "expected": {
+    "verdict": "SUSPECT",
+    "vendor": "vercel",
+    "signal": "title:vercel security checkpoint"
+  }
+}

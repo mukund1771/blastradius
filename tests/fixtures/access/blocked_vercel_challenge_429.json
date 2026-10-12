@@ -1,0 +1,20 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "Vercel Firewall challenge: HTTP 429 with x-vercel-mitigated: challenge and the 'Vercel Security Checkpoint' interstitial. Header name, values (challenge, deny) and title follow Vercel's documentation as recalled; not measured, no live Vercel challenge was provoked (D11, D33, case 70).",
+  "method": "GET",
+  "url": "https://shop.example.com/products",
+  "status": 429,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "server": "Vercel",
+    "x-vercel-id": "bom1::iad1::abcde-1791789239303-0123456789ab",
+    "x-vercel-mitigated": "challenge",
+    "cache-control": "no-store"
+  },
+  "body": "<!doctype html><html lang=\"en\"><head><title>Vercel Security Checkpoint</title><meta charset=\"utf-8\"><meta name=\"robots\" content=\"noindex\"></head><body><main><h1>We're verifying your browser</h1><p>Website owner? <a href=\"https://vercel.com/docs/security/vercel-firewall\">Click here to fix</a></p><div id=\"challenge-container\"></div></main></body></html>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "vercel",
+    "signal": "header:x-vercel-mitigated=challenge"
+  }
+}

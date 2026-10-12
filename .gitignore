@@ -10,3 +10,10 @@ data/runs/*
 .ruff_cache/
 .cursor/
 data/cache/
+
+# scratch artifacts the oracle/eval work may drop in the working directory
+/index-*.js
+/index-*.js.map
+/chunks/
+/vnode_*.json
+/*.map

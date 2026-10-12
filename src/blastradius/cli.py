@@ -144,7 +144,7 @@ def ingest(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool =
 
 @app.command()
 def index(target: str = TargetOpt, run: Optional[str] = RunOpt, ref: Optional[str] = typer.Option(None),
-          pr: Optional[int] = typer.Option(None, help="overlay this PR's head")) -> None:
+          pr: Optional[int] = typer.Option(None, help="record this PR number in the index stats; the head overlay itself is applied by `pr`")) -> None:
     """Index the target's frontend source into files, render/import edges, routes and i18n keys."""
     ctx, cfg = _ctx(target, run, create=True)
     fn = _resolve("blastradius.code.index:run_index")

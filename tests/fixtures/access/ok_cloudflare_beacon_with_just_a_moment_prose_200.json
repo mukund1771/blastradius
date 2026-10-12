@@ -1,0 +1,18 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "The wave-1 false positive: a Cloudflare-fronted app page that carries the ordinary JS-detections beacon AND ordinary prose containing 'Just a moment' (a loading hint, a noscript note). Beacon presence plus one prose phrase must never be a block (D13). The beacon path is measured (demo.usememos.com embeds it); the prose is written for the test.",
+  "method": "GET",
+  "url": "https://app.example.com/workspace",
+  "status": 200,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "server": "cloudflare",
+    "cf-ray": "a4944e88eff17eda-MAA",
+    "cf-cache-status": "DYNAMIC"
+  },
+  "body": "<!doctype html><html lang=\"en\"><head><title>Acme Dashboard</title><script defer src=\"/cdn-cgi/challenge-platform/scripts/jsd/main.js\"></script></head><body><div id=\"app\"><p>Just a moment, loading your workspace...</p><noscript>Just a moment... this app needs JavaScript.</noscript></div></body></html>\n",
+  "expected": {
+    "verdict": "OK",
+    "vendor": null
+  }
+}

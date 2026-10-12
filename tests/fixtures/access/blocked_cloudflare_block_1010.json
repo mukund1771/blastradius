@@ -1,0 +1,19 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "A Cloudflare Block page for error 1010 (browser signature banned): HTTP 403, no cf-mitigated header (case 68). Written from the documented page markers (title 'Access denied | host used Cloudflare to restrict access', 'Error code 1010'); the same rule covers 1006-1012, 1015, 1020.",
+  "method": "GET",
+  "url": "https://shop.example.com/account",
+  "status": 403,
+  "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "server": "cloudflare",
+    "cf-ray": "a4944e91cc33dd44-BOM",
+    "cache-control": "private, max-age=0, no-store"
+  },
+  "body": "<!DOCTYPE html>\n<html class=\"no-js\" lang=\"en-US\"><head><title>Access denied | shop.example.com used Cloudflare to restrict access</title>\n<meta charset=\"UTF-8\" /><meta name=\"robots\" content=\"noindex, nofollow\" /></head>\n<body><div id=\"cf-wrapper\"><div id=\"cf-error-details\"><header><h1><span class=\"cf-error-type\" data-translate=\"error\">Error</span> <span class=\"cf-error-code\">1010</span> <small class=\"heading-ray-id\">Ray ID: a4944e91cc33dd44 &bull; 2026-10-12 07:31:05 UTC</small></h1><h2 class=\"cf-subheadline\" data-translate=\"banned\">Access denied</h2></header><section><p>What happened?</p><p>The owner of this website (shop.example.com) has banned your access based on your browser's signature.</p></section></div></div></body></html>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "cloudflare",
+    "signal": "body:cloudflare-block-page"
+  }
+}

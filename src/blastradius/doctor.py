@@ -57,9 +57,9 @@ def _models() -> list[Check]:
         return [Check("models", "WARN", "skipped: no API key")]
     import anthropic
 
-    from .llm import TIER_PREFERENCE
+    from .llm import TIER_PREFERENCE, make_client
 
-    client = anthropic.Anthropic(max_retries=1, timeout=20.0)
+    client = make_client(max_retries=1, timeout=20.0)
     out = []
     for tier, prefs in TIER_PREFERENCE.items():
         found, tried = None, []
@@ -72,6 +72,12 @@ def _models() -> list[Check]:
                 tried.append(f"{cand}:404")
             except anthropic.AuthenticationError:
                 return [Check("models", "FAIL", "authentication failed", "Check ANTHROPIC_API_KEY")]
+            except anthropic.BadRequestError as exc:
+                if "workspace" in str(exc.message).lower():
+                    return [Check("workspace", "FAIL", "this API key is not scoped to a workspace",
+                                  "Set ANTHROPIC_WORKSPACE_ID=wrkspc_... in .env (Console > Settings > "
+                                  "Workspaces), or create a key inside a workspace")]
+                return [Check("models", "FAIL", f"HTTP 400: {str(exc.message)[:120]}", "Check the key and the models")]
             except anthropic.APIError as exc:
                 tried.append(f"{cand}:{type(exc).__name__}")
         if found:
@@ -102,8 +108,16 @@ def _neo4j(settings: Settings) -> Check:
 
         driver = GraphDatabase.driver(settings.neo4j_uri, auth=(settings.neo4j_user, settings.neo4j_password))
         driver.verify_connectivity()
+        with driver.session() as s:
+            row = s.run("CALL dbms.components() YIELD name, versions RETURN name, versions[0] AS v").single()
         driver.close()
-        return Check("neo4j", "PASS", settings.neo4j_uri)
+        version = row["v"] if row else "unknown"
+        major_minor = tuple(int(x) for x in str(version).split(".")[:2] if x.isdigit())
+        if major_minor and major_minor < (5, 23):
+            return Check("neo4j", "FAIL", f"{settings.neo4j_uri}, server {version}",
+                         "the impact/hub_degree templates need Neo4j >= 5.23 (CALL (vars) scope clause): "
+                         "pin neo4j:5.26-community in docker-compose.yml")
+        return Check("neo4j", "PASS", f"{settings.neo4j_uri}, server {version}")
     except Exception as exc:  # noqa: BLE001
         return Check("neo4j", "FAIL", f"{type(exc).__name__}: {redact_text(str(exc))[:120]}",
                      "docker compose up -d   (wait for the healthcheck), check NEO4J_PASSWORD in .env")

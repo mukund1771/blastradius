@@ -1,6 +1,6 @@
 {
   "provenance": "synthesized from documented markers",
-  "provenance_note": "A JS challenge delivered as HTTP 200 with no cf-mitigated header: only the body markers ('Just a moment...' and /cdn-cgi/challenge-platform/) identify it.",
+  "provenance_note": "A JS challenge delivered as HTTP 200 with no cf-mitigated header: only the title ('Just a moment...') together with the interstitial's own markers (_cf_chl_opt, __cf_chl_tk, the /h/g/orchestrate/ script) identify it. The JS-detections beacon alone is not one (D13). Written from documented markers, not measured.",
   "method": "GET",
   "url": "https://shop.example.com/products",
   "status": 200,
@@ -13,6 +13,6 @@
   "expected": {
     "verdict": "BLOCKED",
     "vendor": "cloudflare",
-    "signal": "body:just-a-moment+challenge-platform"
+    "signal": "title:just-a-moment+interstitial-marker"
   }
 }

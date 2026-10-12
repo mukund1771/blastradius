@@ -242,3 +242,14 @@ def test_llm_maps_sdk_side_validation_errors(tmp_path: Path):
         with pytest.raises(LLMSchemaViolation):
             llm.structured(purpose="t", tier="cheap", system="s", user="u", schema=Out)
         assert any(f["code"] == "LLM_SCHEMA_VIOLATION" for f in run.failures.items)
+
+
+def test_make_client_sends_workspace_header_only_when_configured(monkeypatch):
+    from blastradius.llm import make_client
+
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-real")
+    monkeypatch.delenv("ANTHROPIC_WORKSPACE_ID", raising=False)
+    assert "anthropic-workspace-id" not in {k.lower() for k in make_client().default_headers}
+    monkeypatch.setenv("ANTHROPIC_WORKSPACE_ID", "wrkspc_test123")
+    headers = {k.lower(): v for k, v in make_client().default_headers.items()}
+    assert headers["anthropic-workspace-id"] == "wrkspc_test123"
