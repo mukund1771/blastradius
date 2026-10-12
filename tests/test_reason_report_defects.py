@@ -72,3 +72,98 @@ def test_a_run_with_no_spec_cites_no_requirements(tmp_path: Path):
     (run.run_dir / "spec").mkdir()
     (run.run_dir / "spec" / "requirements.json").write_text("[]\n", encoding="utf-8")
     assert spec_requirement_ids(run) == set()
+
+
+class _Store:
+    def __init__(self, rows: list[dict], realizations: list[dict] | None = None):
+        self.rows = rows
+        self.realizations = realizations or []
+
+    def read(self, name: str, **kwargs):
+        ids = set(kwargs.get("requirement_ids") or [])
+        if name == "requirements_by_id":
+            return [r for r in self.rows if r["requirement_id"] in ids]
+        if name == "requirement_realizations":
+            return [r for r in self.realizations if r["requirement_id"] in ids]
+        if name == "absence_near":
+            return []
+        raise AssertionError(name)
+
+
+def _req_row(rid: str, text: str, section: str) -> dict:
+    return {"requirement_id": rid, "text": text, "quote": f"quote of {rid}", "section": section}
+
+
+def _assemble_reqs(tmp_path: Path, hits: list[Hit], rows: list[dict], *,
+                   realizations: list[dict] | None = None, seeds: dict | None = None,
+                   context: set[str] | None = None):
+    from blastradius.reason.assemble import build_requirements
+    from blastradius.reason.facts import Retrieval
+    from blastradius.reason.pr import PRData
+
+    run = new_run(tmp_path, "req-filter")
+    (run.run_dir / "spec").mkdir()
+    spec = [{"id": r["requirement_id"]} for r in rows]
+    (run.run_dir / "spec" / "requirements.json").write_text(
+        __import__("json").dumps(spec), encoding="utf-8")
+    for row in rows:
+        run.evidence.add("link.bm25_judge", row["requirement_id"], "test link")
+    pr = PRData(number=1, repo="hoppscotch/hoppscotch", title="edit", base_sha="a" * 40, head_sha="b" * 40)
+    ordered, _, _, held = build_requirements(
+        run, _Store(rows, realizations), pr, Retrieval(hits=hits), seeds or {}, None, [], [],
+        context if context is not None else {"environment"})
+    return {r.requirement_id: r for r in ordered}, held
+
+
+def test_a_weaker_hop_zero_route_still_lists_the_requirement(tmp_path: Path):
+    """A shared-code route at 0.60 must not hide a hop-0 route at 0.30 on the same control."""
+    hit = Hit(
+        screen_id="s", element_id="el_save", element_role="button", element_name="Save", impl_files=["Editor.vue"],
+        routes=[
+            Route(seed="Editor.vue", direction="self", hops=0, file="Editor.vue", confidence=0.30, admitted=True),
+            Route(seed="shared.ts", direction="reverse", hops=1, file="Editor.vue", confidence=0.60, admitted=True),
+        ],
+        requirements=[{"id": "req_hop0kept01", "confidence": 1.0, "via": "element", "evidence_id": "ev_x"}])
+    by, held = _assemble_reqs(
+        tmp_path, [hit],
+        [_req_row("req_hop0kept01", "User can generate client code snippets", "Code generation")])
+    assert "req_hop0kept01" in by and held == 0
+
+
+def test_a_flow_requirement_needs_a_word_in_common_even_on_a_hop_zero_step(tmp_path: Path):
+    hit = Hit(
+        screen_id="s", element_id="el_peek", element_role="button", element_name="Environment Quick Peek",
+        impl_files=["Peek.vue"],
+        routes=[Route(seed="Peek.vue", direction="self", hops=0, file="Peek.vue", confidence=0.9, admitted=True)],
+        requirements=[
+            {"id": "req_flowunrel1", "confidence": 0.8, "via": "flow", "evidence_id": "ev_x"},
+            {"id": "req_flowrelat1", "confidence": 0.8, "via": "flow", "evidence_id": "ev_x"},
+        ])
+    by, held = _assemble_reqs(tmp_path, [hit], [
+        _req_row("req_flowunrel1", "User can create a sub-collection by clicking Add new", "Collections"),
+        _req_row("req_flowrelat1", "User can rename an environment from the sidebar", "Environments"),
+    ])
+    assert "req_flowunrel1" not in by and held == 1
+    assert by["req_flowrelat1"].status == "at_risk"
+
+
+def test_a_removed_control_stays_listed_when_the_wording_does_not_overlap(tmp_path: Path):
+    from blastradius.models import FileClass
+    from blastradius.reason.change import ChangeKind
+    from blastradius.reason.facts import SeedInfo
+
+    path = "packages/app/Selector.vue"
+    hit = Hit(
+        screen_id="s", element_id="el_selector", element_role="button", element_name="Selector",
+        impl_files=[path],
+        routes=[Route(seed=path, direction="reverse", hops=1, file=path, confidence=0.6, admitted=True)],
+        requirements=[{"id": "req_removed001", "confidence": 0.8, "via": "element", "evidence_id": "ev_x"}])
+    seed = SeedInfo(path=path, display_path=path, file_class=FileClass.COMPONENT, status="removed",
+                    kind=ChangeKind.DELETE)
+    by, held = _assemble_reqs(
+        tmp_path, [hit],
+        [_req_row("req_removed001", "User can generate client code snippets", "Code generation")],
+        realizations=[{"requirement_id": "req_removed001", "target_kind": "UIElement", "target_id": "el_selector"}],
+        seeds={path: seed}, context=set())
+    assert held == 0
+    assert by["req_removed001"].status == "loses_only_realization"

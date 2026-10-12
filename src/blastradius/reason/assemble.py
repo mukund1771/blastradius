@@ -524,8 +524,11 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
         band = band_for(conf)
         if band is Band.UNKNOWN:
             continue
-        if not direct_entries and not _related_to_change(row["text"], row.get("section"), context):
-            weak_unrelated += 1           # near the change, but nothing says why this feature would be affected
+        related = _related_to_change(row["text"], row.get("section"), context)
+        # A removal stays even when the only route is shared code and the wording does not overlap: that is
+        # "the only control is gone", not "this requirement is unrelated".
+        if not direct_entries and rid not in lost and not related:
+            weak_unrelated += 1
             continue
         evidence = sorted({e for _, link_ev, route_ev in entries for e in [link_ev, *route_ev]
                            if e and run.evidence.exists(e)})[:4]
@@ -734,8 +737,8 @@ def not_checked_lines(pr: PRData, retr: Retrieval, run_codes: dict[str, int], ov
         out.append(f"{unrelated_absences} requirement(s) with no matching screen sit on pages this PR touches but "
                    "do not mention anything it changes; they are not listed.")
     if screen_level_requirements:
-        out.append(f"{screen_level_requirements} requirement(s) reach this PR only through a whole screen or through "
-                   "code it shares, and do not mention anything it changes; they are not listed.")
+        out.append(f"{screen_level_requirements} requirement(s) reach this PR only through a whole screen, a flow, "
+                   "or code it shares, and do not mention anything it changes; they are not listed.")
     if run_codes.get("BUDGET_EXHAUSTED"):
         out.append("The crawl stopped at its action budget, so some screens were not observed.")
     if run_codes.get("SPEC_STALE"):
