@@ -11,7 +11,7 @@ import subprocess
 import sys
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from importlib import metadata
 from pathlib import Path
 from typing import Any
@@ -47,7 +47,7 @@ class FailureLog:
 def _git_sha() -> str | None:
     try:
         out = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"], capture_output=True,
-                             text=True, timeout=5)
+                             text=True, timeout=5, check=False)
         return out.stdout.strip() or None
     except Exception:  # noqa: BLE001
         return None
@@ -77,11 +77,11 @@ class RunContext:
 
     @classmethod
     def create(cls, target: str, *, run_id: str | None = None, settings: Settings | None = None,
-               runs_dir: Path | None = None) -> "RunContext":
+               runs_dir: Path | None = None) -> RunContext:
         settings = settings or Settings.load()
         runs_dir = runs_dir or RUNS_DIR
         # second resolution alone would let two runs started together share a directory
-        run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"-{target}-{secrets.token_hex(2)}"
+        run_id = run_id or datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + f"-{target}-{secrets.token_hex(2)}"
         run_dir = runs_dir / run_id
         run_dir.mkdir(parents=True, exist_ok=True)
         ctx = cls._build(run_id, run_dir, target, settings)
@@ -101,7 +101,7 @@ class RunContext:
 
     @classmethod
     def attach(cls, run_id: str = "latest", *, settings: Settings | None = None,
-               runs_dir: Path | None = None) -> "RunContext":
+               runs_dir: Path | None = None) -> RunContext:
         settings = settings or Settings.load()
         runs_dir = runs_dir or RUNS_DIR
         run_dir = (runs_dir / run_id).resolve()
@@ -114,7 +114,7 @@ class RunContext:
         return ctx
 
     @classmethod
-    def ephemeral(cls, target: str = "test", *, settings: Settings | None = None) -> "RunContext":
+    def ephemeral(cls, target: str = "test", *, settings: Settings | None = None) -> RunContext:
         """No files; for unit tests."""
         settings = settings or Settings()
         tracer = Tracer.null()
@@ -122,7 +122,7 @@ class RunContext:
                    EvidenceLedger(None, "ephemeral"), FailureLog(None, "ephemeral", tracer))
 
     @classmethod
-    def _build(cls, run_id: str, run_dir: Path, target: str, settings: Settings) -> "RunContext":
+    def _build(cls, run_id: str, run_dir: Path, target: str, settings: Settings) -> RunContext:
         tracer = Tracer(run_dir, run_id)
         return cls(run_id, run_dir, target, settings, tracer, Ledger(run_dir, run_id),
                    EvidenceLedger(run_dir, run_id), FailureLog(run_dir, run_id, tracer))

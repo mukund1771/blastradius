@@ -349,3 +349,139 @@ def test_a_file_that_cannot_be_read_after_listing_is_flagged_not_fatal(tmp_path:
     assert idx.stats["parse_error_sample"] == [{"file": "src/c.vue", "kind": "unreadable_file"}]
     assert {f.path for f in idx.files} == {"src/a.ts", "src/b.ts"}
     assert idx.stats["app_source_files"] == 2
+
+
+# ------------------------------------------------------------------- close-out: the parse-partial marker
+def _valid_files(n: int) -> dict[str, str]:
+    return {f"src/m{i:03d}.ts": f"export const v{i} = {i}\n" for i in range(n)}
+
+
+BROKEN_TS = "export const = = = {{{{\nimport { y } from './never'\n"
+
+
+def test_two_files_tree_sitter_cannot_fully_parse_do_not_make_the_index_partial(tmp_path: Path):
+    repo = write(tmp_path / "r", {**_valid_files(120), "src/bad1.ts": BROKEN_TS, "src/bad2.ts": BROKEN_TS})
+    s = VueAdapter().index(repo, code_cfg(locale_files=[], auto_import_dts=None), SHA).stats
+    assert s["parse_errors"] == 2 and s["parse_error_kinds"] == {"script_parse_error": 2}   # still counted
+    assert s["parse_partial"] is False and s["parse_partial_reasons"] == []
+
+
+def test_parse_errors_above_two_percent_of_the_files_read_make_it_partial(tmp_path: Path):
+    repo = write(tmp_path / "r", {**_valid_files(48), "src/bad1.ts": BROKEN_TS, "src/bad2.ts": BROKEN_TS})
+    s = VueAdapter().index(repo, code_cfg(locale_files=[], auto_import_dts=None), SHA).stats
+    assert s["parse_errors"] == 2 and s["parse_partial"] is True
+    assert s["parse_partial_reasons"] == ["parse_errors=2/50"]
+
+
+def test_the_ratio_is_two_percent_exclusive(tmp_path: Path):
+    repo = write(tmp_path / "r", {**_valid_files(98), "src/bad1.ts": BROKEN_TS, "src/bad2.ts": BROKEN_TS})
+    s = VueAdapter().index(repo, code_cfg(locale_files=[], auto_import_dts=None), SHA).stats
+    assert s["parse_errors"] == 2 and s["parse_partial"] is False                    # 2 / 100 is not above 2%
+
+
+def test_an_undecodable_file_makes_the_index_partial_whatever_the_ratio(tmp_path: Path):
+    repo = write(tmp_path / "r", {**_valid_files(300), "src/enc.ts": b"export const x = 1 // \xff\xfe\n"})
+    s = VueAdapter().index(repo, code_cfg(locale_files=[], auto_import_dts=None), SHA).stats
+    assert s["parse_errors"] == 1 and s["parse_partial"] is True
+    assert s["parse_partial_reasons"] == ["undecodable_bytes=1"]
+
+
+def test_an_unreadable_file_makes_the_index_partial(tmp_path: Path, monkeypatch):
+    from blastradius.code import adapter as adapter_mod
+
+    repo = write(tmp_path / "r", _valid_files(200))
+    real = adapter_mod.SourceTree.read_bytes
+
+    def flaky(self, path):
+        if path == "src/m007.ts":
+            raise PermissionError("swapped for a link")
+        return real(self, path)
+
+    monkeypatch.setattr(adapter_mod.SourceTree, "read_bytes", flaky)
+    s = VueAdapter().index(repo, code_cfg(locale_files=[], auto_import_dts=None), SHA).stats
+    assert s["parse_partial"] is True and s["parse_partial_reasons"] == ["unreadable_file=1"]
+
+
+def test_an_oversize_file_makes_the_index_partial(tmp_path: Path, monkeypatch):
+    from blastradius.code import adapter as adapter_mod
+
+    repo = write(tmp_path / "r", {**_valid_files(200), "src/big.ts": "export const big = '" + "x" * 5000 + "'\n"})
+    monkeypatch.setattr(adapter_mod, "MAX_FILE_BYTES", 1000)
+    s = VueAdapter().index(repo, code_cfg(locale_files=[], auto_import_dts=None), SHA).stats
+    assert s["parse_partial"] is True and s["parse_partial_reasons"] == ["oversize_file=1"]
+
+
+def test_a_locale_that_does_not_parse_is_the_graphs_i18n_marker_not_parse_partial(tmp_path: Path):
+    repo = write(tmp_path / "r", {**_valid_files(200), "locales/en.json": "{ not json"})
+    s = VueAdapter().index(repo, code_cfg(auto_import_dts=None), SHA).stats
+    assert s["i18n_parse_error"] is True and s["parse_errors"] == 1 and s["parse_partial"] is False
+
+
+def test_a_clean_tree_is_not_partial(tmp_path: Path):
+    repo = write(tmp_path / "r", _valid_files(5))
+    s = VueAdapter().index(repo, code_cfg(locale_files=[], auto_import_dts=None), SHA).stats
+    assert s["parse_partial"] is False and s["parse_partial_reasons"] == []
+
+
+def test_the_graph_guard_prunes_after_two_stray_parse_errors_and_not_after_a_hard_failure(tmp_path: Path):
+    from blastradius.graph.load import _parse_partial
+
+    soft = VueAdapter().index(write(tmp_path / "a", {**_valid_files(120), "src/b1.ts": BROKEN_TS,
+                                                      "src/b2.ts": BROKEN_TS}),
+                              code_cfg(locale_files=[], auto_import_dts=None), SHA)
+    hard = VueAdapter().index(write(tmp_path / "b", {**_valid_files(120), "src/e.ts": b"// \xff\n"}),
+                              code_cfg(locale_files=[], auto_import_dts=None), SHA)
+    assert _parse_partial(soft.stats, len(soft.files)) == []
+    assert _parse_partial(hard.stats, len(hard.files)) == ["parse_partial:parse_partial=True"]
+
+
+class _Entry:
+    """A directory entry whose name is not UTF-8 (Linux allows it; this file system does not)."""
+
+    def __init__(self, directory: str, name: str):
+        self.name, self.path = name, os.path.join(directory, name)
+
+    def is_symlink(self) -> bool:
+        return False
+
+    def is_dir(self, follow_symlinks: bool = True) -> bool:
+        return False
+
+    def is_file(self, follow_symlinks: bool = True) -> bool:
+        return True
+
+    def stat(self, follow_symlinks: bool = True):
+        return os.stat_result((0o100644, 0, 0, 1, 0, 0, 10, 0, 0, 0))
+
+
+def test_a_file_name_that_is_not_utf8_is_skipped_and_flagged_not_fatal(tmp_path: Path, monkeypatch):
+    from blastradius.code import adapter as adapter_mod
+
+    repo = write(tmp_path / "r", _valid_files(120))
+    real = os.scandir
+
+    def scandir(path):
+        entries = list(real(path))
+        if str(path).endswith("/src"):
+            entries.append(_Entry(str(path), "caf\udce9.ts"))       # what scandir returns for b"caf\xe9.ts"
+        return entries
+
+    monkeypatch.setattr(adapter_mod.os, "scandir", scandir)
+    idx = VueAdapter().index(repo, code_cfg(locale_files=[], auto_import_dts=None), SHA)
+    assert {f.path for f in idx.files} == {f"src/m{i:03d}.ts" for i in range(120)}
+    s = idx.stats
+    assert s["parse_error_sample"] == [{"file": "src/caf\\udce9.ts", "kind": "undecodable_filename"}]
+    assert s["parse_partial"] is True and s["parse_partial_reasons"] == ["undecodable_filename=1"]
+    assert CodeIndex.model_validate_json(idx.model_dump_json()) == idx            # still serialisable
+
+
+def test_run_index_survives_a_lone_surrogate_in_the_locale(tmp_path: Path, monkeypatch):
+    repo = write(tmp_path / "r", {"src/a.vue": "<template><p>{{ t('a.b') }}</p></template>\n",
+                                  "locales/en.json": '{"a": {"b": "x \\ud800 y"}}'})
+    stub_checkout(monkeypatch, repo)
+    run = new_run(tmp_path)
+    idx = run_index(run, target_for(code_cfg(auto_import_dts=None)))
+    assert idx.i18n == {"a.b": "x � y"} and idx.stats["i18n_surrogates_replaced"] == 1
+    assert CodeIndex.model_validate_json((run.run_dir / "code" / "index.json").read_text()) == idx
+    rows = failures_of(run, FailureCode.CODE_PARSE_PARTIAL)
+    assert len(rows) == 1 and rows[0]["context"]["kinds"] == {"locale_lone_surrogate": 1}

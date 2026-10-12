@@ -16,7 +16,7 @@ import secrets
 import threading
 import time
 from collections.abc import Iterator
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +26,7 @@ _current_span: contextvars.ContextVar[str | None] = contextvars.ContextVar("blas
 
 
 def now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+    return datetime.now(UTC).isoformat(timespec="milliseconds")
 
 
 class Span:
@@ -63,7 +63,7 @@ class Tracer:
         self.records: list[dict[str, Any]] = []  # in-memory mirror, handy for tests
 
     @classmethod
-    def null(cls) -> "Tracer":
+    def null(cls) -> Tracer:
         return cls(None, "null")
 
     @property
@@ -91,7 +91,7 @@ class Tracer:
         t0 = time.monotonic()
         try:
             yield sp
-        except BaseException as exc:  # noqa: BLE001 - re-raised after recording
+        except BaseException as exc:  # re-raised after recording
             sp.status = "error"
             sp.failure_code = sp.failure_code or type(exc).__name__
             sp.message = sp.message or str(exc)[:300]

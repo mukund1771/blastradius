@@ -311,7 +311,7 @@ class _Builder:
             self._register(key, lambda n, c=claim: Unit(
                 number=n, section="claim", title="Claim", text=clean(c.text), band=c.band, confidence=None,
                 claim_id=c.id, claim_text=None, evidence=self._evidence_for(list(c.evidence_ids), [])),
-                True, force=True)
+                True)                    # an unmatched claim is listed even when it cites nothing
 
 
 def _item_title(item: ReportItem) -> str:
@@ -360,7 +360,9 @@ def build_view(report: Report, evidence: Mapping[str, Mapping[str, Any]] | None 
     # footnotes are numbered in section order (3 to 8), so each table reads 1, 2, 3 and the appendix follows the
     # report; the checklist then points at the numbers of the items it names
     direct_rows = tuple(b.finding_row(i, "direct") for i in sorted(report.direct, key=_item_key))
-    groups = _group([(i, b.finding_row(i, "indirect")) for i in shown])
+    groups = tuple(Group(title=title, via=_via(members),
+                         rows=tuple(b.finding_row(i, "indirect") for i in members))
+                   for title, members in _group(shown))             # rows built group by group: reading order
     global_rows = tuple(b.finding_row(i, "global") for i in sorted(report.global_changes, key=_item_key))
     stored_rows = tuple(b.finding_row(i, "stored_data") for i in sorted(report.stored_data, key=_item_key))
     requirement_rows = tuple(b.requirement_row(r) for r in requirements)
@@ -380,7 +382,7 @@ def build_view(report: Report, evidence: Mapping[str, Mapping[str, Any]] | None 
         requirements=requirement_rows, undetermined=und_rows, undetermined_total=len(undetermined),
         not_checked=tuple(t for t in (clean(x) for x in report.not_checked) if t),
         migration_steps=_migration_steps(report), snapshot=_snapshot_fields(report),
-        units=tuple(sorted(b.units.values(), key=lambda u: u.number)))
+        units=tuple(b.units.values()))                     # numbered, so already in order
 
 
 def _migration_steps(report: Report) -> tuple[str, ...]:
@@ -392,13 +394,18 @@ def _migration_steps(report: Report) -> tuple[str, ...]:
     return tuple(steps[:5]) if steps else MIGRATION_STEPS
 
 
-def _group(rows: list[tuple[ReportItem, FindingRow]]) -> tuple[Group, ...]:
-    buckets: dict[str, list[tuple[ReportItem, FindingRow]]] = {}
-    for item, row in rows:
-        buckets.setdefault(clean(item.section) or _OTHER_SCREENS, []).append((item, row))
-    ordered = sorted(buckets.items(), key=lambda kv: (-max(i.confidence for i, _ in kv[1]), kv[0].casefold()))
-    return tuple(
-        Group(title=title, via=tuple(sorted({clean(i.via) for i, _ in members if clean(i.via)}, key=str.casefold)),
-              rows=tuple(r for _, r in members))
-        for title, members in ordered)
+def _group(items: list[ReportItem]) -> list[tuple[str, list[ReportItem]]]:
+    """The Tier 2 groups in reading order: the group with the strongest item first, the title breaking ties.
 
+    `items` arrive strongest first and keep that order inside a group. Footnote numbers are assigned while the
+    rows are built, so building them group by group makes the numbers read 1, 2, 3 down the page (a flat
+    ranking would number a weak item of the first group after the strong item of the second).
+    """
+    buckets: dict[str, list[ReportItem]] = {}
+    for item in items:
+        buckets.setdefault(clean(item.section) or _OTHER_SCREENS, []).append(item)
+    return sorted(buckets.items(), key=lambda kv: (-max(i.confidence for i in kv[1]), kv[0].casefold(), kv[0]))
+
+
+def _via(members: list[ReportItem]) -> tuple[str, ...]:
+    return tuple(sorted({clean(i.via) for i in members if clean(i.via)}, key=lambda v: (v.casefold(), v)))

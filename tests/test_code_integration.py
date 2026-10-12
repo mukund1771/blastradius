@@ -169,3 +169,30 @@ def test_component_table_fallback_reproduces_the_committed_dts(real):
 def test_indexing_is_fast_enough_to_run_on_every_pr(real):
     _, _, seconds = real
     assert seconds < 30                                         # measured 1.7 s on a warm cache
+
+
+# ------------------------------------------------------------------------------- close-out additions
+def test_real_script_literals_that_name_keys_are_static_uses(real):
+    """The two components the link engineer named: keys live in the script, a template renders `t(<variable>)`."""
+    idx, _, _ = real
+    uses = {(u.file, u.key, u.dynamic) for u in idx.key_uses}
+    assert (f"{COMMON}/components/app/Sidenav.vue", "navigation.rest", False) in uses
+    assert (f"{COMMON}/components/app/Sidenav.vue", "navigation.realtime", False) in uses
+    assert (f"{COMMON}/components/smart/EncodingPicker.vue", "action.enable", False) in uses
+    s = idx.stats
+    assert 120 <= s["script_literal_key_uses"] <= 155           # measured 137 on 2026-10-12
+    assert s["key_uses"] == len(idx.key_uses)
+    assert 1330 <= s["keys_used_in_locale"] <= 1470             # unchanged: still what t() calls name
+
+
+def test_real_registered_components_and_the_partial_marker(real):
+    idx, _, _ = real
+    registered = {(e.src, e.dst) for e in idx.edges if e.via == "registered"}
+    assert (f"{COMMON}/components/importExport/Base.vue",
+            f"{COMMON}/components/importExport/ImportExportSteps/ImportSummary.vue") in registered
+    assert (f"{COMMON}/components/history/Personal.vue", f"{COMMON}/components/history/rest/Card.vue") in registered
+    assert idx.stats["registered_renders"] == len(registered) and 4 <= len(registered) <= 9    # measured 6
+    # a package object (`platform.ui.extra`) or a function (`pick(x)`) named in an :is hole is never a component
+    assert not any(dst.endswith("platform/index.ts") for _, dst in registered)
+    # two files tree-sitter cannot fully parse among 1,273 are counted, and the index is still complete
+    assert idx.stats["parse_errors"] == 2 and idx.stats["parse_partial"] is False

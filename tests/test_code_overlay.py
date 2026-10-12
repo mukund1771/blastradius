@@ -431,3 +431,59 @@ def test_overlay_of_the_real_pr_6645_fork_head(tmp_path: Path):
                           check=False).stdout.strip() == RECON_SHA
     assert subprocess.run(["git", "-C", str(REAL_CLONE), "status", "--porcelain"], capture_output=True, text=True,
                           check=False).stdout == before
+
+
+# ================================================================================= close-out additions
+def _inject_issue(monkeypatch: pytest.MonkeyPatch, path: str, kind: str) -> None:
+    real = VueAdapter.index_part
+
+    def spy(self, *args, **kw):
+        part = real(self, *args, **kw)
+        part.issues[path] = sorted({*part.issues.get(path, []), kind})
+        return part
+
+    monkeypatch.setattr(VueAdapter, "index_part", spy)
+
+
+def test_a_head_file_that_could_not_be_decoded_makes_the_overlay_partial(world: World, monkeypatch):
+    _inject_issue(monkeypatch, f"{APP}/pages/index.vue", "undecodable_bytes")
+    s = world.overlay().stats
+    assert s["parse_partial"] is True and s["overlay_parse_partial"] is True
+    assert s["overlay_parse_partial_kinds"] == ["undecodable_bytes"]
+    assert s["overlay_parse_errors"] == 1                       # the plain count is kept alongside
+
+
+def test_a_head_file_with_a_syntax_error_is_counted_but_not_partial(world: World, monkeypatch):
+    _inject_issue(monkeypatch, f"{APP}/pages/index.vue", "script_parse_error")
+    s = world.overlay().stats
+    assert s["parse_partial"] is False and s["overlay_parse_partial"] is False
+    assert s["overlay_parse_errors"] == 1 and s["overlay_parse_partial_kinds"] == []
+
+
+def test_an_overlay_never_makes_an_incomplete_base_complete(world: World):
+    world.base_index.stats["parse_partial"] = True
+    s = world.overlay().stats
+    assert s["parse_partial"] is True and s["overlay_parse_partial"] is False
+
+
+def test_overlay_keeps_literal_key_uses_of_a_changed_component_when_the_locale_is_unchanged(
+        tmp_path: Path, monkeypatch):
+    """The locale file is not among the changed files, so the head's table is not read: the base keys decide."""
+    nav = f"{APP}/components/Nav.vue"
+    template = "<template><a v-for=\"i in items\">{{ t(i.title) }}</a></template>\n"
+    base = {
+        nav: template + "<script setup lang=\"ts\">\nconst items = [{ title: 'nav.old' }]\n</script>\n",
+        LOCALE: json.dumps({"nav": {"home": "Home", "old": "Old", "extra": "Extra"}}),
+        f"{APP}/components.d.ts": "declare module 'vue' {\n  export interface GlobalComponents {\n  }\n}\n",
+    }
+    head = {nav: template + "<script setup lang=\"ts\">\nconst items = [{ title: 'nav.home' }, "
+                            "{ title: \"nav.extra\" }, { title: 'nav.missing' }]\n</script>\n"}
+    monkeypatch.setitem(globals(), "BASE_FILES", base)
+    monkeypatch.setitem(globals(), "HEAD_FILES", head)
+    monkeypatch.setitem(globals(), "HEAD_DELETED", [])
+    w = World(tmp_path)
+    assert [(u.key, u.dynamic) for u in w.base_index.key_uses] == [("nav.old", False)]
+    out = w.overlay(changed_paths=[nav])
+    assert [(u.file, u.key, u.dynamic) for u in out.key_uses] == [
+        (nav, "nav.extra", False), (nav, "nav.home", False)]       # nav.missing is not a key of the base locale
+    assert out.key_uses == w.full_index_at_head().key_uses         # what a fresh index of the head gives

@@ -46,6 +46,10 @@ _CI_NAMES = frozenset({".gitlab-ci.yml", "Jenkinsfile", "azure-pipelines.yml", "
 
 _DOC_EXTS = frozenset({".md", ".mdx", ".rst", ".adoc"})
 _DOC_NAMES = frozenset({"LICENSE", "LICENCE", "CODEOWNERS", "NOTICE", "AUTHORS", "CODE_OF_CONDUCT", "SECURITY"})
+# `license`, `Notice.txt` and `security.text` are prose whatever their case; with any other extension a doc name
+# is only the literal upper-case convention (`LICENSE.dependencies`), never `Notice.vue` or `security.ts`.
+_PROSE_EXTS = frozenset({"", ".txt", ".text", ".md"})
+_TEMPLATE_EXTS = frozenset({".twig", ".html", ".htm", ".phtml", ".njk", ".hbs", ".ejs", ".erb", ".jinja", ".j2"})
 _DOC_DIRS = frozenset({"docs", "doc"})
 
 _LOCALE_DIRS = frozenset({"locales", "locale", "i18n", "translations", "lang"})
@@ -98,6 +102,21 @@ def _under(path: str, root: str) -> bool:
     return path == root or path.startswith(root + "/")
 
 
+def _is_doc_name(name: str, ext: str, *, in_root: bool) -> bool:
+    """Whether a file name is one of the conventional prose files (`LICENSE`, `NOTICE.txt`, `SECURITY`).
+
+    Case is ignored only for extensionless and plain-text names. A source or template file keeps its role even
+    when its stem spells a doc name (`Notice.vue`, `security.ts`, `security.html.twig`), and so does anything
+    below a source root, whose extension is not a prose one.
+    """
+    if name in _DOC_NAMES:
+        return True
+    stem = name.split(".")[0]
+    if ext in _PROSE_EXTS:
+        return stem.upper() in _DOC_NAMES
+    return (not in_root and ext not in _CODE_EXTS and ext not in _TEMPLATE_EXTS) and stem in _DOC_NAMES
+
+
 def _is_codegen_output(norm: str, cfg: CodeConfig) -> bool:
     outputs = tuple(cfg.generated_files) or CODEGEN_OUTPUTS
     return any(norm == o or norm.endswith("/" + o) for o in outputs)
@@ -128,7 +147,7 @@ def classify_file(path: str, cfg: CodeConfig) -> FileClass:
         return FileClass.GENERATED
     if dirs & _CI_DIRS or name in _CI_NAMES:
         return FileClass.CI
-    doc_name = name in _DOC_NAMES or name.split(".")[0].upper() in _DOC_NAMES
+    doc_name = _is_doc_name(name, ext, in_root=root is not None)
     if ext in _DOC_EXTS or doc_name or (dirs & _DOC_DIRS and not code):
         return FileClass.DOCS
     if norm in cfg.locale_files or name in _LOCALE_NAMES or (dirs & _LOCALE_DIRS and ext in _LOCALE_EXTS):

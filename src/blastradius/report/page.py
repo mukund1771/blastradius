@@ -15,7 +15,7 @@ from typing import Any
 from ..config import PACKAGE_VERSION
 from ..models import Band
 from .escape import html_attr, html_text, sentence
-from .md import band_label
+from .md import band_label, legend
 from .model import Report
 from .view import (
     CheckRow,
@@ -30,7 +30,6 @@ from .view import (
 )
 from .vocab import (
     BAND_GLYPH,
-    BAND_MEANING,
     BAND_RANGE,
     BAND_WORD,
     GLOBAL_SENTENCE,
@@ -75,6 +74,9 @@ def _tokens(palette: Mapping[str, str]) -> str:
     return "".join(f"--{k}:{v};" for k, v in palette.items())
 
 
+# A flex item and a table cell keep the width of their longest word (`min-width:auto`), and `overflow-wrap:break-word`
+# does not lower that minimum: an unbroken URL or identifier then pushes the page wider than a phone. `anywhere`
+# does lower it, so every box that holds a person's own words (headline, checklist, table cells) says so.
 _CSS = """
 :root{color-scheme:light dark;@@LIGHT@@}
 @media (prefers-color-scheme:dark){:root{@@DARK@@}}
@@ -96,6 +98,7 @@ h3{font-size:1.02rem;margin:1.25rem 0 .4rem}
 p{margin:.5rem 0}
 .head .risk{display:flex;flex-wrap:wrap;gap:.5rem .9rem;align-items:center;margin:.25rem 0 .75rem}
 .head .summary{margin:0;flex:1 1 18rem}
+.head .summary,ul.checks li,ul.checks label>span,th,td{min-width:0;overflow-wrap:anywhere}
 .pill{display:inline-flex;align-items:center;gap:.45rem;padding:.25rem .75rem;border-radius:6px;
  border:2px solid;font-weight:700;white-space:nowrap}
 .risk-low .pill{background:var(--low-bg);color:var(--low-fg);border-color:var(--low-bd)}
@@ -260,9 +263,7 @@ def _checklist(v: View) -> str:
 
 
 def _legend() -> str:
-    parts = [f"{band_label(b)} ({BAND_MEANING[b]})" for b in (Band.CONFIRMED, Band.LIKELY, Band.POSSIBLE,
-                                                               Band.UNKNOWN)]
-    return f'<p class="legend">How sure: {html_text(", ".join(parts))}.</p>'
+    return f'<p class="legend">{html_text(legend())}</p>'
 
 
 def _direct(v: View) -> str:
@@ -338,7 +339,8 @@ def _undetermined(v: View) -> str:
 def _evidence_item(e: EvidenceView) -> str:
     if not e.found:
         return f"<li>Evidence <code>{html_text(e.id)}</code>: not found in this run's evidence ledger.</li>"
-    bits = [f"Evidence <code>{html_text(e.id)}</code> ({html_text(e.kind)}): {html_text(sentence(e.summary))}"]
+    head = f"Evidence <code>{html_text(e.id)}</code> ({html_text(e.kind)})"
+    bits = [f"{head}: {html_text(sentence(e.summary))}" if e.summary else f"{head}."]
     if e.ref:
         bits.append(f"Reference <code>{html_text(e.ref)}</code>.")
     bits.extend(f"{html_text(k)} <code>{html_text(val)}</code>." for k, val in e.extras)

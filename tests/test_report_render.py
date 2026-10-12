@@ -10,14 +10,18 @@ import os
 import re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 import pytest
 from report_helpers import (
     FIXTURES,
     appendix_of,
+    assert_golden,
     body_of,
     claim,
+    edge_evidence,
+    edge_report,
     item,
     load_evidence,
     load_sample,
@@ -25,11 +29,12 @@ from report_helpers import (
     requirement,
     sample_run,
     undetermined,
+    without_css,
 )
 
 from blastradius.models import Band
 from blastradius.report import page
-from blastradius.report.escape import defang_urls, md_code, md_text
+from blastradius.report.escape import clean, defang_urls, md_code, md_text
 from blastradius.report.md import render_markdown
 from blastradius.report.model import ChecklistItem, Report
 from blastradius.report.page import render_html
@@ -84,6 +89,28 @@ def parsed(page_html: str) -> _Tags:
     p = _Tags()
     p.feed(page_html)
     return p
+
+
+# ---------------------------------------------------------------------------------------- golden files
+# The exact text of both writers for three reports: the PR #6645 fixture, a report that walks every optional
+# path (all tiers, caps, statuses, unsourced and cut rows, claims, a full snapshot), and an empty one.
+GOLDEN_CASES = {
+    "6645": (load_sample, load_evidence),
+    "edge": (edge_report, edge_evidence),
+    "empty": (lambda: minimal(direct=[], checklist=[], not_checked=[], claims=[]), dict),
+}
+
+
+@pytest.mark.parametrize("case", sorted(GOLDEN_CASES))
+def test_markdown_matches_its_golden_file(case):
+    build, evidence = GOLDEN_CASES[case]
+    assert_golden(f"golden_{case}.md", render_markdown(build(), evidence()))
+
+
+@pytest.mark.parametrize("case", sorted(GOLDEN_CASES))
+def test_html_matches_its_golden_file(case):
+    build, evidence = GOLDEN_CASES[case]
+    assert_golden(f"golden_{case}.html", without_css(render_html(build(), evidence())))
 
 
 # ------------------------------------------------------------------------------------- structure
@@ -243,6 +270,40 @@ def test_footnotes_are_numbered_in_report_order():
     assert numbers == sorted(numbers) == list(range(1, len(numbers) + 1))
 
 
+def _indirect_item(n: int, section: str, confidence: float):
+    return item(f"i{n}", tier="indirect", label=f"Screen {n}", screen=f"Page {n}",
+                what=f"Screen {n} is probably affected.", band=Band.LIKELY, confidence=confidence, section=section)
+
+
+def _reading_order_report() -> Report:
+    # ranked by strength: a (Zeta .74), b (Alpha .70), c (Zeta .66); shown grouped: Zeta (a, c) then Alpha (b)
+    return minimal(direct=[], indirect=[_indirect_item(1, "Zeta", 0.74), _indirect_item(2, "Alpha", 0.70),
+                                        _indirect_item(3, "Zeta", 0.66)])
+
+
+def test_footnotes_inside_the_indirect_groups_are_numbered_in_reading_order():
+    # regression: numbers followed the flat strength ranking, so a group that holds a weak item read 1, 3, 2
+    md = render_markdown(_reading_order_report())
+    indirect = md.split("## Indirect, through shared code", 1)[1].split("\n## ", 1)[0]
+    assert [int(n) for n in re.findall(r"\[\^(\d+)\]", indirect)] == [1, 2, 3]
+    assert re.findall(r"\*\*(Screen \d)\*\*", indirect) == ["Screen 1", "Screen 3", "Screen 2"]
+    assert indirect.index("### Zeta") < indirect.index("### Alpha")
+    doc = render_html(_reading_order_report())
+    section = doc.split('id="s-indirect"', 1)[1].split('id="s-requirements"', 1)[0]
+    assert [int(n) for n in re.findall(r'href="#ev-(\d+)"', section)] == [1, 2, 3]
+    assert re.findall(r"<th[^>]*>(Screen \d)", section) == ["Screen 1", "Screen 3", "Screen 2"]
+
+
+def test_every_findings_table_reads_1_2_3_in_document_order():
+    md = render_markdown(load_sample(), load_evidence())
+    body = body_of(md).split("## What to re-test first", 1)[1].split("## Directly changed", 1)[1]
+    numbers = [int(n) for n in re.findall(r"\[\^(\d+)\]", body)]
+    assert numbers == sorted(set(numbers)) == list(range(1, len(numbers) + 1)), numbers
+    doc = render_html(load_sample(), load_evidence())
+    rest = doc.split('id="s-direct"', 1)[1].split("<details", 1)[0]
+    assert [int(n) for n in re.findall(r'href="#ev-(\d+)"', rest)] == numbers
+
+
 def test_appendix_entries_carry_evidence_details_from_the_ledger():
     md = render_markdown(load_sample(), load_evidence())
     appendix = appendix_of(md)
@@ -380,6 +441,82 @@ def test_defanged_urls_keep_their_colon_and_cleaning_twice_changes_nothing():
     assert defang_urls("ssh://host") == "ssh[:]//host" and defang_urls("www.example.com") == "www[.]example.com"
 
 
+def _format_characters() -> list[str]:
+    """Every code point the reader cannot see or that reorders text: format (Cf) and control (Cc) characters."""
+    chars = (chr(n) for n in range(sys.maxunicode + 1))
+    return [c for c in chars if unicodedata.category(c) in ("Cf", "Cc") and not c.isspace()]
+
+
+def test_every_invisible_format_and_control_character_is_removed():
+    # regression: the control class of `safety` stopped at U+202E and U+2060-2064, so the isolates U+2066-2069
+    # (which reorder a line exactly like the embeddings do), U+061C, U+180E, the soft hyphen, the C1 controls
+    # (U+009B is a terminal "CSI") and the tag characters (U+E0020-E007F) all reached the page
+    for ch in "\u061c\u2066\u2067\u2068\u2069\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2060\ufeff\u180e":
+        assert clean(f"a{ch}b") == "ab", hex(ord(ch))
+    assert clean("a\u009bb\u007fc\u00add\U000e0041e") == "abcde"
+    chars = _format_characters()
+    assert len(chars) > 150                              # the whole class, not a hand-picked sample
+    assert clean("".join(chars)) == ""
+    assert clean("tab\there\u2028and\u0085more") == "tab here and more"      # whitespace stays a space
+
+
+def test_bidi_isolates_never_reach_either_output():
+    text = "Sidebar \u2066\u2067evil\u2069 \u061c\u2068name\u2069"
+    bad = item("b", label=text, screen=text, what=f"The sidebar is changed by this PR. {text}", flows=[text])
+    r = minimal(pr_title=text, direct=[bad], confidence_line=text, not_checked=[text],
+                headline=f'Blast radius: PR #7 "{text}"\nRisk: LOW. {text}',
+                requirements=[requirement(statement=text, quote=text, section=text)],
+                undetermined=[undetermined(subject=text, why=text, what_to_check=text)])
+    assert clean(text) == "Sidebar evil name"
+    for out in (render_markdown(r, load_evidence()), render_html(r, load_evidence())):
+        assert not [c for c in out if unicodedata.category(c) == "Cf"]
+        assert "Sidebar evil name" in out
+
+
+# What a Markdown renderer with GFM's "autolink literal" extension turns into a link without any markup
+# (https://github.github.com/gfm/#autolinks-extension-): www. hosts, http(s)/ftp URLs and e-mail addresses,
+# the last also behind a `mailto:` or `xmpp:` prefix.
+_GFM_LITERAL = re.compile(
+    r"(?i)(?:^|(?<=[\s*_~(]))www\.[a-z0-9_-]+(?:\.[a-z0-9_-]+)*"
+    r"|\b(?:https?|ftp)://[a-z0-9_-]+(?:\.[a-z0-9_-]+)*"
+    r"|(?:mailto:|xmpp:)?[a-z0-9._+-]+@[a-z0-9_-]+(?:\.[a-z0-9_-]+)+")
+
+
+def literal_autolinks(markdown: str) -> list[str]:
+    shown = re.sub(r"\\([!-/:-@\[-`{-~])", r"\1", markdown)     # what a reader sees after backslash escapes
+    return [m.group(0) for m in _GFM_LITERAL.finditer(shown)]
+
+
+AUTOLINK_BAIT = [
+    "write to a@evil.example now", "mailto:a@evil.example", "MAILTO:A@EVIL.EXAMPLE", "xmpp:a@evil.example/res",
+    "first.last+tag@sub.evil.example", "www.evil.example", "_www.evil.example", "(www.evil.example)",
+    "*www.evil.example*", "WWW.EVIL.EXAMPLE/x", "https://evil.example/x", "ftp://evil.example",
+]
+
+
+def test_the_bait_is_live_before_cleaning():
+    assert all(literal_autolinks(t) for t in AUTOLINK_BAIT)          # the detector itself is not blind
+
+
+@pytest.mark.parametrize("bait", AUTOLINK_BAIT)
+def test_bare_autolinks_are_neutralised_in_markdown_and_html(bait):
+    # regression: only `scheme://` and `www.` were defanged, so e-mail addresses and mailto:/xmpp: stayed live on
+    # GitHub, and `_www.` slipped past the word boundary
+    assert literal_autolinks(md_text(bait)) == [], md_text(bait)
+    assert literal_autolinks(md_code(bait)) == []
+    assert literal_autolinks(clean(bait)) == []
+    assert clean(clean(bait)) == clean(bait)                          # idempotent, like the URL defang
+    r = minimal(direct=[item("a", what=f"The sidebar is changed by this PR. {bait}")], confidence_line=bait)
+    assert literal_autolinks(render_markdown(r)) == []
+    assert literal_autolinks(" ".join(parsed(render_html(r)).text)) == []
+
+
+def test_ordinary_text_with_an_at_sign_survives_cleaning():
+    assert clean("Ask @hoppscotch/data maintainers at 5 pm") == "Ask @hoppscotch/data maintainers at 5 pm"
+    assert clean("the user@host login") == "the user@host login"      # no domain, so not an e-mail address
+    assert clean("see mailto") == "see mailto"
+
+
 def test_markdown_text_escapes_what_forms_syntax():
     out = md_text("a|b `c` [d](e) <f> *g* ~h~ $i$ #j")
     assert out == "a\\|b \\`c\\` \\[d\\](e) \\<f> \\*g\\* \\~h\\~ \\$i\\$ #j"
@@ -427,6 +564,26 @@ def test_text_colours_meet_wcag_aa_in_light_and_dark(palette):
     for fg, bg in page.CONTRAST_PAIRS:
         hi, lo = sorted((_luminance(colours[fg]), _luminance(colours[bg])), reverse=True)
         assert (hi + 0.05) / (lo + 0.05) >= 4.5, (palette, fg, bg)
+
+
+def _css_rules(doc: str) -> list[tuple[list[str], set[str]]]:
+    css = doc.split("<style>", 1)[1].split("</style>", 1)[0]
+    rules = []
+    for selectors, body in re.findall(r"([^{}@]+)\{([^{}]*)\}", css):
+        decls = {d.strip().replace(" ", "") for d in body.split(";") if d.strip()}
+        rules.append(([s.strip() for s in selectors.split(",")], decls))
+    return rules
+
+
+@pytest.mark.parametrize("selector", [".head .summary", "ul.checks li", "ul.checks label>span", "th", "td"])
+def test_boxes_that_hold_a_persons_words_can_shrink_and_wrap_anywhere(selector):
+    # regression: a flex item or table cell keeps the width of its longest word unless `min-width:0` and
+    # `overflow-wrap:anywhere` say otherwise; an unbroken URL then made the headline and checklist 500-560px wide
+    # on a 320-414px phone (the browser tests measure it where Chromium exists; this one holds without it)
+    rules = _css_rules(render_html(minimal()))
+    have = [d for sels, d in rules if selector in sels]
+    assert have, selector
+    assert any({"min-width:0", "overflow-wrap:anywhere"} <= d for d in have), (selector, have)
 
 
 def test_dark_palette_is_applied_by_media_query_and_print_forces_light():
@@ -505,6 +662,34 @@ def test_output_is_byte_identical_across_hash_seeds():
         assert out.returncode == 0, out.stderr[-600:]
         digests.add(out.stdout.strip().splitlines()[-1])
     assert len(digests) == 1
+
+
+_VIA_SNIPPET = """
+import sys
+sys.path.insert(0, "tests")
+from report_helpers import item, minimal
+from blastradius.models import Band
+from blastradius.report.md import render_markdown
+vias = ["the shared input", "The Shared Input", "THE SHARED INPUT", "the Shared input", "a shared form"]
+items = [item(f"v{n}", tier="indirect", label=f"Screen {n}", screen=f"Page {n}", band=Band.LIKELY, confidence=0.6,
+              what=f"Screen {n} is probably affected.", section="Things", via=via) for n, via in enumerate(vias)]
+print(render_markdown(minimal(direct=[], indirect=items)))
+"""
+
+
+def test_the_shared_pieces_of_a_group_are_listed_in_one_order_whatever_the_hash_seed():
+    # regression: the names came out of a set and were sorted by case-folded text only, so two names that
+    # differ just by case swapped places from one process to the next
+    outputs = set()
+    for seed in (0, 1, 2, 3, 5, 8, 13, 21, 4242):
+        env = {**os.environ, "PYTHONHASHSEED": str(seed), "PYTHONPATH": str(REPO / "src")}
+        out = subprocess.run([sys.executable, "-c", _VIA_SNIPPET], cwd=REPO, env=env, capture_output=True,
+                             text=True, timeout=120, check=False)
+        assert out.returncode == 0, out.stderr[-600:]
+        outputs.add(out.stdout)
+    assert len(outputs) == 1
+    assert ("Connected through: a shared form; THE SHARED INPUT; The Shared Input; the Shared input; "
+            "the shared input.") in next(iter(outputs))
 
 
 def test_output_has_no_timestamps_or_run_ids():

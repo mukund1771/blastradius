@@ -19,8 +19,11 @@ What this module guarantees:
     invented. A link with a confidence outside [0, 1], or one that cites evidence the run does not hold, is
     not written. Two links for one (src, dst, method) collapse deterministically (highest confidence, then the
     smallest evidence id; `screen_ids` are unioned).
-  * Secrets never reach a message or a failure record: URI userinfo and the configured password are scrubbed
-    from every driver error text and from the URI itself.
+  * Secrets never reach a message or a failure record: URI userinfo (up to the LAST '@' before the host, so a
+    password containing '@' goes whole) and the configured password are scrubbed from every driver error
+    text and from the URI itself.
+  * A re-crawl mints new Screen ids while canonical UIElement ids and their links survive:
+    `reset_dangling_attribution` keeps only the `screen_ids` that still name a Screen ([] = every screen).
 
 Errors: `GraphError` (a failed write, GRAPH_WRITE_FAILED), `GraphReadError` (a failed read), and
 `GraphConnectionError` (GRAPH_CONN_FAILED). Each carries the server's code in `.neo4j_code`.
@@ -88,7 +91,7 @@ LAYERS = ("code", "crawl", "spec", "links")
 # recorded as GRAPH_WRITE_FAILED with a "read <template>" message and is told apart by GraphReadError.
 READ_FAILED = getattr(FailureCode, "GRAPH_READ_FAILED", FailureCode.GRAPH_WRITE_FAILED)
 
-_USERINFO = re.compile(r"//[^/@\s]*@")
+_USERINFO = re.compile(r"//[^/?#\s]*@")  # greedy: userinfo ends at the LAST '@' before the host
 _SAMPLE = 5  # how many offending ids a failure message names
 
 
@@ -148,11 +151,10 @@ def _uri_password(uri: str) -> str:
 
 def _scrub(text: str, *secrets: str) -> str:
     """Remove URI userinfo and known secret values from text bound for a message or a failure record."""
-    text = _USERINFO.sub("//", text)
     for secret in secrets:
         if secret:
             text = text.replace(secret, "[REDACTED]")
-    return redact_text(text)
+    return redact_text(_USERINFO.sub("//", text))
 
 
 def _one_target(items: Sequence[Any], explicit: str | None, fallback: str | None, what: str) -> str:
@@ -212,8 +214,10 @@ class GraphStore:
         database: str | None = None,
         chunk_size: int = CHUNK_SIZE,
         read_timeout_s: float = READ_TIMEOUT_S,
+        secrets: Sequence[str] = (),
     ):
         self.driver = driver
+        self._secrets = tuple(s for s in secrets if s)  # scrubbed from every driver error text
         self.run = run
         self.target = target or (run.target if run else None)
         self.database = database
@@ -250,7 +254,14 @@ class GraphStore:
                     notifications_disabled_classifications=["UNRECOGNIZED"],
                 )
                 driver.verify_connectivity()
-                return cls(driver, run=run, target=target, database=database, chunk_size=chunk_size)
+                return cls(
+                    driver,
+                    run=run,
+                    target=target,
+                    database=database,
+                    chunk_size=chunk_size,
+                    secrets=(settings.neo4j_password, _uri_password(settings.neo4j_uri)),
+                )
             except AuthError as exc:
                 last = exc
                 if driver is not None:
@@ -290,7 +301,7 @@ class GraphStore:
         """Map a driver error to our closed vocabulary (not yet recorded: see `_record`)."""
         connection = isinstance(exc, (ServiceUnavailable, SessionExpired))
         neo_code = getattr(exc, "code", None)
-        message = f"{what}: {type(exc).__name__}: {_scrub(str(exc))[:200]}"
+        message = f"{what}: {type(exc).__name__}: {_scrub(str(exc), *self._secrets)[:200]}"
         if neo_code and neo_code.endswith("MemoryPoolOutOfMemoryError"):
             message += " (the query exceeded the server's transaction memory limit: fewer seeds or hops)"
         cls = GraphConnectionError if connection else GraphReadError if read else GraphError
@@ -955,6 +966,28 @@ class GraphStore:
         }
 
     # ---- reconcile ---------------------------------------------------------------------------
+    def reset_dangling_attribution(self, *, target: str | None = None) -> dict[str, int]:
+        """Neutralise per-screen attribution that names Screens which no longer exist.
+
+        For every IMPLEMENTED_BY / REALIZED_BY edge of the target whose `screen_ids` lists a Screen id that is
+        not in the graph, keep only the ids that are, and store [] (every screen of the element: the safe,
+        over-approximating direction) when none are left. Edges with [] and edges whose ids all exist are not
+        touched, `run_id` and every other property are kept, and a second call changes nothing. Returns
+        `edges` (changed), `reset_to_all` (left with no live id), `narrowed` (some live ids kept) and
+        `ids_dropped`."""
+        target = self._target(target)
+        total = {"edges": 0, "reset_to_all": 0, "ids_dropped": 0}
+        with self._tracer.span("graph_write", "reset_dangling_attribution", target=target) as sp:
+            for name, cypher in (
+                ("IMPLEMENTED_BY", writes.DANGLING_IMPLEMENTED_BY),
+                ("REALIZED_BY", writes.DANGLING_REALIZED_BY),
+            ):
+                rows = self._run_once(cypher, _Tally(), f"reset_dangling_attribution {name}", target=target)
+                for key in total:
+                    total[key] += int(rows[0][key] or 0) if rows else 0
+            sp.set(**total)
+        return {**total, "narrowed": total["edges"] - total["reset_to_all"]}
+
     def prune_stale(self, run_id: str, layers: Iterable[str], *, target: str | None = None) -> dict[str, int]:
         """Delete nodes and relationships of the given layers (code, crawl, spec, links) that carry another
         run's `run_id`, i.e. what this run did not re-assert. Link-stage edges on a deleted node go with

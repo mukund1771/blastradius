@@ -71,7 +71,9 @@ def test_6645_report_end_to_end(world: World):
     assert [i.label for i in report.direct] == ["Home page"]
     home = report.direct[0]
     assert home.band.value == "confirmed" and home.flows == ["Switch the active environment"]
-    assert "Edit current value" in home.what_changed                        # the added file, via the overlay
+    assert "Edit current value" not in home.what_changed
+    fresh = [u for u in report.undetermined if u.subject.startswith("New in this PR")]
+    assert len(fresh) == 1 and "Edit current value" in fresh[0].why
     assert home.requirement_ids == ["req_envedit0001"]
     assert [(r.status, r.section) for r in report.requirements] == [("at_risk", "Environments")]
     assert len(report.indirect) <= 10
@@ -424,6 +426,10 @@ def test_requirements_that_nothing_realises_are_cannot_verify_or_may_close_a_gap
             req("req_gapother001", "User can reorder workspaces by dragging them"),
             req("req_gapunrel001", "User can export a collection as an OpenAPI specification", "Changelog")]
     world.store.write_requirements(reqs, world.run.run_id)
+    spec_path = world.run.path("spec", "requirements.json")
+    existing = json.loads(spec_path.read_text(encoding="utf-8"))
+    existing.extend(r.model_dump(mode="json") for r in reqs)
+    spec_path.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
     world.store.link_routes(world.run.run_id)
     ev = world.run.evidence.add("gap.test", "g", "searched home")
     gaps = [Gap(id=f"gap_{r.id[-9:]}", kind=GapKind.NO_UI_EVIDENCE, status="NOT_FOUND_WITHIN_BUDGET",

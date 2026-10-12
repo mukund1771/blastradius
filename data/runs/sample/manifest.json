@@ -1,0 +1,55 @@
+{
+  "run_id": "crawl-gate-150",
+  "target": "hoppscotch",
+  "created_at": "2026-10-12T10:41:01.288+00:00",
+  "package_version": "0.1.0",
+  "python": "3.14.7",
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "versions": {
+    "anthropic": "1.13.0",
+    "playwright": "1.63.0",
+    "neo4j": "6.4.0",
+    "pydantic": "2.14.1",
+    "tree-sitter": "0.26.0",
+    "httpx": "0.28.1",
+    "typer": "0.27.3"
+  },
+  "git_sha": "d43c661",
+  "argv": [
+    "crawl",
+    "-t",
+    "hoppscotch",
+    "--run",
+    "crawl-gate-150"
+  ],
+  "trace_content": "hash",
+  "max_usd": 15.0,
+  "crawl_env": {
+    "viewport": [
+      1280,
+      800
+    ],
+    "locale": "en-US",
+    "timezone": "UTC",
+    "color_scheme": "light",
+    "service_workers": "block",
+    "user_agent": "blastradius/0.1.0 (QA change-impact research crawler)",
+    "chromium": "153.0.8010.12",
+    "bundle_hash_start": "c81a0323d1f5b4f5",
+    "app_version": "2026.9.0",
+    "max_actions": 150,
+    "beam": 12,
+    "policy": "llm",
+    "egress_allow": [
+      "hoppscotch.io",
+      "echo.hoppscotch.io"
+    ]
+  },
+  "spec": {
+    "url": "https://docs.hoppscotch.io/llms-full.txt",
+    "sha256": "da9b159b4800c43fed2ca50bb8d8e4d323434774775a9b022a1e0308f379709c",
+    "fetched_at": "2026-10-12T15:16:48.115+00:00",
+    "doc_version": "2026.5.0",
+    "status": "ok"
+  }
+}

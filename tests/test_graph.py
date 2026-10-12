@@ -1611,9 +1611,9 @@ INCOMPLETE_CRAWLS: dict[str, tuple[dict[str, Any] | None, str]] = {
 def test_a_budget_bounded_crawl_is_a_complete_observation_and_prunes(
     store: GraphStore, target: str, tmp_path: Path, stop: str
 ):
-    """A crawl that stopped on its configured budget IS the observation the target asked for; refusing to prune it
-    would let screens from earlier runs accumulate forever (found on the real 150-action crawl). Goal-directed
-    re-crawls write to their own artifact_subdir and never reach this guard."""
+    """A crawl that stopped on its configured budget IS the observation the target asked for; refusing to
+    prune it would let screens from earlier runs accumulate forever (found on the real 150-action crawl).
+    Goal-directed re-crawls write to their own artifact_subdir and never reach this guard."""
     run1, cfg = make_run(tmp_path, target, "run-full")
     write_artifacts(run1, target)
     run_load(run1, cfg, store)
@@ -1671,7 +1671,11 @@ def test_a_complete_crawl_still_prunes(store: GraphStore, target: str, tmp_path:
     assert (
         out["layers"]["crawl"].get("pruned") is None and out["layers"]["crawl"].get("prune_skipped") is None
     )
-    assert out["pruned"]["Screen"] == 1 and out["notices"] == []
+    assert out["pruned"]["Screen"] == 1
+    # nothing was skipped; the one notice lists what the prune removed (decision: a prune is never silent)
+    assert [n for n in out["notices"] if "not pruned" in n] == []
+    assert len(out["notices"]) == 1 and out["notices"][0].startswith("crawl: pruned ")
+    assert "1 Screen" in out["notices"][0] and "2 UIElement" in out["notices"][0]
     assert store.counts(target)["Screen"] == 1
 
 

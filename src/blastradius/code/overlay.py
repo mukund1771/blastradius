@@ -13,6 +13,10 @@ base graph (case 39). `run_overlay` fixes that without indexing the head from sc
    in `stats.overlay_added`), removes deleted ones, and re-resolves edges of *unchanged* files whose target
    was deleted (a renamed component) from their `via`.
 
+An adapter may also expose `context_paths(cfg, files)`: the files whose content decides what a changed file
+means (the Twig adapter's hook wiring, routing and catalogues). They are fetched with the changed files and
+read as context; without them a changed template would lose the hook edges the unchanged wiring defines.
+
 The baseline worktree is never touched, and the base `CodeIndex` object is not mutated. For a head that is a
 direct descendant of the base the result equals a fresh index of the head commit (tested); what an overlay
 cannot see is an unchanged file whose own resolution changed through a table edit without its target being
@@ -38,7 +42,7 @@ from ..failures import FailureCode
 from ..models import CodeEdge, CodeFile, CodeIndex, FileClass
 from ..run import RunContext
 from ..targets import CodeConfig, TargetConfig
-from .adapter import IndexPart, PartialIndexer, get_adapter, is_indexable
+from .adapter import HARD_PROBLEM_KINDS, IndexPart, PartialIndexer, get_adapter, is_indexable
 from .clone import GITHUB, CloneError, HeadFiles, fetch_files, remote_host
 from .index import edge_evidence_id, edge_evidence_parts
 
@@ -182,7 +186,12 @@ def _stats(base: CodeIndex, part: IndexPart, plan: _Plan, head: HeadFiles, *, pr
            head_has_dts: bool, has_dts_config: bool) -> dict[str, Any]:
     pairs = [(f, k) for f, kinds in sorted(part.issues.items()) for k in kinds]
     stats = {k: v for k, v in base.stats.items() if k != "pr_overlay_reason"}
+    head_partial = sorted({k for _, k in pairs if k in HARD_PROBLEM_KINDS})
     stats.update({
+        # the base's marker is kept (an overlay never makes an incomplete index complete); a head file that could
+        # not be read or decoded adds to it. A few parse errors among changed files are only counted below.
+        "parse_partial": bool(base.stats.get("parse_partial")) or bool(head_partial),
+        "overlay_parse_partial": bool(head_partial), "overlay_parse_partial_kinds": head_partial,
         "pr_number": pr_number, "pr_overlay": "applied",
         "overlay_head_repo": head_repo, "overlay_head_sha": head.sha,
         "overlay_base_snapshot": base.snapshot_id,
@@ -249,7 +258,11 @@ def run_overlay(run: RunContext, cfg: TargetConfig, base_index: CodeIndex, pr_nu
 
     plan = _triage(changed_paths, code, indexer.exts)
     dts = code.auto_import_dts
-    to_fetch = sorted({*plan.wanted, *([dts] if dts else [])})
+    # An adapter whose facts of one file depend on others (Twig: hook wiring, routing, catalogues) names them;
+    # they are fetched beside the changed files and read as context, never reported as changed.
+    context_of = getattr(adapter, "context_paths", None)
+    context = list(context_of(code, base_index.files)) if callable(context_of) else []
+    to_fetch = sorted({*plan.wanted, *([dts] if dts else []), *context})
     url = remote or f"{GITHUB}/{code.repo}.git"
     with run.tracer.span("http_fetch", "git.fetch_pr_head", host=remote_host(url), repo=code.repo,
                          ref=pull_ref, sha=head_sha, files=len(to_fetch)) as span:
@@ -273,7 +286,7 @@ def run_overlay(run: RunContext, cfg: TargetConfig, base_index: CodeIndex, pr_nu
             only.add(dts)
         dangling = [e for e in base_index.edges if e.dst in plan.deleted and e.src not in plan.replaced]
         part = indexer.index_part(head.work, code, known_paths=(base_paths - plan.deleted) | plan.added,
-                                  only=only, dangling=dangling)
+                                  only=only, dangling=dangling, known_keys=base_index.i18n.keys())
         index = _merged_index(base_index, part, plan, pull_ref, (code.locale_files or [None])[0])
         span.set(added=len(plan.added), modified=len(plan.modified), deleted=len(plan.deleted),
                  edges=len(index.edges))

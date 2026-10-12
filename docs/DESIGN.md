@@ -4,9 +4,9 @@
 source code that built it in a Neo4j graph, and tells a QA lead which screens, flows and requirements a real pull
 request puts at risk, and what it could not determine.*
 
-**Status of this draft:** sections marked `⟦...⟧` take their numbers from the final pipeline run; everything else
-is measured or decided. Evidence for every number is in [RECON.md](RECON.md); every decision and the alternatives
-considered are in [DECISIONS.md](DECISIONS.md); edge cases are in [CASES.md](CASES.md).
+**Status:** numbers below are from run `crawl-gate-150` (2026-10-12) unless a line says it was not run.
+Evidence for the earlier reconnaissance is in [RECON.md](RECON.md); decisions are in [DECISIONS.md](DECISIONS.md);
+edge cases and their final status are in [CASES.md](CASES.md).
 
 ---
 
@@ -27,12 +27,12 @@ against evidence**. The code layer is deliberately shallow (frontend, file granu
 
 | | |
 |---|---|
-| Frontend indexed | 335 `.vue` + 522 `.ts`; 2,198 i18n keys; 463 render edges; 99.7% of component tags resolved |
-| Live crawl | ⟦screens / elements / transitions / actions⟧, 0 WAF blocks, every request inside the egress allowlist |
-| UI -> code links | ⟦% of named elements linked deterministically⟧ at confidence ⟦median⟧; precision vs a source-map oracle ⟦top-1 / hit@3 with 95% CI⟧ |
-| Requirements | ⟦n extracted, n quote-verified, n dropped and why⟧ |
-| PR #6645 | ⟦risk level, n direct items, n indirect, n could-not-determine⟧ |
-| Tests | ⟦n⟧ passing; independent reviewers found 22 major (and 51 lesser) defects the builders' own tests missed; all fixed or dispositioned (section 10) |
+| Frontend indexed | 1,273 code files loaded; 2,219 i18n keys (21 without a value); 463 render edges; 5,728 imports; 20 routes |
+| Live crawl | 55 screens, 1,468 elements, 321 transitions, 150 actions, 0 WAF blocks; 280 requests stopped by the egress allowlist |
+| UI -> code links | 333 of 434 named canonical elements (76.7%) have an `IMPLEMENTED_BY` edge. 1,409 edges: 1,292 `i18n_key`, 117 `llm_pick`. Median confidence 0.30. Against the source-map oracle (124 scored controls, 3 pages): linker coverage 117/124 (Wilson 95% 0.888–0.972), top-1 of covered 64/117 (0.457–0.634), hit@3 of covered 78/117 (0.577–0.746) |
+| Requirements | 343 extracted, 160 kept, 341 of 343 quotes verified before later drops; 183 dropped (154 over the per-chunk cap, 19 duplicates, 6 not phrased as a user action, 2 too long, 2 quote-shape). Cost $0.6256 on claude-sonnet-5-5. 124 of those 160 have a `REALIZED_BY` edge (320 edges). Docs are 2026.5.0; the app is 2026.9.0 |
+| PR #6645 | Risk HIGH. 3 direct items (2 confirmed, 1 possible), 7 indirect, 5 could-not-determine, 48 requirements in the table, checklist of 2. Verifier passed. Narration is the template. The checklist is the environment sidebar; the 48-row table is wider than that change because shared controls on the home page were judged as partial matches |
+| Tests | 2,385 collected in 60 files. The full suite, including the live Chromium tests, passed on 2026-10-12 (about 14 minutes, exit 0; a few tests skipped). One earlier failure, the workspace-header test, was the `.env` file refilling a variable the test had unset; the test now ignores that file. Independent reviewers found 22 major (and 51 lesser) defects the builders' own tests missed; all fixed or dispositioned (section 10) |
 
 **What it is not.** It is not validated accuracy on a population of PRs. Three open PRs are case studies. The
 second target (Sylius) is a post-hoc check that proves the adapter boundary, not predictive impact.
@@ -177,8 +177,13 @@ DOM text does not identify a file. The cascade, in order, first hit wins:
 `(file, tag)` pairs resolve through it and 0 needed the namespace fallback. I report the resolved-tag rate as a
 metric so the failure mode is visible rather than silent.
 
-**Measured against an independent reference** (source-map oracle, section 9): ⟦coverage, top-1 precision, hit@3 with
-95% intervals, by method⟧.
+**Measured against an independent reference** (source-map oracle, section 8): 3 page visits (`/`, `/graphql`,
+`/settings`), 21 chunks pinned by ETag, 208 elements labelled, 124 scored as distinct (file, role, name, ordinal).
+The linker covers 117/124 of those (Wilson 95% 0.888–0.972). Top-1 precision among covered controls is 64/117
+(0.457–0.634); hit@3 is 78/117 (0.577–0.746). By method, `i18n_key` top-1 is 42/90 and `llm_pick` top-1 is 22/27.
+Top-1 is a conservative number: the oracle names the file whose template contains the element, and the linker
+names the file that displays its text, so a prop-passed label counts as a miss. The 76.7% figure above is how
+often a named element got some code edge, not how often that edge was the right file.
 
 **What I cut here and why.** The scope-id (`data-v-*`) hash rung covers ~12-17% of SFCs and none under
 `environments/`, the directory the primary PR touches; as product evidence it would also have made the oracle
@@ -217,6 +222,18 @@ actions in the product's own words; directly changed UI; indirect through shared
 section); global change; stored data with a migration checklist; requirements at risk; and **what we could not
 determine and who should look**, with the same visual weight as findings. File paths and ids appear only in the
 appendix. A deterministic lint enforces this; a hedge-verb table ties wording to confidence band.
+
+A direct item is hop 0 in the changed file (or a copy of its wording), and either the link confidence is at least
+0.5 or the string lives in one file. A string shared by more than three files below 0.5 is not listed as a control.
+Wording the PR adds and the live app does not show yet is one "could not determine" row, not a line on every screen.
+The checklist is confirmed and likely direct actions, plus at most two likely indirect ones. Possible and unknown
+are not actions.
+
+On PR #6645 that produces: risk HIGH, touching the Home page and the menu popup on it; re-test "Environment Quick
+Peek" and "Edit"; five things not determined, including the new labels "Edit current value" and "environments
+editor". The requirements table lists 48 rows. Many of those are partial matches (AI features, mock servers) on
+controls that merely share the home page with the environment sidebar. A QA lead should re-test the checklist, and
+treat the long table as a wide net, not as 48 broken features.
 
 ---
 
@@ -284,18 +301,30 @@ If the system ran 100 times on the same input, which runs were correct?
 3. **An independent link metric.** Hoppscotch publishes full source maps, so exact DOM-element -> `.vue` ground
    truth is obtainable from production: walk the Vue vnode tree, locate each `type.setup` text in exactly one
    chunk, majority-vote source-map segments. Used test-only; an import-lint forbids the linker from importing it.
-   ⟦coverage / precision / hit@3 with Wilson intervals⟧. This exists *because this target publishes maps*; the
-   fallback for others is a hand-labelled gold set.
+   On this run: harvest of `/`, `/graphql` and `/settings` (3 visits, 21 chunks). 208 observed elements were
+   labelled (208/208, Wilson 95% 0.982–1.0). Scoring uses 124 distinct controls that also exist on indexed main.
+   Linker coverage 117/124 (0.888–0.972). Top-1 of covered 64/117 (0.457–0.634). Hit@3 of covered 78/117
+   (0.577–0.746). Top-1 of all scored, counting an unlinked control as wrong, is 64/124 (0.429–0.602). `i18n_key`
+   top-1 is 42/90; `llm_pick` top-1 is 22/27 (n = 27, interval 0.633–0.918). This exists *because this target
+   publishes maps*; the fallback for others is a hand-labelled gold set, which was not built.
 4. **An offline judge, kept honest.** Evidence-only, binary items, quote string-checked, k = 3 majority; 20
    deterministic seeded corruptions give an *upper bound* on the true-negative rate. Reported with Wilson 95%
-   intervals; the same-vendor-family caveat is stated. ⟦n, TNR, interval⟧.
+   intervals; the same-vendor-family caveat is stated. Not run for this submission (it spends model calls). No TNR.
 5. **Stability.** Re-run stages 4-7 N = 5 times with the cache bypassed: affected-set Jaccard and per-item
-   agreement; items under 60% agreement are demoted. ⟦Jaccard, n⟧. N = 100 is discussed as cost arithmetic only.
+   agreement; items under 60% agreement are demoted. Not run for this submission. N = 100 is discussed as cost
+   arithmetic only.
 6. **Ablation.** A (deterministic traversal) vs A + grader on the three PRs, thresholds pre-registered in
    `eval/thresholds.json` before running. Three PRs are case studies, never validated accuracy.
 
 The synthetic-PR recall check reuses the links that built the graph, so it measures *consistency*, and the report
-labels it circular.
+labels it circular. On this run, with hop cap 2 and link confidence at least 0.8: screen recall 142/142
+(Wilson 95% 0.9737–1.0), nontrivial files 80/80 (0.9542–1.0), flows 458/458 (0.9917–1.0). That is consistency
+with the graph, not proof the links are right.
+
+Invariants on the three regenerated reports (after claim ids include the screen, and the headline requirement
+count is the distinct rows in the table): all three pass. An earlier draft failed `ids_unique` (the same sentence
+on two screens hashed to one claim id) and `counts_distinct` (the headline counted requirements attached to
+screens, and the table listed more).
 
 ---
 
@@ -362,9 +391,9 @@ test the guard (a test that cannot fail on the bug is not a test).*
 
 ## Appendix
 
-- [DECISIONS.md](DECISIONS.md): 35 decisions with the alternatives considered and rejected
-- [CASES.md](CASES.md): 77 edge cases, each tiered P0 / P1 / documented / deferred, with final statuses
+- [DECISIONS.md](DECISIONS.md): the decision log, including D36–D40 from the live report
+- [CASES.md](CASES.md): 77 edge cases, each with a final status (handled, documented, deferred, or not handled)
 - [RECON.md](RECON.md): the evidence, labelled verified / measured / recalled / unverified
 - [REPORT_SPEC.md](REPORT_SPEC.md): the report contract
 - [ARCHITECTURE.md](ARCHITECTURE.md): module contracts
-- `docs/sample-report-pr-6645.md`: ⟦the generated report for PR #6645⟧
+- [sample-report-pr-6645.md](sample-report-pr-6645.md): the generated report for PR #6645 (risk HIGH, checklist of two actions). The HTML twin is [sample-report-pr-6645.html](sample-report-pr-6645.html)

@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 import typer
 
-import blastradius.cli as cli
 import blastradius.run as runmod
+from blastradius import cli
 
 
 @pytest.fixture

@@ -1,0 +1,968 @@
+{
+  "evals": {
+    "invariants": {
+      "all_ok": true,
+      "caveats": [
+        "Invariants check the form of a report, not its truth: a report can pass all of them and still be wrong (a valid-but-irrelevant citation passes, case 54)."
+      ],
+      "evidence_rows": 10734,
+      "n_ok": 3,
+      "n_reports": 3,
+      "reports": [
+        {
+          "failed": [],
+          "ok": true,
+          "results": [
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "schema_valid",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "171 citations against 10734 evidence rows",
+              "evaluated": true,
+              "name": "citations_exist",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "claims_cite_evidence",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "18 claims, 11 items; product rules: report.vocab applied, reason.verify applied",
+              "evaluated": true,
+              "name": "band_verb_consistent",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "no_ids_or_paths_in_body",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "ids_unique",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "headline counts checked: ['flows', 'requirements', 'screens']",
+              "evaluated": true,
+              "name": "counts_distinct",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            }
+          ],
+          "subject": "pr 6641"
+        },
+        {
+          "failed": [],
+          "ok": true,
+          "results": [
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "schema_valid",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "541 citations against 10734 evidence rows",
+              "evaluated": true,
+              "name": "citations_exist",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "claims_cite_evidence",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "58 claims, 10 items; product rules: report.vocab applied, reason.verify applied",
+              "evaluated": true,
+              "name": "band_verb_consistent",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "no_ids_or_paths_in_body",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "ids_unique",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "headline counts checked: ['flows', 'requirements', 'screens']",
+              "evaluated": true,
+              "name": "counts_distinct",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            }
+          ],
+          "subject": "pr 6645"
+        },
+        {
+          "failed": [],
+          "ok": true,
+          "results": [
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "schema_valid",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "557 citations against 10734 evidence rows",
+              "evaluated": true,
+              "name": "citations_exist",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "claims_cite_evidence",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "62 claims, 11 items; product rules: report.vocab applied, reason.verify applied",
+              "evaluated": true,
+              "name": "band_verb_consistent",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "no_ids_or_paths_in_body",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "",
+              "evaluated": true,
+              "name": "ids_unique",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            },
+            {
+              "detail": "headline counts checked: ['flows', 'requirements', 'screens']",
+              "evaluated": true,
+              "name": "counts_distinct",
+              "offender_count": 0,
+              "offenders": [],
+              "passed": true
+            }
+          ],
+          "subject": "pr 6658"
+        }
+      ],
+      "rule": "a report violating any invariant is wrong regardless of its content (plan section 9.1)",
+      "status": "ok",
+      "violations_by_invariant": {}
+    },
+    "oracle": {
+      "caveats": [
+        "Test-only oracle: it exists because this target publishes source maps; no other target has it.",
+        "It labels only UI present in the deployed build: UI introduced by an open PR has no label (case 71).",
+        "Deployed is not main: scoring is restricted to files that exist on the indexed main; drift is stated.",
+        "Elements with no component instance and unattributed chains are left unlabelled and counted.",
+        "The unit is a distinct (file, role, name, ordinal): a layout control seen on four pages counts once.",
+        "A 'pattern' join matches by url_pattern only and can conflate two states' ordinals; 'state' is exact.",
+        "The oracle names the file whose template contains the element; the linker names the file that displays its text. They differ when text arrives as a prop, so top-1 is a conservative measure and hit@3 less so.",
+        "Small n: read the Wilson interval, not the point estimate."
+      ],
+      "harvest": {
+        "chunks_without_map": [],
+        "egress_blocked_hosts": {
+          "client.crisp.chat": 3,
+          "eu-assets.i.posthog.com": 6,
+          "eu.posthog.com": 5,
+          "o1408531.ingest.us.sentry.io": 4
+        },
+        "entry_chunk_changed_during_harvest": false,
+        "notes": [],
+        "page_visits": 3,
+        "pinned": [
+          {
+            "bytes": 408252,
+            "etag": "W/\"2910a9db23e134c13fcc87fb69d6e4b5\"",
+            "map_bytes": 977041,
+            "map_etag": "W/\"5d56366a1a99a89190020884553a7f23\"",
+            "map_sha256": "58dd9c16c2ba3a13c040e2ebf270a032d0c23efd1d15acabeb85a8ebee7b2c1a",
+            "map_url": "https://hoppscotch.io/assets/PublishedDocs-CY1WzPFn.js.map",
+            "sha256": "b1a60451fad92af27a15019b72a7565c55dde64d64d34e93e855cc35652dd3c2",
+            "url": "https://hoppscotch.io/assets/PublishedDocs-CY1WzPFn.js"
+          },
+          {
+            "bytes": 45554,
+            "etag": "W/\"c49379daf0fa73b7735db66927545e65\"",
+            "map_bytes": 140582,
+            "map_etag": "W/\"da44de555896b622667622cbe7b4de0e\"",
+            "map_sha256": "360bad93592a68d59fefaf2590fa5ae38b976703e106be6a59ee991393fa80f2",
+            "map_url": "https://hoppscotch.io/assets/RequestOptions-DbvQUR21.js.map",
+            "sha256": "6ed2a38c8efdf0684a7186a5bf907c5589b1a0934193cbdbc1f64a11480a133f",
+            "url": "https://hoppscotch.io/assets/RequestOptions-DbvQUR21.js"
+          },
+          {
+            "bytes": 7671,
+            "etag": "W/\"f4c8092aa8b3ba8aa799b412da15ce82\"",
+            "map_bytes": 19707,
+            "map_etag": "W/\"acb362a2d7c312cadf7baf36ef08a456\"",
+            "map_sha256": "5b67d98ef56386d71ac9c22d3f9a545812488bb38537a7adf3961a599f535a17",
+            "map_url": "https://hoppscotch.io/assets/arrow-down--6aEditl.js.map",
+            "sha256": "ec26244405cbc1a691d7b97daafcebb0d7ff963a34eb9e6e1528e8186c6742f7",
+            "url": "https://hoppscotch.io/assets/arrow-down--6aEditl.js"
+          },
+          {
+            "bytes": 450,
+            "etag": "\"70524311379e388910da05922040fa63\"",
+            "map_bytes": 2702,
+            "map_etag": "W/\"0c926de4117e5584e971f75cde869374\"",
+            "map_sha256": "e2ddbab3ac0764398508db04c05e8765f1575972b93283f8dc8fb211bfd6c4ee",
+            "map_url": "https://hoppscotch.io/assets/auth-BNCw8ADH.js.map",
+            "sha256": "20221d62a2c92fcc38a52d3dcba03da0841034a9f4601fbda42892cea63d7966",
+            "url": "https://hoppscotch.io/assets/auth-BNCw8ADH.js"
+          },
+          {
+            "bytes": 2336,
+            "etag": "W/\"7dc0fec043dd9bf2948b478deafb9752\"",
+            "map_bytes": 11460,
+            "map_etag": "W/\"1d712c0f44ed39a576a703d0125d84f5\"",
+            "map_sha256": "9ad9cb317133366309a585d8860492371bf52f0fd6a7c151eaed47d73e1e78ea",
+            "map_url": "https://hoppscotch.io/assets/documentation.worker-lUSFJ6B7.js.map",
+            "sha256": "ec9b300cf01244a57c3c4e48a6eb668c64326d109405e45d6d820b2c03b2862e",
+            "url": "https://hoppscotch.io/assets/documentation.worker-lUSFJ6B7.js"
+          },
+          {
+            "bytes": 442,
+            "etag": "\"60e7b2c908d4dfd2162533994da43210\"",
+            "map_bytes": 99,
+            "map_etag": "\"756efff03186bafa84dfcefb14e762b3\"",
+            "map_sha256": "4e1717121c687e800a20b322227ce93bf5b71ecec0768f714aa9936c60338dbf",
+            "map_url": "https://hoppscotch.io/assets/filter-BvdDw29t.js.map",
+            "sha256": "b30c35d5ec3afe58b3d4035041236666cf7e2a6ffb5a796d30c47e4bc6498096",
+            "url": "https://hoppscotch.io/assets/filter-BvdDw29t.js"
+          },
+          {
+            "bytes": 77210,
+            "etag": "W/\"a23a177a7a3461c56788fa9616bbb25b\"",
+            "map_bytes": 248067,
+            "map_etag": "W/\"a426c503123609ca05e11daf4977b42f\"",
+            "map_sha256": "245596654f99244a270105b550283e4994ff5b314aee879ffadcff0009141d5f",
+            "map_url": "https://hoppscotch.io/assets/graphql-iHWxNbqR.js.map",
+            "sha256": "0e4b357ba48d3a759d7dd429ae00094736c327a78800dc1ca278438214cf9802",
+            "url": "https://hoppscotch.io/assets/graphql-iHWxNbqR.js"
+          },
+          {
+            "bytes": 2450282,
+            "etag": "W/\"d9afa05e92cf62ada07d084368f1371d\"",
+            "map_bytes": 8043962,
+            "map_etag": "W/\"58ed1cc964e0443cd7283523374aac2a\"",
+            "map_sha256": "b0fbf07147cbe7e2e3eae8e56db7bdcc768bd4404f498a086a1ba307ab316de7",
+            "map_url": "https://hoppscotch.io/assets/har-C2usScAU.js.map",
+            "sha256": "3804d6d1a62d44806823e678110c412e7a6054a49e96970cc783e961893211e0",
+            "url": "https://hoppscotch.io/assets/har-C2usScAU.js"
+          },
+          {
+            "bytes": 14220381,
+            "etag": "W/\"1c2a5b27b144c6f6de53ab7a17f57941\"",
+            "map_bytes": 45260813,
+            "map_etag": "W/\"8a8d972af5d2c62ed179eaf7a90e924d\"",
+            "map_sha256": "9f621a0cc9fdf529a54e12167724494ebb04338e2d1a0a0d204f091c9be0b08b",
+            "map_url": "https://hoppscotch.io/assets/index-BVV_7b8U.js.map",
+            "sha256": "ef0f9535bb3e51db9a1c370cfa8d0107caa299eb42c60d9f71140566671a15df",
+            "url": "https://hoppscotch.io/assets/index-BVV_7b8U.js"
+          },
+          {
+            "bytes": 332108,
+            "etag": "W/\"eac29f2e8894fec6fa5644de05cddb44\"",
+            "map_bytes": 1087247,
+            "map_etag": "W/\"7174f69a2693ae3ecbcb900ac6a8d2e6\"",
+            "map_sha256": "38d8fc907bf9b34a658cfa6603d2ab5cff732f9883bffc5be98afe10d38091c5",
+            "map_url": "https://hoppscotch.io/assets/index-CIjZ08nr.js.map",
+            "sha256": "c082452acfd2539f5892c1e7696f76f9ce20907fd8e461a542eb3d3a8602bf20",
+            "url": "https://hoppscotch.io/assets/index-CIjZ08nr.js"
+          },
+          {
+            "bytes": 274790,
+            "etag": "W/\"74e6d6bfb5b4c5202d4473f86c7f3388\"",
+            "map_bytes": 950499,
+            "map_etag": "W/\"acf4a1167dde5d88befbed1d92dcf440\"",
+            "map_sha256": "8ffb23f4da8d3dd6a9161a5a1289e3b8e117aea1d4481ef8091c58d8b0a9eb4d",
+            "map_url": "https://hoppscotch.io/assets/index-DPMyMDRe.js.map",
+            "sha256": "b773d92eb18d7b1a95f3ff43c8197c36d6a756c36f9a87bf1d1d3ae7b0ed2af7",
+            "url": "https://hoppscotch.io/assets/index-DPMyMDRe.js"
+          },
+          {
+            "bytes": 298,
+            "etag": "\"5a721637e5be3807c181a52fc2f63778\"",
+            "map_bytes": 1001,
+            "map_etag": "W/\"fc8dbe2840eb6d01818d23873a40e122\"",
+            "map_sha256": "da7526834dce854c8ff7bc7835cda4361aa41a35202f54c754b0d837c37029be",
+            "map_url": "https://hoppscotch.io/assets/json-CQXqxl0v.js.map",
+            "sha256": "8d570ecbdac8af3872570671fce8ce1724acfd799a2ed4d7a6551f07a8b6401a",
+            "url": "https://hoppscotch.io/assets/json-CQXqxl0v.js"
+          },
+          {
+            "bytes": 528,
+            "etag": "\"446e0a59f08267e757336dd15aadbc2a\"",
+            "map_bytes": 108,
+            "map_etag": "\"bfbddd9be756cda6785dfcfed81fafdf\"",
+            "map_sha256": "2c7b6ed4fafa6652838706db94d4b3d44c998e9d7b080085053c56bf9928e2a3",
+            "map_url": "https://hoppscotch.io/assets/more-horizontal-DC1q85qp.js.map",
+            "sha256": "c595d352f8f4710f012481cbb822b6e770409d3f43e402a46b2f08d20fc05a6b",
+            "url": "https://hoppscotch.io/assets/more-horizontal-DC1q85qp.js"
+          },
+          {
+            "bytes": 10799,
+            "etag": "W/\"a404d674c978b523e014036d6612b021\"",
+            "map_bytes": 57563,
+            "map_etag": "W/\"16d058330475eaf21644cfef2557a500\"",
+            "map_sha256": "2ad2d6a1a8a4bba7e33b54c305cdec42d0b35d737ee7e5fa6a4581a084ed86e1",
+            "map_url": "https://hoppscotch.io/assets/newOutline-CzHqkZG0.js.map",
+            "sha256": "d47ce51fea178c47b0cd16b4f20d088da73c043a942618a5aefb63782bbd6bbf",
+            "url": "https://hoppscotch.io/assets/newOutline-CzHqkZG0.js"
+          },
+          {
+            "bytes": 382523,
+            "etag": "W/\"1424260971facb20fd8c888927a83f54\"",
+            "map_bytes": 1267112,
+            "map_etag": "W/\"f61cdd6cb20233e34e78fcefc434708b\"",
+            "map_sha256": "f23db3c29c338d7d7d169c3b8257ec6d76f75101cadcafe3dc3749ed67c94a00",
+            "map_url": "https://hoppscotch.io/assets/openapi-import-worker-B4ttoUch.js.map",
+            "sha256": "1656188332830d1abacd433b3490efdc3f643e849f0ff585679df5b73dad54da",
+            "url": "https://hoppscotch.io/assets/openapi-import-worker-B4ttoUch.js"
+          },
+          {
+            "bytes": 84492,
+            "etag": "W/\"629b756db4dd0dbefce92981b719790a\"",
+            "map_bytes": 445657,
+            "map_etag": "W/\"eac66d539e28fa52a595556091234c92\"",
+            "map_sha256": "6f635f8bc519c37c3e9377c688092b320a13207c22fdce2d1a42466ce9d3c971",
+            "map_url": "https://hoppscotch.io/assets/operation-cijJeYK8.js.map",
+            "sha256": "e29d5ff7179094febd68ced99ef7975f1bef17593d0545deff2110a427ff6929",
+            "url": "https://hoppscotch.io/assets/operation-cijJeYK8.js"
+          },
+          {
+            "bytes": 12187,
+            "etag": "W/\"c98e821ea49f1446d807fb19b71960b8\"",
+            "map_bytes": 55112,
+            "map_etag": "W/\"7e2dced29adac15e0b965841ab5acde0\"",
+            "map_sha256": "236a9c2df8329e3c62b2cbb54aefdd87c093c32168f0e1477e107873c6fdb66a",
+            "map_url": "https://hoppscotch.io/assets/path-5OchBoIc.js.map",
+            "sha256": "46b6a66fb11d677183c21077368cc005dfa315cf12dc1ceeb9d646ef39703655",
+            "url": "https://hoppscotch.io/assets/path-5OchBoIc.js"
+          },
+          {
+            "bytes": 16087,
+            "etag": "W/\"7b15a12256c240b0b6f894377f0de7c1\"",
+            "map_bytes": 77627,
+            "map_etag": "W/\"0926820a7cc999d4b44e21102f6e61ec\"",
+            "map_sha256": "f993715ffd2dfe03c64132e3d0d155e662af9277131b525b112ab1d70170ddfa",
+            "map_url": "https://hoppscotch.io/assets/polyfills-B9QC9tel.js.map",
+            "sha256": "c7757f01df08cb43a55ce50cebb6a00376f78f9e40265a27016c9685b76b925e",
+            "url": "https://hoppscotch.io/assets/polyfills-B9QC9tel.js"
+          },
+          {
+            "bytes": 12913,
+            "etag": "W/\"5d9d81462ae17bcda09061b92720c929\"",
+            "map_bytes": 36624,
+            "map_etag": "W/\"1b3ac4e8d3f75502bcc7c09d7b1f6fcc\"",
+            "map_sha256": "5361395355d88c8a6c2343ff59e19479b4b9f3d47e3eda38f657e56c1bad1dc8",
+            "map_url": "https://hoppscotch.io/assets/settings-CJDWPaF6.js.map",
+            "sha256": "d8dd8f7f16be4d999471cf436df30e1b2299ecdd4aef7746d120c95c0034eb3f",
+            "url": "https://hoppscotch.io/assets/settings-CJDWPaF6.js"
+          },
+          {
+            "bytes": 67363,
+            "etag": "W/\"572766ed1ed5ff5380364918a564b140\"",
+            "map_bytes": 302188,
+            "map_etag": "W/\"f5a125fceb079cfafa887e8148e1e3a6\"",
+            "map_sha256": "6eb12a008ee2e89327f650b85c19bef4c5ccd01f2137a89e996cfefb5346f296",
+            "map_url": "https://hoppscotch.io/assets/url-BVR4pTtm.js.map",
+            "sha256": "b35fbbeb7e861a88cc56e11700153d495c41690d9d582ca5527b05ae06d94034",
+            "url": "https://hoppscotch.io/assets/url-BVR4pTtm.js"
+          },
+          {
+            "bytes": 5816,
+            "etag": "W/\"41e25562dcd930d99509c6ee192b4468\"",
+            "map_bytes": 13579,
+            "map_etag": "W/\"0d9587ea0faab16c7deb1d3de8fd4c37\"",
+            "map_sha256": "90e2d0e55c14cf903389bfdab0473fa19b9f25228075b0a7c34095c9f10183fd",
+            "map_url": "https://hoppscotch.io/assets/workbox-window.prod.es5-OK2pCe0N.js.map",
+            "sha256": "3e4740284e1ee995f27ae2035319a01821e12feded2f4ddbe5b8d35628af73b0",
+            "url": "https://hoppscotch.io/assets/workbox-window.prod.es5-OK2pCe0N.js"
+          }
+        ],
+        "states": [
+          "/ [Collections, Parameters, Untitled]",
+          "/ [Environments, Parameters, Untitled]",
+          "/graphql [Documentation, Query, Untitled]",
+          "/settings []"
+        ]
+      },
+      "n_crawl_screens": 55,
+      "n_links": 2502,
+      "oracle": {
+        "attribution": {
+          "attribution_status": {
+            "ok": 53
+          },
+          "basename_equals_type_name": {
+            "k": 41,
+            "n": 41,
+            "p": 1.0,
+            "wilson95_hi": 1.0,
+            "wilson95_lo": 0.9143
+          },
+          "component_types": 53,
+          "repo_vue_components": 41,
+          "vote_share_min": 1.0,
+          "vote_share_unanimous": {
+            "k": 53,
+            "n": 53,
+            "p": 1.0,
+            "wilson95_hi": 1.0,
+            "wilson95_lo": 0.9324
+          }
+        },
+        "drift": {
+          "absent": [
+            "packages/hoppscotch-selfhost-web/src/components/CustomEmbeds.vue",
+            "packages/hoppscotch-selfhost-web/src/components/ErrorPage.vue",
+            "packages/hoppscotch-selfhost-web/src/components/Newsletter.vue",
+            "packages/hoppscotch-selfhost-web/src/components/UserDeactivate.vue",
+            "packages/hoppscotch-selfhost-web/src/components/UserDeletionSoleTeamOwnerInfo.vue",
+            "packages/hoppscotch-selfhost-web/src/components/organization/SwitcherDropdown.vue"
+          ],
+          "absent_from_main": 6,
+          "by_chunk": {
+            "PublishedDocs-CY1WzPFn.js": {
+              "absent_from_main": 0,
+              "differs": 0,
+              "vue_sources": 16
+            },
+            "RequestOptions-DbvQUR21.js": {
+              "absent_from_main": 0,
+              "differs": 0,
+              "vue_sources": 8
+            },
+            "arrow-down--6aEditl.js": {
+              "absent_from_main": 0,
+              "differs": 0,
+              "vue_sources": 1
+            },
+            "graphql-iHWxNbqR.js": {
+              "absent_from_main": 0,
+              "differs": 0,
+              "vue_sources": 29
+            },
+            "index-BVV_7b8U.js": {
+              "absent_from_main": 6,
+              "differs": 5,
+              "vue_sources": 104
+            },
+            "index-CIjZ08nr.js": {
+              "absent_from_main": 0,
+              "differs": 0,
+              "vue_sources": 57
+            },
+            "index-DPMyMDRe.js": {
+              "absent_from_main": 0,
+              "differs": 0,
+              "vue_sources": 69
+            },
+            "settings-CJDWPaF6.js": {
+              "absent_from_main": 0,
+              "differs": 0,
+              "vue_sources": 5
+            }
+          },
+          "differing": [
+            "packages/hoppscotch-common/src/components/app/Header.vue",
+            "packages/hoppscotch-common/src/components/firebase/Login.vue",
+            "packages/hoppscotch-common/src/components/teams/Edit.vue",
+            "packages/hoppscotch-common/src/components/teams/Invite.vue",
+            "packages/hoppscotch-selfhost-web/src/components/Login.vue"
+          ],
+          "differs": 5,
+          "same": 278,
+          "summary": "11 of 289 .vue sources in the loaded maps differ from or are absent on the indexed main; the largest chunk index-BVV_7b8U.js: 11 of 104",
+          "vue_sources": 289
+        },
+        "labelled_elements": 208,
+        "map_base": "packages/hoppscotch-selfhost-web/dist/assets",
+        "observed_elements": 208,
+        "oracle_coverage": {
+          "k": 208,
+          "n": 208,
+          "p": 1.0,
+          "wilson95_hi": 1.0,
+          "wilson95_lo": 0.9819
+        },
+        "owner_text_check": {
+          "by_owner_hops": {
+            "0": {
+              "k": 18,
+              "n": 20,
+              "p": 0.9,
+              "wilson95_hi": 0.9721,
+              "wilson95_lo": 0.699
+            },
+            "1": {
+              "k": 47,
+              "n": 48,
+              "p": 0.9792,
+              "wilson95_hi": 0.9963,
+              "wilson95_lo": 0.891
+            },
+            "2": {
+              "k": 128,
+              "n": 129,
+              "p": 0.9922,
+              "wilson95_hi": 0.9986,
+              "wilson95_lo": 0.9574
+            },
+            "3": {
+              "k": 6,
+              "n": 10,
+              "p": 0.6,
+              "wilson95_hi": 0.8318,
+              "wilson95_lo": 0.3127
+            }
+          },
+          "checked": 207,
+          "name_found_in_owner_file": {
+            "k": 199,
+            "n": 207,
+            "p": 0.9614,
+            "wilson95_hi": 0.9803,
+            "wilson95_lo": 0.9256
+          },
+          "nameless_unchecked": 1,
+          "not_found_sample": [
+            "button 'English' -> packages/hoppscotch-common/src/components/smart/ChangeLanguage.vue",
+            "button 'Untitled' -> packages/hoppscotch-common/src/pages/graphql.vue",
+            "radio 'Agent' -> packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+            "radio 'Browser extension' -> packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+            "radio 'Browser' -> packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+            "radio 'Proxy' -> packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+            "textbox 'Enter a URL or paste a cURL command' -> packages/hoppscotch-common/src/components/smart/EnvInput.vue"
+          ],
+          "note": "plausibility only: a miss is expected when text arrives as a prop; correlated with the linker's text rungs, so never used for scoring"
+        },
+        "owner_via_ancestor_vnode": 7,
+        "pairing": {
+          "chunks": 21,
+          "map_file_matches_and_lines_fit": 21,
+          "mismatched": [],
+          "with_map": 21
+        },
+        "unlabelled_reasons": {}
+      },
+      "scoring": {
+        "by_owner_hops": {
+          "0": {
+            "n": 12,
+            "top1_correct": {
+              "k": 4,
+              "n": 12,
+              "p": 0.3333,
+              "wilson95_hi": 0.6094,
+              "wilson95_lo": 0.1381
+            }
+          },
+          "1": {
+            "n": 33,
+            "top1_correct": {
+              "k": 18,
+              "n": 33,
+              "p": 0.5455,
+              "wilson95_hi": 0.7016,
+              "wilson95_lo": 0.3799
+            }
+          },
+          "2": {
+            "n": 70,
+            "top1_correct": {
+              "k": 39,
+              "n": 70,
+              "p": 0.5571,
+              "wilson95_hi": 0.6675,
+              "wilson95_lo": 0.4408
+            }
+          },
+          "3": {
+            "n": 9,
+            "top1_correct": {
+              "k": 3,
+              "n": 9,
+              "p": 0.3333,
+              "wilson95_hi": 0.6458,
+              "wilson95_lo": 0.1206
+            }
+          }
+        },
+        "by_top1_method": {
+          "i18n_key": {
+            "hit_at_3": {
+              "k": 56,
+              "n": 90,
+              "p": 0.6222,
+              "wilson95_hi": 0.7154,
+              "wilson95_lo": 0.519
+            },
+            "n": 90,
+            "top1_correct": {
+              "k": 42,
+              "n": 90,
+              "p": 0.4667,
+              "wilson95_hi": 0.569,
+              "wilson95_lo": 0.3671
+            }
+          },
+          "llm_pick": {
+            "hit_at_3": {
+              "k": 22,
+              "n": 27,
+              "p": 0.8148,
+              "wilson95_hi": 0.9182,
+              "wilson95_lo": 0.633
+            },
+            "n": 27,
+            "top1_correct": {
+              "k": 22,
+              "n": 27,
+              "p": 0.8148,
+              "wilson95_hi": 0.9182,
+              "wilson95_lo": 0.633
+            }
+          },
+          "none": {
+            "hit_at_3": {
+              "k": 0,
+              "n": 7,
+              "p": 0.0,
+              "wilson95_hi": 0.3543,
+              "wilson95_lo": 0.0
+            },
+            "n": 7,
+            "top1_correct": {
+              "k": 0,
+              "n": 7,
+              "p": 0.0,
+              "wilson95_hi": 0.3543,
+              "wilson95_lo": 0.0
+            }
+          }
+        },
+        "excluded": {
+          "file_not_on_main": 0,
+          "not_in_crawl": 0
+        },
+        "hit_at_3_of_covered": {
+          "k": 78,
+          "n": 117,
+          "p": 0.6667,
+          "wilson95_hi": 0.7456,
+          "wilson95_lo": 0.5772
+        },
+        "hit_at_3_of_scored": {
+          "k": 78,
+          "n": 124,
+          "p": 0.629,
+          "wilson95_hi": 0.709,
+          "wilson95_lo": 0.5413
+        },
+        "join_levels": {
+          "pattern": 0,
+          "state": 124
+        },
+        "labels": 208,
+        "linker_coverage": {
+          "k": 117,
+          "n": 124,
+          "p": 0.9435,
+          "wilson95_hi": 0.9724,
+          "wilson95_lo": 0.8881
+        },
+        "misses_sample": [
+          {
+            "name": "Agent",
+            "oracle_file": "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+            "owner_hops": 3,
+            "predicted_top1": "packages/hoppscotch-common/src/platform/std/kernel-interceptors/agent/index.ts",
+            "role": "radio"
+          },
+          {
+            "name": "Browser",
+            "oracle_file": "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+            "owner_hops": 3,
+            "predicted_top1": "packages/hoppscotch-common/src/platform/std/kernel-interceptors/browser/index.ts",
+            "role": "radio"
+          },
+          {
+            "name": "Browser extension",
+            "oracle_file": "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+            "owner_hops": 3,
+            "predicted_top1": "packages/hoppscotch-common/src/platform/std/kernel-interceptors/extension/index.ts",
+            "role": "radio"
+          },
+          {
+            "name": "Proxy",
+            "oracle_file": "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+            "owner_hops": 3,
+            "predicted_top1": "packages/hoppscotch-common/src/components/settings/Agent.vue",
+            "role": "radio"
+          },
+          {
+            "name": "GraphQL",
+            "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+            "owner_hops": 2,
+            "predicted_top1": "packages/hoppscotch-common/src/pages/graphql.vue",
+            "role": "link"
+          },
+          {
+            "name": "REST",
+            "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+            "owner_hops": 2,
+            "predicted_top1": null,
+            "role": "link"
+          },
+          {
+            "name": "Realtime",
+            "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+            "owner_hops": 2,
+            "predicted_top1": null,
+            "role": "link"
+          },
+          {
+            "name": "Settings",
+            "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+            "owner_hops": 2,
+            "predicted_top1": "packages/hoppscotch-common/src/components/app/Header.vue",
+            "role": "link"
+          },
+          {
+            "name": "Search",
+            "oracle_file": "packages/hoppscotch-common/src/components/collections/index.vue",
+            "owner_hops": 0,
+            "predicted_top1": "packages/hoppscotch-common/src/components/app/Shortcuts.vue",
+            "role": "searchbox"
+          },
+          {
+            "name": "More",
+            "oracle_file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+            "owner_hops": 2,
+            "predicted_top1": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+            "role": "button"
+          },
+          {
+            "name": "Global",
+            "oracle_file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+            "owner_hops": 0,
+            "predicted_top1": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+            "role": "generic"
+          },
+          {
+            "name": "Add new",
+            "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+            "owner_hops": 2,
+            "predicted_top1": "packages/hoppscotch-common/src/components/share/index.vue",
+            "role": "button"
+          },
+          {
+            "name": "Import",
+            "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+            "owner_hops": 2,
+            "predicted_top1": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+            "role": "button"
+          },
+          {
+            "name": "Import / Export",
+            "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+            "owner_hops": 2,
+            "predicted_top1": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+            "role": "button"
+          },
+          {
+            "name": "New",
+            "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+            "owner_hops": 2,
+            "predicted_top1": "packages/hoppscotch-common/src/components/share/index.vue",
+            "role": "button"
+          }
+        ],
+        "rows": "eval/oracle_elements.jsonl",
+        "scored": 124,
+        "top1_accuracy_of_scored": {
+          "k": 64,
+          "n": 124,
+          "p": 0.5161,
+          "wilson95_hi": 0.6023,
+          "wilson95_lo": 0.429
+        },
+        "top1_precision_of_covered": {
+          "k": 64,
+          "n": 117,
+          "p": 0.547,
+          "wilson95_hi": 0.6343,
+          "wilson95_lo": 0.4567
+        },
+        "units": 124
+      },
+      "source": "source-map oracle (harvest: 3 page visits, 21 chunks pinned by ETag and sha256)",
+      "statement": "This oracle exists only because this target publishes its source maps. It labels only UI present in the deployed build (not code added by an open PR), only files that also exist on main are scored, and it is test-only: it is not a product rung and nothing in link/, reason/ or graph/ may import it.",
+      "status": "ok",
+      "visit_paths": [
+        "/",
+        "/graphql",
+        "/settings"
+      ]
+    },
+    "recall": {
+      "breadth_max": 0.25,
+      "candidate_files_before_cap": 41,
+      "circular": true,
+      "flow_recall": {
+        "k": 458,
+        "n": 458,
+        "p": 1.0,
+        "wilson95_hi": 1.0,
+        "wilson95_lo": 0.9917
+      },
+      "hop_cap": 2,
+      "label": "CIRCULAR: the expected screens and flows come from the same links that built the graph. This checks that retrieval returns what the graph holds, not that the links are correct.",
+      "link_methods": [
+        "i18n_key",
+        "route",
+        "testid"
+      ],
+      "method": "graph.impact template, direct",
+      "min_link_confidence": 0.8,
+      "miss_count": 0,
+      "misses": [],
+      "n_elements": 142,
+      "n_files": 41,
+      "recall": {
+        "k": 142,
+        "n": 142,
+        "p": 1.0,
+        "wilson95_hi": 1.0,
+        "wilson95_lo": 0.9737
+      },
+      "recall_nontrivial": {
+        "k": 80,
+        "n": 80,
+        "p": 1.0,
+        "wilson95_hi": 1.0,
+        "wilson95_lo": 0.9542
+      },
+      "status": "ok",
+      "total_screens": 55,
+      "trivial_files": [
+        "packages/hoppscotch-common/src/components/aichat/Assistant.vue",
+        "packages/hoppscotch-common/src/components/app/Footer.vue",
+        "packages/hoppscotch-common/src/components/app/Header.vue",
+        "packages/hoppscotch-common/src/components/app/SpotlightSearch.vue",
+        "packages/hoppscotch-common/src/components/collections/ExportFormatModal.vue",
+        "packages/hoppscotch-common/src/components/collections/Properties.vue",
+        "packages/hoppscotch-common/src/components/collections/SaveRequest.vue",
+        "packages/hoppscotch-common/src/components/collections/documentation/sections/Headers.vue",
+        "packages/hoppscotch-common/src/components/collections/index.vue",
+        "packages/hoppscotch-common/src/components/environments/Selector.vue",
+        "packages/hoppscotch-common/src/components/graphql/Headers.vue",
+        "packages/hoppscotch-common/src/components/graphql/Query.vue",
+        "packages/hoppscotch-common/src/components/graphql/RequestOptions.vue",
+        "packages/hoppscotch-common/src/components/graphql/Variable.vue",
+        "packages/hoppscotch-common/src/components/history/Personal.vue",
+        "packages/hoppscotch-common/src/components/http/Body.vue",
+        "packages/hoppscotch-common/src/components/http/CodegenModal.vue",
+        "packages/hoppscotch-common/src/components/http/KeyValue.vue",
+        "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+        "packages/hoppscotch-common/src/components/http/test/RunnerModal.vue",
+        "packages/hoppscotch-common/src/components/realtime/Log.vue"
+      ]
+    }
+  },
+  "llm": {
+    "avoided_usd": 0.0,
+    "cache_hits": 0,
+    "calls": 0,
+    "spent_usd": 0.0
+  },
+  "requested": [
+    "invariants",
+    "recall",
+    "oracle"
+  ],
+  "run_id": "crawl-gate-150",
+  "schema_version": 1,
+  "summary": {
+    "invariants": "ok",
+    "oracle": "ok",
+    "recall": "ok"
+  },
+  "target": "hoppscotch",
+  "thresholds": {
+    "eval_only": {
+      "demoted_confidence": 0.49,
+      "high_confidence": 0.8,
+      "judge_k": 3,
+      "seeded_corruptions": 20,
+      "stability_min_agreement": 0.6,
+      "stability_n": 5
+    },
+    "registered": {
+      "breadth_fraction_max": 0.25,
+      "hop_cap": 2,
+      "min_confidence_correct": 0.5
+    },
+    "registered_on": "2026-10-12",
+    "sha256": "227f6687a5e561c3dc87864a539e714bb5c5f5968937741593ba89b626b17aad",
+    "source": "eval/thresholds.json"
+  }
+}

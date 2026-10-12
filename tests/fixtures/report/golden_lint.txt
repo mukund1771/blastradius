@@ -1,0 +1,107 @@
+model: ERROR html-in-field [headline]: HTML tags in a text field: 'Blast radius: PR #7 "x"\nRisk: LOW. <i>To'
+model: ERROR html-in-field [direct[3].label]: HTML tags in a text field: '<b>Bold</b>'
+model: ERROR band-confidence [item Mismatched band]: band confirmed does not match confidence 0.30
+model: ERROR risk-consistency [headline]: the headline says ['LOW'] but risk_level is HIGH
+model: WARNING headline-lines [headline]: the headline has 5 lines; the limit is 3
+model: WARNING confidence-line [confidence_line]: there is no sentence on confidence
+model: ERROR checklist-max [checklist]: the checklist has 9 items; the limit is 8
+model: ERROR checklist-ref [checklist[0]:itm_nope]: checklist item 1 refers to an unknown item
+model: ERROR checklist-ref [checklist[1]:itm_nope]: checklist item 2 refers to an unknown item
+model: ERROR checklist-ref [checklist[2]:itm_nope]: checklist item 3 refers to an unknown item
+model: ERROR checklist-ref [checklist[3]:itm_nope]: checklist item 4 refers to an unknown item
+model: ERROR checklist-ref [checklist[4]:itm_nope]: checklist item 5 refers to an unknown item
+model: ERROR checklist-ref [checklist[5]:itm_nope]: checklist item 6 refers to an unknown item
+model: ERROR checklist-ref [checklist[6]:itm_nope]: checklist item 7 refers to an unknown item
+model: ERROR checklist-ref [checklist[7]:itm_nope]: checklist item 8 refers to an unknown item
+model: ERROR band-verb [checklist[8]: will]: "will" is not allowed in a checklist line about an unknown item
+model: WARNING duplicate-id [itm_adc3ca5f6b36]: two report items share the id itm_adc3ca5f6b36
+model: WARNING tier2-cap [indirect]: 11 indirect items; only 10 are shown in the body, the rest go to the appendix
+model: WARNING undetermined-top [undetermined]: 6 could-not-determine items; only 5 are shown in the body
+model: ERROR not-checked [not_checked]: the list "What this report did not look at" is missing or empty
+model: ERROR claim-no-evidence [claim clm_a03672cfa6f8]: a claim cites no evidence
+model: ERROR evidence-unknown [claim:clm_185eafb0c726:ev_dddddddddddd]: cited evidence ev_dddddddddddd is not in the ledger
+model: ERROR band-verb [entry 20: will]: "will" is not allowed for a possible item: This screen will change.
+model: ERROR band-verb [claim clm_185eafb0c726: is affected]: "is affected" is not allowed for an unknown claim: The screen is affected.
+model: ERROR band-verb [claim clm_a03672cfa6f8: perhaps]: "perhaps" is not allowed for a confirmed claim: This will change, perhaps.
+all: ERROR html-in-field [headline]: HTML tags in a text field: 'Blast radius: PR #7 "x"\nRisk: LOW. <i>To'
+all: ERROR html-in-field [direct[3].label]: HTML tags in a text field: '<b>Bold</b>'
+all: ERROR band-confidence [item Mismatched band]: band confirmed does not match confidence 0.30
+all: ERROR risk-consistency [headline]: the headline says ['LOW'] but risk_level is HIGH
+all: WARNING headline-lines [headline]: the headline has 5 lines; the limit is 3
+all: WARNING confidence-line [confidence_line]: there is no sentence on confidence
+all: ERROR checklist-max [checklist]: the checklist has 9 items; the limit is 8
+all: ERROR checklist-ref [checklist[0]:itm_nope]: checklist item 1 refers to an unknown item
+all: ERROR checklist-ref [checklist[1]:itm_nope]: checklist item 2 refers to an unknown item
+all: ERROR checklist-ref [checklist[2]:itm_nope]: checklist item 3 refers to an unknown item
+all: ERROR checklist-ref [checklist[3]:itm_nope]: checklist item 4 refers to an unknown item
+all: ERROR checklist-ref [checklist[4]:itm_nope]: checklist item 5 refers to an unknown item
+all: ERROR checklist-ref [checklist[5]:itm_nope]: checklist item 6 refers to an unknown item
+all: ERROR checklist-ref [checklist[6]:itm_nope]: checklist item 7 refers to an unknown item
+all: ERROR checklist-ref [checklist[7]:itm_nope]: checklist item 8 refers to an unknown item
+all: ERROR band-verb [checklist[8]: will]: "will" is not allowed in a checklist line about an unknown item
+all: WARNING duplicate-id [itm_adc3ca5f6b36]: two report items share the id itm_adc3ca5f6b36
+all: WARNING tier2-cap [indirect]: 11 indirect items; only 10 are shown in the body, the rest go to the appendix
+all: WARNING undetermined-top [undetermined]: 6 could-not-determine items; only 5 are shown in the body
+all: ERROR not-checked [not_checked]: the list "What this report did not look at" is missing or empty
+all: ERROR claim-no-evidence [claim clm_a03672cfa6f8]: a claim cites no evidence
+all: ERROR band-verb [entry 20: will]: "will" is not allowed for a possible item: This screen will change.
+all: ERROR band-verb [claim clm_185eafb0c726: is affected]: "is affected" is not allowed for an unknown claim: The screen is affected.
+all: ERROR band-verb [claim clm_a03672cfa6f8: perhaps]: "perhaps" is not allowed for a confirmed claim: This will change, perhaps.
+all: ERROR band-verb [direct: **Unknown screen** (on Home page): breaks]: "breaks" is not allowed for an unknown item: **Unknown screen** (on Home page)
+all: ERROR band-verb [indirect: **Screen 0** (on Page 0): will]: "will" is not allowed for a possible item: **Screen 0** (on Page 0)
+all: ERROR band-verb [indirect: **Screen 1** (on Page 1): will]: "will" is not allowed for a possible item: **Screen 1** (on Page 1)
+all: ERROR band-verb [indirect: **Screen 10** (on Page 10): will]: "will" is not allowed for a possible item: **Screen 10** (on Page 10)
+all: ERROR band-verb [indirect: **Screen 2** (on Page 2): will]: "will" is not allowed for a possible item: **Screen 2** (on Page 2)
+all: ERROR band-verb [indirect: **Screen 3** (on Page 3): will]: "will" is not allowed for a possible item: **Screen 3** (on Page 3)
+all: ERROR band-verb [indirect: **Screen 4** (on Page 4): will]: "will" is not allowed for a possible item: **Screen 4** (on Page 4)
+all: ERROR band-verb [indirect: **Screen 5** (on Page 5): will]: "will" is not allowed for a possible item: **Screen 5** (on Page 5)
+all: ERROR band-verb [indirect: **Screen 6** (on Page 6): will]: "will" is not allowed for a possible item: **Screen 6** (on Page 6)
+all: ERROR band-verb [indirect: **Screen 7** (on Page 7): will]: "will" is not allowed for a possible item: **Screen 7** (on Page 7)
+all: ERROR band-verb [indirect: **Screen 8** (on Page 8): will]: "will" is not allowed for a possible item: **Screen 8** (on Page 8)
+markdown/autolinks: ERROR autolink [a@evil.example]: a www host, mailto: address or e-mail address that GitHub would link: a@evil.example
+markdown/band word: ERROR band-word [direct: **Environments sidebar** (on Home page)]: a row in "Directly changed" has no band word (confirmed, likely, possible, unknown): **Environments sidebar** (on Home page)
+markdown/checklist: ERROR checklist-max [checklist]: the checklist has 9 items; the limit is 8
+markdown/checklist: WARNING checklist-why [Do 1.]: checklist item has no "Why:" clause: Do 1.
+markdown/checklist: WARNING checklist-why [Do 2.]: checklist item has no "Why:" clause: Do 2.
+markdown/checklist: WARNING checklist-why [Do 3.]: checklist item has no "Why:" clause: Do 3.
+markdown/checklist: WARNING checklist-why [Do 4.]: checklist item has no "Why:" clause: Do 4.
+markdown/checklist: WARNING checklist-why [Do 5.]: checklist item has no "Why:" clause: Do 5.
+markdown/checklist: WARNING checklist-why [Do 6.]: checklist item has no "Why:" clause: Do 6.
+markdown/checklist: WARNING checklist-why [Do 7.]: checklist item has no "Why:" clause: Do 7.
+markdown/checklist: WARNING checklist-why [Do 8.]: checklist item has no "Why:" clause: Do 8.
+markdown/empty undetermined: ERROR undetermined-section [undetermined]: the section is empty: list what could not be determined, or say "Nothing outstanding because ..."
+markdown/html and urls: ERROR html-in-text [<img src=x>]: HTML in the Markdown: <img src=x>
+markdown/html and urls: ERROR remote-url [https://]: a remote URL or image in the Markdown: https://
+markdown/ids and paths: ERROR raw-id [body: ev_0123456789ab]: an internal id outside the appendix: "ev_0123456789ab"
+markdown/ids and paths: ERROR raw-sha [body: 64ba4ff75eff]: a commit hash outside the appendix: "64ba4ff75eff"
+markdown/ids and paths: ERROR file-path [body: Editor.vue]: a file path or package name outside the appendix: "Editor.vue"
+markdown/ids and paths: ERROR jargon [body: node]: graph jargon outside the appendix: "node"
+markdown/invisible: ERROR invisible-character [markdown: U+2066]: bidi, zero-width or control characters in the markdown: U+2066, U+2069
+markdown/no band cell: ERROR band-word [direct: **Environments sidebar** (on Home page)]: a row in "Directly changed" has no band word (confirmed, likely, possible, unknown): **Environments sidebar** (on Home page)
+markdown/no risk: ERROR risk-first-lines [headline]: the risk level (LOW, MEDIUM, HIGH or UNKNOWN) is not in the first 3 lines
+markdown/no scope list: ERROR not-checked [not_checked]: the list "What this report did not look at" is missing or empty
+markdown/no undetermined: ERROR undetermined-section [undetermined]: the section "What we could not determine, and who should look" is missing
+markdown/no undetermined: ERROR not-checked [not_checked]: the list "What this report did not look at" is missing or empty
+markdown/no undetermined: ERROR footnote-unresolved [[^1]]: footnote [^1] has no entry in the appendix
+markdown/section duplicated: ERROR section-order [order]: sections are out of the fixed order of REPORT_SPEC
+markdown/section duplicated: ERROR section-order [duplicate]: a section appears more than once
+markdown/section extra: ERROR section-unexpected [Summary]: unexpected section "Summary"; the titles and their order are fixed by REPORT_SPEC
+markdown/section missing: ERROR section-missing [direct]: section "Directly changed" is missing
+markdown/section swapped: ERROR section-order [order]: sections are out of the fixed order of REPORT_SPEC
+markdown/soft undetermined: ERROR undetermined-weight [undetermined]: could not determine has a deeper heading than the findings
+markdown/too many words: ERROR word-budget [main body]: the main body has 726 words outside tables; the budget is 600
+markdown/uncited: ERROR uncited-sentence [direct: **Environments sidebar** (on Home page)]: a row in "Directly changed" cites no evidence: **Environments sidebar** (on Home page)
+markdown/unresolved footnote: ERROR footnote-unresolved [[^1]]: footnote [^1] has no entry in the appendix
+html/css url: ERROR remote-url [url(]: a CSS url() that is not a data: URI: url(
+html/handler: ERROR active-content [<main onclick=]: an inline event handler: <main onclick=
+html/image: ERROR remote-url [src="//]: a remote or script URL in an attribute: src="//
+html/image: ERROR remote-url [<img]: an image that is not a data: URI: <img
+html/import: ERROR remote-url [@import]: a CSS @import
+html/invisible: ERROR invisible-character [page: U+2067]: bidi, zero-width or control characters in the page: U+2067
+html/no csp: ERROR csp-missing [head]: no Content-Security-Policy meta tag with default-src 'none'
+html/raw id: ERROR raw-id [html: ev_0123456789ab]: an internal id outside the appendix: "ev_0123456789ab"
+html/refresh: ERROR active-content [http-equiv="refresh]: a meta refresh: http-equiv="refresh
+html/remote attr: ERROR remote-url [href="https:]: a remote or script URL in an attribute: href="https:
+html/script: ERROR active-content [<script]: a script, frame, link, form or base element: <script
+html/soft undetermined: ERROR undetermined-weight [undetermined]: could not determine has a deeper heading than the findings
+html/weak csp: ERROR csp-missing [head]: no Content-Security-Policy meta tag with default-src 'none'

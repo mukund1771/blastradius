@@ -113,3 +113,33 @@ def scan_t_calls(text: str) -> KeyScan:
         else:
             scan.unresolved += 1
     return scan
+
+
+# ------------------------------------------------------------------------------------- lone surrogates
+# A locale file can spell a UTF-16 half (`"\ud800"`): JSON parses it into a str that cannot be encoded as
+# UTF-8, so the index could not be written or hashed. Halves become U+FFFD and are counted, never raised.
+_LONE_SURROGATE = re.compile("[\ud800-\udfff]")
+_YAML_SURROGATE_ESCAPE = re.compile(r"\\u[dD][89a-fA-F][0-9a-fA-F]{2}|\\U0000[dD][89a-fA-F][0-9a-fA-F]{2}")
+
+
+def scrub_surrogates(messages: Mapping[str, str]) -> tuple[dict[str, str], int]:
+    """`(messages, strings changed)`: every lone surrogate in a key or a value replaced by U+FFFD.
+
+    JSON joins a valid escape pair into one character before this runs, so what is left is a lone half.
+    Keys that become equal keep the later one, which is document order for a JSON object.
+    """
+    out: dict[str, str] = {}
+    changed = 0
+    for key, value in messages.items():
+        clean_key, clean_value = _LONE_SURROGATE.sub("�", key), _LONE_SURROGATE.sub("�", value)
+        changed += (clean_key != key) + (clean_value != value)
+        out[clean_key] = clean_value
+    return out, changed
+
+
+def scrub_yaml_surrogates(text: str) -> tuple[str, int]:
+    """`(text, escapes replaced)`: `\\ud800`-style escapes of a YAML document turned into `\\ufffd`.
+
+    PyYAML does not join a pair of escapes, so every half would otherwise reach the index as a lone surrogate.
+    """
+    return _YAML_SURROGATE_ESCAPE.subn(r"\\ufffd", text)

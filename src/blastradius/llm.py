@@ -184,10 +184,10 @@ class LLM:
                 sp.fail(FailureCode.LLM_BUDGET_EXCEEDED)
                 raise LLMBudgetExceeded(f"run spend breaker at ${self.settings.max_usd:.2f}")
 
-            kwargs: dict[str, Any] = dict(
-                model=model, max_tokens=max_tokens, system=system,
-                messages=[{"role": "user", "content": user}], output_format=schema,
-            )
+            kwargs: dict[str, Any] = {
+                "model": model, "max_tokens": max_tokens, "system": system,
+                "messages": [{"role": "user", "content": user}], "output_format": schema,
+            }
             if use_effort:
                 kwargs["output_config"] = {"effort": use_effort}
             t0 = time.monotonic()

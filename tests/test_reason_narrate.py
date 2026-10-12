@@ -42,7 +42,7 @@ def test_template_alone_writes_a_complete_plain_language_report(tmp_path: Path):
     report, asm, run = sample_report(tmp_path, stored=True, glob=True)
     n = template_narration(report, asm, TH)
     assert n.source == "template" and n.risk_line.startswith("Risk: HIGH.")
-    assert "3 screens, 1 user flow, 1 requirement" in n.risk_line and "Environments" in n.risk_line
+    assert "3 screens, 1 user flow, 1 requirement" in n.risk_line and "Home page" in n.risk_line
     assert 1 <= len(n.checklist) <= TH.retrieval.checklist_max
     assert all(c.text and c.why and c.item_ids for c in n.checklist)
     assert any("Export your saved data" in c.text for c in n.checklist)       # migration steps ride along

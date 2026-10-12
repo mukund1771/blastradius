@@ -7,8 +7,10 @@ the link stage's results into Gap rows (links/gaps.jsonl, store.write_gaps), one
    NOT_UI_TESTABLE  CLASSIFIED         ui_observable == "no" or edition desktop / self-host
    ACCESS_RESTRICTED SKIPPED_BY_POLICY requires_login; or an unrealised requirement all of whose words
                                        name a control the crawl refused to act on (a blocked transition)
-   (realised by >= 1 REALIZED_BY link: no gap; a must_not_exist requirement that IS realised is a
-    contradiction of the spec, reported in the summary, never as a gap: a satisfied negative is a pass)
+   (realised by >= 1 REALIZED_BY link: no gap. A must_not_exist requirement that IS realised is the
+    reverse of a pass: the UI shows what the spec says is absent. It is written as an UNSPECIFIED_UI gap
+    (reason contradicts_must_not_exist, subject the requirement, confidence 0.0: it is an observation, not
+    an absence claim) and counted in the summary as negatives_contradicted)
    NO_UI_EVIDENCE   NOT_FOUND_WITHIN_BUDGET   ui_observable yes, edition cloud-web or all, nothing realises it
    NO_UI_EVIDENCE   CONFIRMED_ABSENT   the same for polarity must_not_exist (an explicit "coming soon"):
                                        the spec says it is absent and the crawl found nothing that shows it
@@ -27,9 +29,10 @@ Confidence is a claim about absence and is only non-zero for NO_UI_EVIDENCE gaps
 E = (1 - exp(-actions_spent / 50)) x (1.0 if the crawl emptied its frontier else 0.8):
 
     NOT_FOUND_WITHIN_BUDGET  min(0.60, 0.60 x E)        never above "likely"
-    CONFIRMED_ABSENT         min(0.60, 0.40 + 0.20 x E) the spec's explicit negative corroborated by the crawl;
-                             never below NOT_FOUND at equal effort, same ceiling: a bounded unauthenticated
-                             crawl cannot prove a negative
+    CONFIRMED_ABSENT         min(0.60, 0.80 x E)        the spec's explicit negative, corroborated by the
+                             crawl; never below NOT_FOUND at equal effort, same ceiling: a bounded
+                             unauthenticated crawl cannot prove a negative. Derived from effort alone: a
+                             crawl that spent no actions has looked at nothing, whatever the spec says
     judge did not run        0.0 and reason JUDGE_UNAVAILABLE (we did not look; never an absence claim)
 
 Reason SPEC_MAY_BE_STALE is set when spec/stats.json says the docs predate the app (case 21). CONFIG_DEPENDENT
@@ -37,6 +40,17 @@ Reason SPEC_MAY_BE_STALE is set when spec/stats.json says the docs predate the a
 never reused across bundles (case 48); NOT_UI_TESTABLE depends only on the spec and carries none. When the crawl
 ran with goals, crawl/goal_effort.json (screens and actions that overlapped the requirement) is cited in the
 gap's evidence row.
+
+What `gaps` trusts (case 48). links/links.jsonl and links/link_state.json were derived from one crawl, one
+code index and one requirement list; `gaps` reads the current ones. link_state.json is compared with the
+current crawl (target, bundle_hash, a fingerprint of the screens) and code snapshot. A state that does not
+belong to them is recorded as a failure and is not used: every requirement is then unjudged
+(JUDGE_UNAVAILABLE, confidence 0.0, never an absence claim), UNMAPPED_CODE is skipped, and UNSPECIFIED_UI is
+skipped (what no requirement realises cannot be said without the judgements). Whatever the state says, a
+REALIZED_BY link whose dst is not a Screen, element or Flow of the current artifacts, and an IMPLEMENTED_BY
+link whose element or file is not, are dropped and counted. When the link stage has not run at all (no
+state, no links) there is no UNMAPPED_CODE gap: "link not run" is a statement about the pipeline, not about
+the code.
 
 Bounded re-crawl (`recrawl=True`): at most 5 NO_UI_EVIDENCE gaps (the ingest stage's requirement order),
 each a goal crawl of 20
@@ -60,7 +74,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from ..code.index import render_closure
+from ..failures import FailureCode
 from ..graph.canonical import canonicalise
 from ..ids import stable_id
 from ..llm import LLM
@@ -69,14 +86,24 @@ from ..run import RunContext
 from ..targets import TargetConfig
 from .budget import CallBudget, ledger_delta
 from .cascade import screen_order
-from .inputs import LinkInputs, load_inputs, load_links, read_jsonl, write_jsonl
+from .inputs import (
+    LinkInputs,
+    crawl_fingerprint,
+    invalid_artifact,
+    load_inputs,
+    load_links,
+    read_json,
+    read_jsonl,
+    read_text,
+    write_jsonl,
+)
 from .req_to_ui import MAX_JUDGE_CALLS, Retriever, build_docs, judge_requirement
 from .text import tokens
 from .ui_to_code import INTERACTIVE_ROLES, element_texts
 
 NOT_FOUND = "NOT_FOUND_WITHIN_BUDGET"
 NOT_FOUND_CAP = 0.60
-ABSENT_BASE, ABSENT_SPAN, ABSENT_CAP = 0.40, 0.20, 0.60
+ABSENT_SLOPE, ABSENT_CAP = 0.80, 0.60
 EFFORT_SCALE = 50.0
 INCOMPLETE_CRAWL = 0.8
 UNSPECIFIED_PER_SCREEN = 8
@@ -97,7 +124,9 @@ def not_found_confidence(actions_spent: int, stop_reason: str | None) -> float:
 
 
 def absent_confidence(actions_spent: int, stop_reason: str | None) -> float:
-    return round(min(ABSENT_CAP, ABSENT_BASE + ABSENT_SPAN * effort_score(actions_spent, stop_reason)), 2)
+    """A corroborated explicit negative is worth more than a miss at equal effort (SLOPE > NOT_FOUND's 0.60),
+    but is derived from the effort alone: with nothing looked at there is nothing to corroborate."""
+    return round(min(ABSENT_CAP, ABSENT_SLOPE * effort_score(actions_spent, stop_reason)), 2)
 
 
 # -------------------------------------------------------------------------------------------- context
@@ -114,6 +143,11 @@ class _Ctx:
     obs: dict[str, UIElementObs] = field(default_factory=dict)   # observation id -> first observation
     goal_effort: dict[str, dict[str, Any]] = field(default_factory=dict)   # requirement text -> crawl row
     summary: CrawlSummary | None = None
+    state_status: str = "ok"          # ok | unverified | missing | invalid | stale
+    state_reason: str = ""
+    link_ran: bool = True             # link_state.json or at least one link exists
+    contradicted: list[str] = field(default_factory=list)
+    screen_by_id: dict[str, ScreenState] = field(default_factory=dict)
 
     @property
     def bundle(self) -> str | None:
@@ -130,6 +164,11 @@ class _Ctx:
     @property
     def stale(self) -> bool:
         return self.inputs.spec_stats.get("stale") is True
+
+    @property
+    def judgements_usable(self) -> bool:
+        """The link stage ran and its state belongs to the current crawl."""
+        return self.link_ran and self.state_status in ("ok", "unverified", "missing")
 
     @property
     def screen_ids(self) -> list[str]:
@@ -172,8 +211,11 @@ def _blocked_match(req: Requirement, blocked: dict[str, dict[str, Any]]) -> list
 
 
 def _judge_state(ctx: _Ctx, req: Requirement) -> str:
+    if not ctx.judgements_usable:     # a state of another crawl says nothing about this one
+        return "unjudged"
     rec = ctx.state.get("requirements", {}).get(req.id)
-    return rec["status"] if rec else "unjudged"
+    status = rec.get("status") if isinstance(rec, dict) else None
+    return status if isinstance(status, str) else "unjudged"
 
 
 def _requirement_gap(ctx: _Ctx, req: Requirement, blocked: dict[str, dict[str, Any]],
@@ -189,6 +231,7 @@ def _requirement_gap(ctx: _Ctx, req: Requirement, blocked: dict[str, dict[str, A
     if req.id in ctx.realized:
         if req.polarity == "must_not_exist":
             summary["negatives_contradicted"] += 1
+            return _contradiction_gap(ctx, req)
         return None
     hit = _blocked_match(req, blocked)
     if hit:
@@ -205,6 +248,28 @@ def _requirement_gap(ctx: _Ctx, req: Requirement, blocked: dict[str, dict[str, A
 
 _HOW = {"judged": "judged by two samples", "partial": "judged by one sample",
         "no_candidates": "no UI text overlapped it", "unjudged": "the judge did not run"}
+
+
+def _label_of(ctx: _Ctx, node_id: str) -> str:
+    el = ctx.obs.get(node_id)
+    if el is not None:
+        return f'{el.role} "{" ".join((el.name or el.text).split())[:60]}"'
+    s = ctx.screen_by_id.get(node_id)
+    return f'screen "{" ".join(s.title.split())[:60]}"' if s is not None else node_id
+
+
+def _contradiction_gap(ctx: _Ctx, req: Requirement) -> Gap:
+    """The spec says it must not exist and the UI shows it: not a pass. The link's confidence says how sure
+    the judge is that the control is that thing; the gap itself makes no claim about absence."""
+    rows = sorted((l for l in ctx.links if l.kind == "REALIZED_BY" and l.src == req.id),
+                  key=lambda l: (-l.confidence, l.dst))
+    ctx.contradicted.append(req.id)
+    screens = {sid for l in rows for sid in l.screen_ids} or {
+        l.dst for l in rows if l.dst in ctx.screen_by_id}
+    shown = "; ".join(f"{_label_of(ctx, l.dst)} (judge {l.confidence:.2f})" for l in rows[:3])
+    return _gap(ctx, GapKind.UNSPECIFIED_UI, "OBSERVED", req.id, "contradicts_must_not_exist",
+                f'requirement "{req.text}" says it must not exist, but the crawl shows it: {shown}'
+                + ("; the spec may be stale" if ctx.stale else ""), screens=screens)
 
 
 def _absence_gap(ctx: _Ctx, req: Requirement) -> Gap:
@@ -242,9 +307,15 @@ def _access_gaps(ctx: _Ctx, blocked: dict[str, dict[str, Any]]) -> list[Gap]:
 
 
 def _code_gaps(ctx: _Ctx, counts: Counter[str]) -> list[Gap]:
+    if not ctx.link_ran:
+        return []          # "link not run": nothing was evaluated, so nothing is unmapped
+    if ctx.state_status in ("stale", "invalid"):
+        return []          # the unresolved rows describe another crawl, or cannot be read
     if "unresolved" in ctx.state and ctx.state["unresolved"] is None:
         return []          # the link stage had no code index: nothing was evaluated, so nothing is unmapped
     rows = ctx.state.get("unresolved")
+    if rows is not None and not isinstance(rows, list):
+        rows = None
     if rows is None:       # no link_state.json: derive the deterministic part from links + screens
         linked = {ctx.alias.get(l.src, l.src) for l in ctx.links if l.kind == "IMPLEMENTED_BY"}
         rows = []
@@ -258,15 +329,36 @@ def _code_gaps(ctx: _Ctx, counts: Counter[str]) -> list[Gap]:
                          "screen_ids": []})
     by_subject: dict[str, dict[str, Any]] = {}
     for r in rows:
+        if not isinstance(r, dict) or not isinstance(r.get("element_id"), str):
+            counts["unmapped_rows_malformed"] += 1
+            continue
         # an observation id can belong to two canonical elements (UIElementObs.id has no dialog or ordinal
         # context); the graph resolves it to one, so a second row for the same id is the same gap
         if r["element_id"] in by_subject:
             counts["unmapped_merged_shared_obs_id"] += 1
         by_subject.setdefault(r["element_id"], r)
-    return [_gap(ctx, GapKind.UNMAPPED_CODE, "OBSERVED", r["element_id"], r["reason"],
-                 f'{r["role"]} "{r["name"]}" has no code link ({r["reason"]})'
-                 + (f": {r['detail']}" if r.get("detail") else ""), screens=r.get("screen_ids", []))
-            for _, r in sorted(by_subject.items())]
+    out = []
+    for _, r in sorted(by_subject.items()):
+        reason = str(r.get("reason") or "no_candidate")
+        screens = r.get("screen_ids")
+        out.append(_gap(ctx, GapKind.UNMAPPED_CODE, "OBSERVED", r["element_id"], reason,
+                        f'{r.get("role", "")} "{r.get("name", "")}" has no code link ({reason})'
+                        + (f": {r['detail']}" if r.get("detail") else ""),
+                        screens=[x for x in screens if isinstance(x, str)] if isinstance(screens, list)
+                        else []))
+    return out
+
+
+def _unmapped_note(ctx: _Ctx) -> dict[str, str]:
+    """Why UNMAPPED_CODE was or was not produced, in words a reader of the summary can act on."""
+    if not ctx.link_ran:
+        return {"status": "skipped", "reason": "link not run: no links/link_state.json and no "
+                                               "links/links.jsonl; run `blastradius link`"}
+    if ctx.state_status in ("stale", "invalid"):
+        return {"status": "skipped", "reason": f"link_state.json {ctx.state_status}: {ctx.state_reason}"}
+    if "unresolved" in ctx.state and ctx.state["unresolved"] is None:
+        return {"status": "skipped", "reason": "the link stage had no code index"}
+    return {"status": "ok", "reason": ""}
 
 
 def _layout_closure(index: CodeIndex | None, cfg: TargetConfig) -> set[str]:
@@ -276,7 +368,11 @@ def _layout_closure(index: CodeIndex | None, cfg: TargetConfig) -> set[str]:
     return set(render_closure(index.edges, seeds)) if seeds else set()
 
 
-def _unspecified_gaps(ctx: _Ctx, index: CodeIndex | None) -> tuple[list[Gap], dict[str, int]]:
+def _unspecified_gaps(ctx: _Ctx, index: CodeIndex | None) -> tuple[list[Gap], dict[str, Any]]:
+    if ctx.inputs.requirements and not ctx.judgements_usable:
+        # "no requirement realises it" needs the judgements; without them it would flag every control
+        return [], {"listed": 0, "grouped": 0, "screens": 0,
+                    "skipped": "link not run" if not ctx.link_ran else f"link_state.json {ctx.state_status}"}
     layout = _layout_closure(index, ctx.cfg)
     files_of: dict[str, set[str]] = {}
     for l in ctx.links:
@@ -387,20 +483,20 @@ def run_gaps(run: RunContext, cfg: TargetConfig, store: Any, llm: LLM | None, *,
     inputs = load_inputs(run, cfg, code=False)
     index = _load_index(run, cfg)
     links = load_links(run)
-    state_path = run.run_dir / "links" / "link_state.json"
-    state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
-    ctx = _Ctx(run, cfg, inputs, links, state, summary=inputs.summary)
-    ctx.realized = {l.src for l in links if l.kind == "REALIZED_BY"}
+    ctx = _Ctx(run, cfg, inputs, links, {}, summary=inputs.summary)
     canon = canonicalise(inputs.screens, cfg.name)
     ctx.alias = canon.alias
     for obs_id, cid in sorted(canon.alias.items()):
         ctx.members.setdefault(cid, []).append(obs_id)
     for s in inputs.screens:
+        ctx.screen_by_id[s.id] = s
         for el in s.elements:
             ctx.obs.setdefault(el.id, el)
-    effort_path = run.run_dir / "crawl" / "goal_effort.json"      # written by a crawl run with --goal
-    if effort_path.exists():
-        ctx.goal_effort = {r["goal"]: r for r in json.loads(effort_path.read_text(encoding="utf-8"))}
+    ctx.state, ctx.state_status, ctx.state_reason = _read_state(ctx)
+    ctx.link_ran = ctx.state_status != "missing" or bool(links)
+    dropped = _drop_stale_links(ctx, index)
+    ctx.realized = {l.src for l in ctx.links if l.kind == "REALIZED_BY"}
+    ctx.goal_effort = _read_goal_effort(run)
 
     counts: Counter[str] = Counter()
     with run.stage("gaps.build") as span:
@@ -428,26 +524,113 @@ def run_gaps(run: RunContext, cfg: TargetConfig, store: Any, llm: LLM | None, *,
     write_jsonl(run.path("links", "gaps.jsonl"), list(gaps))
     if new_links:
         write_jsonl(run.path("links", "links.jsonl"), sorted(
-            [*links, *new_links], key=lambda l: (l.kind, l.src, l.dst, l.method)))
+            [*ctx.links, *new_links], key=lambda l: (l.kind, l.src, l.dst, l.method, -l.confidence)))
     write = {}
     if store is not None:
         write = store.write_gaps(gaps, run.run_id, target=cfg.name)
         if new_links:
             write["links"] = store.write_links(new_links, run.run_id, target=cfg.name)
-    return _report(gaps, counts, unspec_stats, recrawl_info, write, ctx,
+    return _report(gaps, counts, unspec_stats, recrawl_info, write, ctx, dropped,
                    ledger_delta(run, ledger_before) | {"enabled": llm is not None}, time.monotonic() - t0)
+
+
+def _read_state(ctx: _Ctx) -> tuple[dict[str, Any], str, str]:
+    """(state, status, reason). The state is returned only when it can be trusted for the current crawl;
+    status is ok | unverified (an older file with nothing to compare) | missing | invalid | stale."""
+    run, cfg = ctx.run, ctx.cfg
+    path = run.run_dir / "links" / "link_state.json"
+    raw, problem = read_json(path)
+    if problem == "missing":
+        return {}, "missing", "no links/link_state.json"
+    shape = ""
+    if not problem:
+        if not isinstance(raw, dict):
+            shape = f"holds a JSON {type(raw).__name__}, not an object"
+        elif not isinstance(raw.get("requirements", {}), dict) or not isinstance(
+                raw.get("unresolved"), (list, type(None))):
+            shape = "its `requirements` or `unresolved` have the wrong shape"
+    if problem or shape:
+        invalid_artifact(run, path, problem or shape, rerun="blastradius link")
+        return {}, "invalid", problem or shape
+    reasons = []
+    if "target" in raw and raw["target"] != cfg.name:
+        reasons.append(f"it was derived for target {raw['target']!r}, this run is {cfg.name!r}")
+    summary = ctx.summary
+    if "bundle_hash" in raw and summary is not None and raw["bundle_hash"] != summary.bundle_hash:
+        reasons.append(f"it was derived from crawl bundle {raw['bundle_hash']!r}, the current crawl is "
+                       f"{summary.bundle_hash!r}")
+    if "crawl_sha" in raw and raw["crawl_sha"] != crawl_fingerprint(ctx.inputs.screens):
+        reasons.append("it was derived from a different set of screens than crawl/screens.jsonl holds now")
+    if reasons:
+        why = "; ".join(reasons)
+        run.failures.record(FailureCode.CONFIG_INVALID,
+                            f"links/link_state.json is stale: {why}; judgements ignored, run "
+                            "`blastradius link` again", stage="gaps", artifact="links/link_state.json")
+        return {}, "stale", why
+    comparable = any(k in raw for k in ("target", "bundle_hash", "crawl_sha"))
+    return raw, ("ok" if comparable else "unverified"), ""
+
+
+def _drop_stale_links(ctx: _Ctx, index: CodeIndex | None) -> dict[str, int]:
+    """Keep only links that point at nodes the current artifacts have (case 48)."""
+    screens = set(ctx.screen_by_id)
+    elements = set(ctx.obs) | set(ctx.members)
+    flows: set[str] = set()
+    text = read_text(ctx.run.run_dir / "links" / "flows.jsonl")
+    for line in (text or "").splitlines():
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(row, dict) and isinstance(row.get("id"), str):
+            flows.add(row["id"])
+    files = {f.path for f in index.files} if index is not None else None
+    kept: list[Link] = []
+    dropped: Counter[str] = Counter()
+    for l in ctx.links:
+        if l.kind == "REALIZED_BY":
+            ok = l.dst in screens or l.dst in elements or l.dst in flows
+        else:
+            ok = l.src in elements and (files is None or l.dst in files)
+        if ok:
+            kept.append(l)
+        else:
+            dropped[l.kind] += 1
+    ctx.links = kept
+    return dict(sorted(dropped.items()))
+
+
+def _read_goal_effort(run: RunContext) -> dict[str, dict[str, Any]]:
+    path = run.run_dir / "crawl" / "goal_effort.json"      # written by a crawl run with --goal
+    if not path.exists():
+        return {}
+    raw, problem = read_json(path)
+    if problem or not isinstance(raw, list):
+        invalid_artifact(run, path, problem or f"holds a JSON {type(raw).__name__}, not a list",
+                         rerun="blastradius crawl --goal")
+        return {}
+    return {r["goal"]: r for r in raw if isinstance(r, dict) and isinstance(r.get("goal"), str)}
 
 
 def _load_index(run: RunContext, cfg: TargetConfig) -> CodeIndex | None:
     path: Path = run.run_dir / "code" / "index.json"
     if not path.exists():
         return None
-    index = CodeIndex.model_validate_json(path.read_text(encoding="utf-8"))
+    text = read_text(path)
+    try:
+        if text is None:
+            raise ValueError("unreadable")
+        index = CodeIndex.model_validate_json(text)
+    except (ValidationError, ValueError):
+        invalid_artifact(run, path, "does not validate as a code index (corrupt or truncated)",
+                         rerun="blastradius index")
+        return None
     return index if index.target == cfg.name else None
 
 
-def _report(gaps: list[Gap], counts: Counter[str], unspec: dict[str, int], recrawl: dict[str, Any],
-            write: dict[str, Any], ctx: _Ctx, llm_used: dict[str, Any], seconds: float) -> dict[str, Any]:
+def _report(gaps: list[Gap], counts: Counter[str], unspec: dict[str, Any], recrawl: dict[str, Any],
+            write: dict[str, Any], ctx: _Ctx, dropped: dict[str, int], llm_used: dict[str, Any],
+            seconds: float) -> dict[str, Any]:
     by_kind = Counter(g.kind.value for g in gaps)
     by_status = Counter(f"{g.kind.value}/{g.status}" for g in gaps)
     reasons = Counter(f"{g.kind.value}/{g.reason}" for g in gaps if g.reason)
@@ -462,8 +645,13 @@ def _report(gaps: list[Gap], counts: Counter[str], unspec: dict[str, int], recra
         "by_reason": dict(sorted(reasons.items())),
         "requirements": len(ctx.inputs.requirements),
         "requirements_realized": len(ctx.realized & {r.id for r in ctx.inputs.requirements}),
-        "negatives_contradicted": counts["negatives_contradicted"],
+        "negatives_contradicted": len(ctx.contradicted),
+        "contradicted_requirement_ids": sorted(ctx.contradicted),
+        "link_state": {"status": ctx.state_status, "reason": ctx.state_reason, "link_ran": ctx.link_ran},
+        "unmapped_code": _unmapped_note(ctx),
+        "stale_links_dropped": dropped,
         "unmapped_merged_shared_obs_id": counts["unmapped_merged_shared_obs_id"],
+        "unmapped_rows_malformed": counts["unmapped_rows_malformed"],
         "requirements_not_gapped_unclassified": counts["not_gapped_unclassified"],
         "unspecified_ui": unspec,
         "confidence_histogram": {k: dict(sorted(v.items())) for k, v in sorted(hist.items())},

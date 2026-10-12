@@ -176,7 +176,8 @@ def _undetermined(v: View) -> list[str]:
 def _evidence_line(e: EvidenceView) -> str:
     if not e.found:
         return f"- Evidence {md_code(e.id)}: not found in this run's evidence ledger."
-    bits = [f"- Evidence {md_code(e.id)} ({md_text(e.kind)}): {md_text(sentence(e.summary))}"]
+    head = f"- Evidence {md_code(e.id)} ({md_text(e.kind)})"
+    bits = [f"{head}: {md_text(sentence(e.summary))}" if e.summary else f"{head}."]
     if e.ref:
         bits.append(f"Reference {md_code(e.ref)}.")
     bits.extend(f"{md_text(k)} {md_code(val)}." for k, val in e.extras)

@@ -9,7 +9,9 @@ and writes:
   links/links.jsonl       every Link, sorted (kind, src, dst, method): identical across processes
   links/link_state.json   what link.gaps needs and the Link rows cannot say: the unresolved UI elements with
                           their reason, and per requirement whether the judge ran (so "the judge did not run"
-                          is never reported as "the UI is absent")
+                          is never reported as "the UI is absent"); and what it was derived from (target,
+                          crawl bundle_hash, a fingerprint of the crawl's screens, the code snapshot), which
+                          link.gaps compares with the current artifacts and refuses to trust when they differ
   store.write_links       idempotent MERGE keyed by (target, id); skipped when `store` is None
 
 The returned dict is the stage's measurement: counts, per-method confidence histograms, LLM calls made and
@@ -26,15 +28,19 @@ from ..models import Link
 from ..run import RunContext
 from ..targets import TargetConfig
 from .budget import ledger_delta
-from .inputs import load_inputs, write_json, write_jsonl
+from .inputs import LinkInputs, crawl_fingerprint, load_inputs, write_json, write_jsonl
 from .req_to_ui import ReqLinkResult, link_req_to_ui
 from .ui_to_code import UiLinkResult, link_ui_to_code
 
 
-def _state(cfg: TargetConfig, bundle: str | None, ui: UiLinkResult | None, req: ReqLinkResult | None) -> dict[str, Any]:
+def _state(cfg: TargetConfig, inputs: LinkInputs, ui: UiLinkResult | None,
+           req: ReqLinkResult | None) -> dict[str, Any]:
     return {
         "target": cfg.name,
-        "bundle_hash": bundle,
+        "bundle_hash": inputs.summary.bundle_hash if inputs.summary else None,
+        "crawl_sha": crawl_fingerprint(inputs.screens),
+        "screens": len(inputs.screens),
+        "code_snapshot": inputs.index.snapshot_id if inputs.index else None,
         "unresolved": [
             {"element_id": u.element_id, "obs_ids": u.obs_ids, "screen_ids": u.screen_ids, "name": u.name,
              "role": u.role, "reason": u.reason, "detail": u.detail}
@@ -68,10 +74,9 @@ def run_link(run: RunContext, cfg: TargetConfig, store: Any, llm: LLM | None) ->
         out["req_to_ui"] = {"status": "skipped", "reason": "needs crawl/screens.jsonl and spec/requirements.json"}
 
     links: list[Link] = sorted([*(ui.links if ui else []), *(req.links if req else [])],
-                               key=lambda l: (l.kind, l.src, l.dst, l.method))
+                               key=lambda l: (l.kind, l.src, l.dst, l.method, -l.confidence, l.evidence_id))
     write_jsonl(run.path("links", "links.jsonl"), list(links))
-    write_json(run.path("links", "link_state.json"),
-               _state(cfg, inputs.summary.bundle_hash if inputs.summary else None, ui, req))
+    write_json(run.path("links", "link_state.json"), _state(cfg, inputs, ui, req))
     out["links"] = {"total": len(links), "implemented_by": sum(1 for l in links if l.kind == "IMPLEMENTED_BY"),
                     "realized_by": sum(1 for l in links if l.kind == "REALIZED_BY")}
     if store is not None:

@@ -44,12 +44,12 @@ def sylius_code(**update) -> CodeConfig:
     return TargetConfig.load("sylius").code.model_copy(update=update)
 
 
-def build(tmp_path: Path, files: dict[str, str], **update) -> CodeIndex:
+def build(tmp_path: Path, files: dict[str, str | bytes], **update) -> CodeIndex:
     """Index a tree made of `files` with the real Sylius code config (or `update`d fields of it)."""
     for rel, text in files.items():
         path = tmp_path / rel
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(text)
+        path.write_bytes(text if isinstance(text, bytes) else text.encode())
     return TwigAdapter().index(tmp_path, sylius_code(**update), SHA, target="sylius", ref="2.2")
 
 
@@ -678,9 +678,8 @@ def test_run_overlay_equals_a_fresh_index_when_the_context_files_are_fetched(tmp
     _same_as_fresh(world.overlay(), world.fresh())
 
 
-@pytest.mark.xfail(strict=True, reason="contract request: run_overlay must fetch `adapter.context_paths(...)` "
-                                       "beside the changed files (code/overlay.py is not this slice's file)")
-def test_run_overlay_as_it_calls_the_adapter_today_loses_hook_edges_of_changed_templates(tmp_path: Path):
+def test_run_overlay_fetches_the_adapters_context_paths_so_changed_templates_keep_their_hook_edges(tmp_path: Path):
+    """Was an xfail: `run_overlay` must ask the adapter for `context_paths(...)` beside the changed files."""
     world = _OverlayWorld(tmp_path)
     _same_as_fresh(world.overlay(), world.fresh())
 
@@ -763,3 +762,37 @@ def test_a_trans_block_is_a_key_use_when_it_holds_a_key_and_visible_text_when_it
                           "Plain sentence here{% endtrans %}</p>{{ 'sylius.ui.after'|trans }}")
     assert sorted(facts.keys) == ["sylius.ui.after", "sylius.ui.from_block"]
     assert "Plain sentence here" in facts.texts and "sylius.ui.from_block" not in facts.texts
+
+
+# ================================================================================= close-out additions
+def test_a_yaml_unicode_escape_for_half_a_pair_is_replaced_counted_and_the_index_serialises(tmp_path: Path):
+    """PyYAML does not join `\\ud83d\\ude00`: both halves are lone surrogates and used to crash model_dump_json."""
+    catalogue = f"{SHOP}/Resources/translations/messages.en.yml"
+    idx = build(tmp_path, {
+        catalogue: 'sylius:\n  ui:\n    half: "bad \\ud800 half"\n    pair: "emoji \\ud83d\\ude00"\n    ok: "caf\\u00e9"\n',
+        f"{T}/page/index.html.twig": "<p>{{ 'sylius.ui.half'|trans }}</p>\n",
+    })
+    assert idx.i18n["sylius.ui.half"] == "bad � half"
+    assert idx.i18n["sylius.ui.pair"] == "emoji ��"          # lossy, but representable
+    assert idx.i18n["sylius.ui.ok"] == "café"
+    assert idx.stats["yaml_surrogate_escapes_replaced"] == 3
+    assert idx.stats["parse_error_kinds"] == {"yaml_lone_surrogate": 1}
+    assert CodeIndex.model_validate_json(idx.model_dump_json()).i18n == idx.i18n
+
+
+def _templates(n: int) -> dict[str, str]:
+    return {f"{T}/page/p{i:03d}.html.twig": f"<p>page {i}</p>\n" for i in range(n)}
+
+
+def test_twig_index_is_partial_only_for_hard_failures_or_many_parse_errors(tmp_path: Path):
+    clean = build(tmp_path / "clean", _templates(120))
+    assert clean.stats["parse_partial"] is False and clean.stats["parse_partial_reasons"] == []
+    soft = build(tmp_path / "soft", {**_templates(120), f"{C}/routing/a.yml": "a: [unclosed\n",
+                                     f"{C}/routing/b.yml": "b: [unclosed\n"})
+    assert soft.stats["parse_errors"] == 2 and soft.stats["parse_partial"] is False
+    many = build(tmp_path / "many", {**_templates(48), f"{C}/routing/a.yml": "a: [unclosed\n",
+                                     f"{C}/routing/b.yml": "b: [unclosed\n"})
+    assert many.stats["parse_partial"] is True and many.stats["parse_partial_reasons"] == ["parse_errors=2/50"]
+    hard = build(tmp_path / "hard", {**_templates(300), f"{T}/page/bad.html.twig": b"<p>\xff\xfe</p>\n"})
+    assert hard.stats["parse_errors"] == 1 and hard.stats["parse_partial"] is True
+    assert hard.stats["parse_partial_reasons"] == ["undecodable_bytes=1"]

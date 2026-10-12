@@ -151,3 +151,54 @@ def test_generated_files_come_from_the_config_and_fall_back_to_the_constants():
 def test_the_hoppscotch_target_lists_its_codegen_outputs():
     assert f"{C}/src/helpers/backend/graphql.ts" in CFG.generated_files
     assert f"{C}/src/components" in CFG.components_dirs
+
+
+# ------------------------------------------------------------------ close-out: doc names are not source names
+SYLIUS = TargetConfig.load("sylius").code
+SHOP_T = "src/Sylius/Bundle/ShopBundle/templates"
+
+
+@pytest.mark.parametrize(("path", "expected"), [
+    # a source file keeps its role when its stem spells a doc name, inside a configured source root
+    (f"{C}/src/components/Notice.vue", FileClass.COMPONENT),
+    (f"{C}/src/components/app/Security.vue", FileClass.COMPONENT),
+    (f"{C}/src/components/NOTICE.vue", FileClass.COMPONENT),             # even in the upper-case spelling
+    (f"{C}/src/pages/security.vue", FileClass.PAGE),
+    (f"{C}/src/layouts/Notice.vue", FileClass.LAYOUT),
+    (f"{C}/src/helpers/security.ts", FileClass.UTIL),
+    (f"{C}/src/helpers/utils/license.ts", FileClass.UTIL),
+    (f"{C}/src/composables/authors.ts", FileClass.UTIL),
+    (f"{C}/src/services/security.service.ts", FileClass.SERVICE),
+    (f"{C}/src/platform/security.ts", FileClass.SOURCE_OTHER),
+    (f"{C}/src/helpers/backend/gql/queries/Security.graphql", FileClass.SOURCE_OTHER),
+    # the same names are not prose below a source root either, unless they are plain text
+    ("packages/other/src/security.ts", FileClass.SOURCE_OTHER),
+    ("packages/other/src/NOTICE.vue", FileClass.SOURCE_OTHER),
+])
+def test_a_source_file_named_like_a_doc_file_keeps_its_role(path: str, expected: FileClass):
+    assert classify_file(path, CFG) is expected
+
+
+@pytest.mark.parametrize("path", [
+    f"{SHOP_T}/shared/layout/base/header/content/security.html.twig",
+    f"{SHOP_T}/shared/notice.html.twig",
+    f"{SHOP_T}/account/NOTICE.html.twig",
+    "src/Sylius/Bundle/ShopBundle/Resources/config/routing/security.yml",
+    "config/packages/security.yaml",
+    "config/packages/Security.yaml",
+])
+def test_templates_and_config_named_like_doc_files_are_not_docs(path: str):
+    assert classify_file(path, SYLIUS) is not FileClass.DOCS
+
+
+@pytest.mark.parametrize("path", [
+    "LICENSE", "LICENCE", "NOTICE", "AUTHORS", "CODEOWNERS", "CODE_OF_CONDUCT", "SECURITY",
+    "license", "License", "notice", "authors",                        # extensionless: case is ignored
+    "LICENSE.txt", "license.txt", "Notice.txt", "authors.text", "security.text", "SECURITY.md", "License.md",
+    "LICENSE.dependencies", "NOTICE.third-party",                      # the upper-case convention, any suffix
+    "packages/hoppscotch-common/LICENSE", "packages/hoppscotch-common/src/license.txt",
+    f"{C}/src/components/NOTICE", f"{C}/src/NOTICE.txt",              # prose inside a source root is still prose
+    "docs/security.txt",
+])
+def test_prose_doc_names_are_still_docs(path: str):
+    assert classify_file(path, CFG) is FileClass.DOCS

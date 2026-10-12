@@ -14,6 +14,7 @@ text (the PR title, spec quotes) is not ours, so it is exempt from the hygiene a
 from __future__ import annotations
 
 import html as html_lib
+import itertools
 import re
 from collections.abc import Collection, Iterable, Iterator
 from dataclasses import dataclass, field
@@ -30,6 +31,7 @@ from .vocab import (
     BAND_RANK,
     BAND_WORD,
     BAND_WORDS,
+    BARE_AUTOLINK,
     CHECKLIST_MAX,
     FILE_PATH,
     FINDING_KEYS,
@@ -46,6 +48,7 @@ from .vocab import (
     SECTION_TITLES,
     TIER2_CAP,
     UNDETERMINED_TOP,
+    invisible_characters,
     verb_violations,
 )
 
@@ -82,6 +85,11 @@ class LintIssue(Strict):
 
 def _issue(rule: str, message: str, *, where: str = "", severity: Severity = "error") -> LintIssue:
     return LintIssue(rule=rule, severity=severity, message=message, where=where)
+
+
+def _a(word: str) -> str:
+    """"a confirmed", "an unknown": the band word with its article."""
+    return f"{'an' if word[:1] in 'aeiou' else 'a'} {word}"
 
 
 def errors(issues: Iterable[LintIssue]) -> list[LintIssue]:
@@ -140,14 +148,16 @@ def _section_lines(blocks: list[_Block], title: str) -> list[str]:
 
 
 def _body_lines(blocks: list[_Block]) -> list[str]:
+    """Every line above the appendix: the headline block, the section headings and their text. The one line left
+    out is the level-1 title, which quotes the PR title verbatim."""
     appendix = SECTION_TITLES["appendix"]
     out: list[str] = []
     for b in blocks:
         if b.h2 == appendix:
             break
-        if b.level == 0 or b.level >= 2:
-            out.append(("#" * b.level + " " + b.title) if b.level else "")
-            out.extend(b.lines)
+        if b.level >= 2:
+            out.append("#" * b.level + " " + b.title)
+        out.extend(b.lines)
     return out
 
 
@@ -171,18 +181,11 @@ def _cells(row: str) -> list[str]:
 
 
 def _table_rows(lines: list[str]) -> Iterator[list[str]]:
-    """Data rows of every table in `lines` (header and delimiter rows skipped)."""
-    state = 0
-    for line in lines:
-        if not line.lstrip().startswith("|"):
-            state = 0
-            continue
-        if state == 0:
-            state = 1                    # header row
-        elif state == 1:
-            state = 2                    # delimiter row
-        else:
-            yield _cells(line)
+    """Data rows of every table in `lines` (the header and delimiter rows of each table are skipped)."""
+    for is_table, group in itertools.groupby(lines, key=lambda ln: ln.lstrip().startswith("|")):
+        if is_table:
+            for line in list(group)[2:]:
+                yield _cells(line)
 
 
 def _excerpt(text: str, n: int = 60) -> str:
@@ -250,8 +253,9 @@ def _tables(blocks: list[_Block]) -> list[LintIssue]:
                                   where=f"{key}: {where}"))
             sentence = cells[0] if key == "requirements" else cells[1]
             band = _BAND_FOR_WORD[band_cell]
-            for phrase in verb_violations(_unescape(_FN_REF.sub("", sentence)), band):
-                out.append(_issue("band-verb", f'"{phrase}" is not allowed for a {band_cell} item: {where}',
+            spec = key == "requirements"          # the statement is the spec's sentence, not ours
+            for phrase in verb_violations(_unescape(_FN_REF.sub("", sentence)), band, spec_text=spec):
+                out.append(_issue("band-verb", f'"{phrase}" is not allowed for {_a(band_cell)} item: {where}',
                                   where=f"{key}: {where}: {phrase}"))
     return out
 
@@ -312,8 +316,6 @@ def _hygiene(text: str, *, where: str) -> list[LintIssue]:
 def _body_hygiene(blocks: list[_Block]) -> list[LintIssue]:
     out: list[LintIssue] = []
     for line in _body_lines(blocks):
-        if line.startswith("# "):            # the title quotes the PR title verbatim
-            continue
         out.extend(_hygiene(line, where="body"))
     return out
 
@@ -328,7 +330,20 @@ def _markdown_hygiene(markdown: str) -> list[LintIssue]:
     if m:
         out.append(_issue("remote-url", f"a remote URL or image in the Markdown: {m.group(0)}",
                           where=m.group(0)))
+    m = BARE_AUTOLINK.search(plain)
+    if m:
+        out.append(_issue("autolink", f"a www host, mailto: address or e-mail address that GitHub would link: "
+                          f"{m.group(0)}", where=m.group(0)))
+    out.extend(_invisible(markdown, "markdown"))
     return out
+
+
+def _invisible(text: str, where: str) -> list[LintIssue]:
+    found = invisible_characters(text)
+    if not found:
+        return []
+    return [_issue("invisible-character", f"bidi, zero-width or control characters in the {where}: "
+                   f"{', '.join(found[:6])}", where=f"{where}: {found[0]}")]
 
 
 def _word_budget(blocks: list[_Block]) -> list[LintIssue]:
@@ -404,6 +419,7 @@ def lint_html(page: str) -> list[LintIssue]:
             out.append(_issue(rule, f"{message}: {m.group(0)[:50]}", where=m.group(0)[:50]))
     if "@import" in page:
         out.append(_issue("remote-url", "a CSS @import", where="@import"))
+    out.extend(_invisible(page, "page"))
     levels = {html_lib.unescape(_TAG.sub("", m.group(2))).strip(): int(m.group(1))
               for m in _HEADING_HTML.finditer(page)}
     finding_levels = [levels[t] for k in FINDING_KEYS if (t := SECTION_TITLES[k]) in levels]
@@ -469,7 +485,7 @@ def _unshown_sentences(report: Report) -> list[LintIssue]:
     for unit in build_view(report).units:
         if unit.overflow and unit.band is not None:
             for phrase in verb_violations(unit.text, unit.band):
-                out.append(_issue("band-verb", f'"{phrase}" is not allowed for a {unit.band.value} item: '
+                out.append(_issue("band-verb", f'"{phrase}" is not allowed for {_a(unit.band.value)} item: '
                                   f"{unit.text[:50]}", where=f"entry {unit.number}: {phrase}"))
     items = [*report.direct, *report.indirect, *report.global_changes, *report.stored_data]
     shown = {" ".join(i.what_changed.split()) for i in items} | {" ".join(r.statement.split())
@@ -484,7 +500,7 @@ def _unshown_sentences(report: Report) -> list[LintIssue]:
         if text in shown:
             continue
         for phrase in verb_violations(text, c.band):
-            out.append(_issue("band-verb", f'"{phrase}" is not allowed for a {c.band.value} claim: {text[:50]}',
+            out.append(_issue("band-verb", f'"{phrase}" is not allowed for {_a(c.band.value)} claim: {text[:50]}',
                               where=f"claim {c.id}: {phrase}"))
     return out
 
@@ -527,8 +543,8 @@ def lint_model(report: Report, *, known_evidence: Collection[str] | None = None)
         if known:
             weakest = max(known, key=lambda it: BAND_RANK[it.band]).band
             for phrase in verb_violations(f"{entry.text} {entry.why}", weakest):
-                out.append(_issue("band-verb", f'"{phrase}" is not allowed in a checklist line about a '
-                                  f"{weakest.value} item", where=f"checklist[{i}]: {phrase}"))
+                out.append(_issue("band-verb", f'"{phrase}" is not allowed in a checklist line about '
+                                  f"{_a(weakest.value)} item", where=f"checklist[{i}]: {phrase}"))
     ids = [i.id for i in items]
     for dup in sorted({x for x in ids if ids.count(x) > 1}):
         out.append(_issue("duplicate-id", f"two report items share the id {dup}", where=dup, severity="warning"))

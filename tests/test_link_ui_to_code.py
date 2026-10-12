@@ -28,6 +28,7 @@ from blastradius.link.ui_to_code import (
     PickItem,
     PickOut,
     link_ui_to_code,
+    pick_prompt,
 )
 from blastradius.llm import LLM
 from blastradius.models import (
@@ -108,9 +109,11 @@ def target_cfg(**code) -> TargetConfig:
 
 
 def by_dst(res) -> dict[str, dict[str, float]]:
+    """element -> file -> best confidence over the rows written for the pair (what the graph store keeps)."""
     out: dict[str, dict[str, float]] = {}
     for l in res.links:
-        out.setdefault(l.src, {})[l.dst] = l.confidence
+        row = out.setdefault(l.src, {})
+        row[l.dst] = max(l.confidence, row.get(l.dst, 0.0))
     return out
 
 
@@ -225,17 +228,36 @@ def test_placeholder_title_and_plural_alternatives_are_texts():
     assert set(by_dst(res)) == {"e_p", "e_t"}
 
 
-def test_same_canonical_element_gets_one_confidence_per_file():
-    """Two observation ids of one canonical element (case 46): the writer's last write wins, so both rows must
-    carry the best value for each shared file."""
+def rows_of(res, src: str) -> dict[str, list[tuple[float, list[str]]]]:
+    """file -> [(confidence, screen_ids)] best first: every row written for one element."""
+    out: dict[str, list[tuple[float, list[str]]]] = {}
+    for l in res.links:
+        if l.src == src:
+            out.setdefault(l.dst, []).append((l.confidence, l.screen_ids))
+    return {f: sorted(v, key=lambda r: -r[0]) for f, v in out.items()}
+
+
+def test_a_file_carries_each_confidence_on_the_screens_it_was_derived_on():
+    """(f) A layout control is one observation id on every screen. B.vue is one of two candidates on / (0.45)
+    and the only one on /graphql (0.90): the row for 0.90 must not list / among its screens, and / keeps 0.45.
+    The best value used to be applied to every screen of the element."""
+    idx = mini_index(i18n={"b.go": "Go", "c.go": "Go"}, key_uses=uses(C + "B.vue", "b.go") + uses(C + "C.vue", "c.go"))
+    run = RunContext.ephemeral("t")
+    screens = [screen("s_root", "/", [el("el_h", "Go")]), screen("s_gql", "/graphql", [el("el_h", "Go")])]
+    res = link_ui_to_code(run, target_cfg(), idx, screens, None)
+    got = rows_of(res, "el_h")
+    assert got[C + "B.vue"] == [(0.90, ["s_gql"]), (0.45, ["s_root"])]
+    assert got[C + "C.vue"] == [(0.45, ["s_root"])]
+    assert len({(l.src, l.dst, l.confidence) for l in res.links}) == len(res.links)    # no duplicate rows
+
+
+def test_two_observation_ids_of_one_canonical_element_keep_their_own_screens():
     idx = mini_index(i18n={"b.go": "Go", "c.go": "Go"}, key_uses=uses(C + "B.vue", "b.go") + uses(C + "C.vue", "c.go"))
     run = RunContext.ephemeral("t")
     screens = [screen("s_root", "/", [el("el_a", "Go")]), screen("s_gql", "/graphql", [el("el_b", "Go")])]
     res = link_ui_to_code(run, target_cfg(), idx, screens, None)
-    got = by_dst(res)
-    assert got["el_b"] == {C + "B.vue": 0.90}
-    assert got["el_a"][C + "B.vue"] == 0.90          # not the 0.45 it would get on / alone
-    assert got["el_a"][C + "C.vue"] == 0.45
+    assert rows_of(res, "el_b") == {C + "B.vue": [(0.90, ["s_gql"])]}
+    assert rows_of(res, "el_a") == {C + "B.vue": [(0.45, ["s_root"])], C + "C.vue": [(0.45, ["s_root"])]}
 
 
 def test_nameless_and_non_interactive_elements_are_not_sent_to_the_llm(tmp_path: Path):
@@ -415,8 +437,223 @@ def test_an_observation_id_shared_by_two_canonical_elements_yields_one_row_per_f
     res = link_ui_to_code(run, target_cfg(), idx, [screen("s_root", "/", shared), screen("s_gql", "/graphql", again)],
                           None)
     assert res.stats["shared_observation_ids"] == 1 and res.stats["canonical_elements"] == 2
-    assert [(l.src, l.dst) for l in res.links] == sorted({(l.src, l.dst) for l in res.links})
-    assert by_dst(res)["el_1"] == {C + "A.vue": 0.45, C + "B.vue": 0.90}
+    # one row per (src, dst, confidence): the same id from two groups never yields two identical rows
+    keys = [(l.src, l.dst, l.confidence) for l in res.links]
+    assert keys == sorted(set(keys), key=lambda k: (k[0], k[1], -k[2]))
+    assert by_dst(res)["el_1"] == {C + "A.vue": 0.45, C + "B.vue": 0.90}     # the best per file
+
+
+# ------------------------------------------------------------------------- dialog and tab context
+def save_index(*extra_uses: KeyUse, titles: dict[str, str] | None = None) -> CodeIndex:
+    """'Save' is used by A, B, C and the header (k = 4: the 0.30 floor); `extra_uses` say which files also use
+    the key of the dialog title or of an active tab label."""
+    users = [C + "A.vue", C + "B.vue", C + "C.vue", C + "Header.vue"]
+    return mini_index(i18n={"x.save": "Save", "d.new": "New Collection", "t.headers": "Headers",
+                            **(titles or {})},
+                      key_uses=[*(KeyUse(file=f, key="x.save") for f in users), *extra_uses])
+
+
+def link_state(idx: CodeIndex, kind: str, **kw):
+    run = RunContext.ephemeral("t")
+    state = screen("s1", "/", [el("e1", "Save")], kind=kind, **kw)
+    res = link_ui_to_code(run, target_cfg(), idx, [state], None)
+    return run, res
+
+
+def test_files_that_also_use_the_dialog_title_key_keep_the_value_and_the_rest_are_demoted():
+    """The 'Save' of the 'New Collection' dialog: of four files that share the copy, only A.vue also uses the
+    key of the dialog's title. It is the owner (0.90); the others are demoted to half of 0.30, not dropped."""
+    idx = save_index(KeyUse(file=C + "A.vue", key="d.new"))
+    run, res = link_state(idx, "modal", dialog_title="New Collection")
+    assert by_dst(res)["e1"] == {C + "A.vue": 0.90, C + "B.vue": 0.15, C + "C.vue": 0.15,
+                                 C + "Header.vue": 0.15}
+    a = next(l for l in res.links if l.dst == C + "A.vue")
+    why = run.evidence.get(a.evidence_id)["summary"]
+    assert 'dialog title "new collection"' in why and "d.new" in why
+    b = next(l for l in res.links if l.dst == C + "B.vue")
+    assert "demoted" in run.evidence.get(b.evidence_id)["summary"]
+
+
+def test_preferred_files_share_the_prior_between_themselves():
+    idx = save_index(KeyUse(file=C + "A.vue", key="d.new"), KeyUse(file=C + "B.vue", key="d.new"))
+    _, res = link_state(idx, "modal", dialog_title="New Collection")
+    assert by_dst(res)["e1"] == {C + "A.vue": 0.45, C + "B.vue": 0.45, C + "C.vue": 0.15,
+                                 C + "Header.vue": 0.15}
+
+
+def test_the_dialog_rule_changes_nothing_when_it_cannot_tell_files_apart():
+    four = (C + "A.vue", C + "B.vue", C + "C.vue", C + "Header.vue")
+    every = tuple(KeyUse(file=f, key="d.new") for f in four)
+    for idx in (save_index(*every), save_index()):           # all of them use it / none of them does
+        _, res = link_state(idx, "modal", dialog_title="New Collection")
+        assert set(by_dst(res)["e1"].values()) == {0.30}
+    one = save_index(KeyUse(file=C + "A.vue", key="d.new"))
+    _, res = link_state(one, "page", dialog_title="New Collection")
+    assert set(by_dst(res)["e1"].values()) == {0.30}         # only modal and tab states carry the context
+    _, res = link_state(one, "modal", dialog_title="menu")
+    assert set(by_dst(res)["e1"].values()) == {0.30}         # a role name is not a title
+
+
+def test_the_active_tab_label_is_the_context_of_a_tab_state_and_of_a_modal_without_a_title_match():
+    idx = save_index(KeyUse(file=C + "B.vue", key="t.headers"))
+    _, res = link_state(idx, "tab", active_tabs=["Untitled", "Headers"])
+    assert by_dst(res)["e1"] == {C + "A.vue": 0.15, C + "B.vue": 0.90, C + "C.vue": 0.15,
+                                 C + "Header.vue": 0.15}
+    _, res = link_state(idx, "modal", dialog_title="Nothing like it", active_tabs=["Headers"])
+    assert by_dst(res)["e1"][C + "B.vue"] == 0.90
+    idx = save_index(KeyUse(file=C + "A.vue", key="d.new"), KeyUse(file=C + "B.vue", key="t.headers"))
+    _, res = link_state(idx, "modal", dialog_title="New Collection", active_tabs=["Headers"])
+    assert by_dst(res)["e1"][C + "A.vue"] == 0.90 and by_dst(res)["e1"][C + "B.vue"] == 0.15   # title first
+
+
+def test_context_applies_per_screen_not_per_element():
+    """The same canonical 'Save' in a dialog titled X and (as another screen) on the plain page."""
+    idx = save_index(KeyUse(file=C + "A.vue", key="d.new"))
+    run = RunContext.ephemeral("t")
+    screens = [screen("s_page", "/", [el("e1", "Save")]),
+               screen("s_modal", "/", [el("e1", "Save")], kind="modal", dialog_title="New Collection",
+                      depth=1)]
+    res = link_ui_to_code(run, target_cfg(), idx, screens, None)
+    got = rows_of(res, "e1")
+    assert got[C + "A.vue"] == [(0.90, ["s_modal"]), (0.30, ["s_page"])]
+    assert got[C + "B.vue"] == [(0.30, ["s_page"]), (0.15, ["s_modal"])]
+
+
+# ---------------------------------------------------------------------------- the page's document title
+def title_index() -> CodeIndex:
+    """graphql.vue sets the document title with t('nav.graphql') (usePageHead); the header renders the
+    link."""
+    return mini_index(i18n={"nav.graphql": "GraphQL"},
+                      key_uses=uses(P + "graphql.vue", "nav.graphql") + uses(C + "Header.vue", "nav.graphql"))
+
+
+def title_screens(**gql) -> list[ScreenState]:
+    return [screen("s_root", "/", [el("e1", "GraphQL", role="link")], title="Acme"),
+            screen("s_gql", "/graphql", [el("e1", "GraphQL", role="link")], title="GraphQL \u2022 Acme",
+                   **gql)]
+
+
+def test_a_page_that_uses_the_text_as_its_document_title_is_not_the_renderer_of_a_layout_control():
+    """(b) The sidebar link 'GraphQL' is seen on every route. pages/graphql.vue uses the same string as the
+    document title; it is in R only on /graphql, so it cannot be what renders a control seen on / too. It is
+    demoted (0.45 -> 0.225) and the header, the only remaining candidate, is 0.90."""
+    run = RunContext.ephemeral("t")
+    res = link_ui_to_code(run, target_cfg(), title_index(), title_screens(), None)
+    got = rows_of(res, "e1")
+    assert got[C + "Header.vue"] == [(0.90, ["s_gql", "s_root"])]
+    assert got[P + "graphql.vue"] == [(0.225, ["s_gql"])]
+    page = next(l for l in res.links if l.dst == P + "graphql.vue")
+    assert "document title" in run.evidence.get(page.evidence_id)["summary"]
+
+
+def test_the_title_rule_needs_the_control_to_be_seen_where_the_page_is_not_rendered():
+    run = RunContext.ephemeral("t")
+    only_here = [title_screens()[1]]
+    res = link_ui_to_code(run, target_cfg(), title_index(), only_here, None)
+    assert by_dst(res)["e1"] == {P + "graphql.vue": 0.45, C + "Header.vue": 0.45}       # nothing to go on
+    other_text = [screen("s_root", "/", [el("e1", "GraphQL", role="link")], title="Acme"),
+                  screen("s_gql", "/graphql", [el("e1", "GraphQL", role="link")],
+                         title="Playground \u2022 Acme")]
+    res = link_ui_to_code(run, target_cfg(), title_index(), other_text, None)
+    got = rows_of(res, "e1")                                                          # not its title
+    assert got[P + "graphql.vue"] == [(0.45, ["s_gql"])]
+    assert got[C + "Header.vue"] == [(0.90, ["s_root"]), (0.45, ["s_gql"])]
+
+
+def test_a_lone_title_candidate_is_demoted_not_dropped():
+    idx = mini_index(i18n={"nav.graphql": "GraphQL"}, key_uses=uses(P + "graphql.vue", "nav.graphql"))
+    res = link_ui_to_code(RunContext.ephemeral("t"), target_cfg(), idx, title_screens(), None)
+    assert by_dst(res)["e1"] == {P + "graphql.vue": 0.45}
+
+
+# ------------------------------------------------------------------------------- what evidence says
+def test_the_evidence_row_names_the_text_that_matched_not_the_first_attribute():
+    """(c) The aria-label is the most specific text and is what matched; the evidence used to quote name."""
+    idx = mini_index(i18n={"x.save": "Save", "a.save_all": "Save all collections"},
+                     key_uses=uses(C + "A.vue", "a.save_all") + uses(C + "B.vue", "x.save")
+                     + uses(C + "C.vue", "x.save"))
+    run, res = link(idx, [el("el_1", "Save", aria_label="Save all collections")])
+    [l] = res.links
+    summary = run.evidence.get(l.evidence_id)["summary"]
+    assert 'button "Save all collections"' in summary and "a.save_all" in summary
+    assert 'button "Save"' not in summary
+
+
+def test_the_evidence_row_quotes_the_page_spelling_of_the_matched_text():
+    idx = mini_index(i18n={"a.search": "Search…"}, key_uses=uses(C + "A.vue", "a.search"))
+    run, res = link(idx, [el("el_1", "", role="textbox", text="", placeholder="  Search...  ")])
+    summary = run.evidence.get(res.links[0].evidence_id)["summary"]
+    assert 'textbox "Search..."' in summary
+
+
+# -------------------------------------------------------------------------- picks outside the closure
+def outside_index() -> CodeIndex:
+    idx = pick_index(n_files=3)
+    spec = "src/services/x.test.ts"
+    files = [*idx.files, vue(C + "Orphan.vue"), vue(C + "Orphan2.vue"), vue(spec, FileClass.TEST)]
+    return idx.model_copy(update={
+        "files": files,
+        "i18n": {**idx.i18n, "o.x": "Frobnicate widget", "o.y": "Something else", "o.t": "Frobnicate widget"},
+        "key_uses": [*idx.key_uses, KeyUse(file=C + "Orphan.vue", key="o.x"),
+                     KeyUse(file=C + "Orphan2.vue", key="o.y"), KeyUse(file=spec, key="o.t")]})
+
+
+def pick_outside(plan: dict[str, str], certainty: str = "high"):
+    """Stand-in model: for each control name in `plan`, picks the candidate whose path contains the value."""
+
+    def respond(kw):
+        user = kw["messages"][0]["content"]
+        cands = [(m.group(1), m.group(3)) for m in _CAND.finditer(user)]
+        picks = []
+        for m in _CTRL.finditer(user):
+            want = plan.get(json.loads(m.group(3)))
+            hit = next((c for c, path in cands if want and want in path), None)
+            picks.append(PickItem(control=m.group(1), file=hit or "NONE", certainty=certainty,
+                                  external=False))
+        return PickOut(picks=picks)
+
+    return respond
+
+
+def test_a_file_outside_the_closure_is_offered_only_for_a_control_whose_text_matches_it(tmp_path: Path):
+    """(g) 'Frobnicate widget' is a string of Orphan.vue, which nothing renders under /: R under-reaches (a
+    `<component :is>`, a helper). The model may choose it, at half the certainty value, flagged in the
+    evidence. 'Zork' matches nothing there: Orphan.vue is not an option for it even if the model names it."""
+    plan = {"Frobnicate widget": "Orphan.vue", "Zork": "Orphan.vue"}
+    page = screen("s1", "/", [el("e1", "Frobnicate widget"), el("e2", "Zork")])
+    run, client, res = pick_run(tmp_path, pick_outside(plan), outside_index(), [page])
+    user = client.calls[0]["messages"][0]["content"]
+    assert "Orphan.vue" in user and "[outside this page]" in user
+    assert "Orphan2.vue" not in user and "x.test.ts" not in user          # no text match, or not UI source
+    [l] = res.links
+    assert (l.src, l.dst, l.method, l.confidence) == ("e1", C + "Orphan.vue", "llm_pick", 0.30)
+    assert "outside the render closure" in run.evidence.get(l.evidence_id)["summary"]
+    assert {u.name: u.reason for u in res.unresolved} == {"Zork": "llm_none"}
+    assert res.stats["screen_hits"]["llm_pick_outside_closure"] == 1
+
+
+def test_an_outside_pick_has_half_the_certainty_value(tmp_path: Path):
+    plan = {"Frobnicate widget": "Orphan.vue"}
+    _, _, res = pick_run(tmp_path, pick_outside(plan, "medium"), outside_index(),
+                         [screen("s1", "/", [el("e1", "Frobnicate widget")])])
+    assert [l.confidence for l in res.links] == [0.225]
+
+
+def test_without_a_text_match_outside_the_closure_no_outside_file_is_offered(tmp_path: Path):
+    _, client, res = pick_run(tmp_path, pick_outside({"Zork": "Orphan.vue"}), outside_index(),
+                              [screen("s1", "/", [el("e1", "Zork")])])
+    assert "[outside this page]" not in client.calls[0]["messages"][0]["content"]
+    assert res.links == []
+
+
+def test_dom_words_in_the_pick_prompt_are_redacted_and_capped():
+    """(d) Defence in depth: the role reaches this prompt only from INTERACTIVE_ROLES today, but every DOM
+    word a prompt carries goes through prompt_text."""
+    secret = "ghp_" + "A1b2C3d4E5" * 4
+    hostile = el("e1", "Plain", role=f"button {secret} " + "x" * 400)
+    reach = Reachability(mini_index(), [LAYOUT]).of("/")
+    user = pick_prompt(screen("s1", "/", [hostile]), reach, [("e1", hostile)], [])
+    assert secret not in user and "x" * 100 not in user and "[REDACTED" in user
 
 
 # --------------------------------------------------------------------------------------------- real data
@@ -437,7 +674,7 @@ def test_real_crawl_resolution_numbers(real):
     assert s["unresolved_reasons"] == {"no_candidate": 37, "no_text": 159}
     assert s["route_resolution"] == {"catch_all": 1, "exact": 7}
     assert set(s["links_by_method"]) == {"i18n_key"} and s["llm_pick_calls"] == 0
-    assert set(s["confidence_histogram"]["i18n_key"]) <= {"0.30", "0.45", "0.90"}
+    assert set(s["confidence_histogram"]["i18n_key"]) <= {"0.15", "0.23", "0.30", "0.45", "0.90"}
     assert s["shared_observation_ids"] == 20                  # nameless buttons: see contract request
 
 
@@ -461,12 +698,13 @@ def test_real_known_elements_land_on_the_files_that_render_them(real):
     assert got[ids["Select environment"]][base + "components/environments/Selector.vue"] == 0.90
 
 
-def test_real_ambiguous_copy_keeps_every_file_at_the_floor(real):
-    """case 32: 'Cancel' is used by dozens of dialogs. They all stay candidates, at the floor."""
+def test_real_ambiguous_copy_keeps_every_file_as_a_candidate(real):
+    """case 32: 'Cancel' is used by dozens of dialogs. They all stay candidates: the ones that also use the
+    key of the open dialog's title keep the floor, the rest are demoted below it, none is dropped."""
     _, _, screens, res = real
     cancel = next(e.id for s in screens for e in s.elements if e.name == "Cancel")
     files = by_dst(res)[cancel]
-    assert len(files) >= 10 and set(files.values()) == {0.30}
+    assert len(files) >= 30 and set(files.values()) == {0.30, 0.15}
 
 
 def test_real_evidence_rows_exist_for_every_link(real):
@@ -481,3 +719,44 @@ def test_element_texts_and_value_map_agree_on_ellipsis():
     [(norm, _)] = element_texts(e)
     assert norm in maps.value_keys
     assert resolve_text([norm], Reachability(real_index(), []).of("/"), maps).matched_text
+
+
+def test_real_save_in_the_new_collection_dialog_is_collections_add_not_environments_add(real):
+    """The orchestrator's case: 'Save' of the 'New Collection' modal used to link to 31 files at 0.30, among
+    them environments/Add.vue and the environment and team detail dialogs."""
+    run, _, screens, res = real
+    modal = next(s for s in screens if s.dialog_title == "New Collection")
+    save = next(e.id for e in modal.elements if e.name == "Save")
+    base = "packages/hoppscotch-common/src/components/"
+    rows = rows_of(res, save)
+    assert max(c for c, sids in rows[base + "collections/Add.vue"] if modal.id in sids) == 0.45
+    assert max(c for c, sids in rows[base + "collections/graphql/Add.vue"] if modal.id in sids) == 0.45
+    for wrong in ("environments/Add.vue", "environments/my/Details.vue", "environments/teams/Details.vue"):
+        assert [c for c, sids in rows[base + wrong] if modal.id in sids] == [0.15]      # demoted, still there
+    link = next(l for l in res.links if l.src == save and l.dst == base + "collections/Add.vue"
+                and modal.id in l.screen_ids)
+    assert 'dialog title "new collection"' in run.evidence.get(link.evidence_id)["summary"]
+
+
+def test_real_floor_before_and_after_the_dialog_and_tab_context(real):
+    """Measured on live_hoppscotch_45 with the real index, one row per (element, file) at its best value (what
+    the graph keeps). Before: 602 links, 420 at the 0.30 floor, 112 at >= 0.5, 70 at 0.45."""
+    _, _, _, res = real
+    best: dict[tuple[str, str], float] = {}
+    for l in res.links:
+        best[(l.src, l.dst)] = max(l.confidence, best.get((l.src, l.dst), 0.0))
+    values = list(best.values())
+    assert len(values) == 602                                    # nothing was dropped, only re-valued
+    assert sum(1 for v in values if v == 0.30) == 215            # was 420
+    assert sum(1 for v in values if v < 0.30) == 183             # demoted: context speaks against
+    assert sum(1 for v in values if v >= 0.5) == 134             # was 112
+    assert sum(1 for v in values if v == 0.45) == 70
+
+
+def test_real_graphql_link_is_no_longer_attributed_to_the_page_that_only_sets_the_title(real):
+    _, _, screens, res = real
+    gql = next(s for s in screens if s.url_pattern == "/graphql" and s.kind == "page")
+    link_el = next(e for e in gql.elements if e.role == "link" and e.name == "GraphQL")
+    base = "packages/hoppscotch-common/src/"
+    [(conf, screens_)] = rows_of(res, link_el.id)[base + "pages/graphql.vue"]          # was 0.90
+    assert conf == 0.45 and gql.id in screens_

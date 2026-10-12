@@ -7,12 +7,14 @@ that a clean report does not trip it. The clean report is the hand-authored PR #
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 from report_helpers import (
+    assert_golden,
     claim,
     item,
     load_evidence,
@@ -36,7 +38,9 @@ from blastradius.report.model import ChecklistItem
 from blastradius.report.page import render_html
 from blastradius.report.vocab import (
     CHECKLIST_MAX,
+    ID_PREFIXES,
     MAIN_BODY_WORD_BUDGET,
+    RAW_ID,
     TIER2_CAP,
     UNDETERMINED_TOP,
     verb_violations,
@@ -217,6 +221,25 @@ CASES = [
     (Band.UNKNOWN, "The sidebar is probably affected.", {"probably"}),
     (Band.UNKNOWN, "The sidebar is changed by this PR.", {"is changed by this PR"}),
     (Band.UNKNOWN, "The sidebar is affected.", {"is affected"}),
+    # an unknown item may not claim an effect in the active voice either (REPORT_SPEC: "any claim of effect")
+    (Band.UNKNOWN, "The sidebar changes.", {"changes"}),
+    (Band.UNKNOWN, "This PR changes the sidebar.", {"changes the"}),
+    (Band.UNKNOWN, "This PR changed the sidebar.", {"changed"}),
+    (Band.UNKNOWN, "This PR modifies the sidebar.", {"modifies"}),
+    (Band.UNKNOWN, "This PR breaks the sidebar.", {"breaks"}),
+    (Band.UNKNOWN, "The sidebar broke.", {"broke"}),
+    (Band.UNKNOWN, "This PR affects the sidebar.", {"affects"}),
+    (Band.UNKNOWN, "This PR removes the sidebar.", {"removes"}),
+    (Band.UNKNOWN, "The sidebar may change.", {"may change"}),
+    (Band.UNKNOWN, "The sidebar might change.", {"might change"}),
+    (Band.UNKNOWN, "The sidebar could be affected.", {"could be affected"}),
+    (Band.UNKNOWN, "The sidebar has changed.", {"has changed"}),
+    (Band.UNKNOWN, "The sidebar has been affected.", {"has been affected"}),
+    (Band.UNKNOWN, "The sidebar does not change.", {"does not change"}),
+    (Band.UNKNOWN, "The sidebar is not affected.", {"is not affected"}),
+    (Band.UNKNOWN, "The sidebar is unchanged.", {"unchanged"}),
+    (Band.UNKNOWN, "We cannot tell. The sidebar changes.", {"changes"}),          # the frame is per sentence
+    (Band.UNKNOWN, "The sidebar “Might” changes.", {"changes"}),
 ]
 CLEAN = [
     (Band.CONFIRMED, "The sidebar will change."),
@@ -228,6 +251,15 @@ CLEAN = [
     (Band.UNKNOWN, "We cannot tell whether the sidebar is affected."),
     (Band.CONFIRMED, "The “Might it blend” button is changed by this PR."),     # quoted names are not ours
     (Band.POSSIBLE, "The “Will it blend” button might be affected."),
+    (Band.UNKNOWN, "We cannot tell whether the sidebar changes."),
+    (Band.UNKNOWN, "Not determined: this PR may change the sidebar."),
+    (Band.UNKNOWN, "We could not determine whether the sidebar broke."),
+    (Band.UNKNOWN, "Open the “Edits and changes” page."),                             # quoted names are not ours
+    (Band.UNKNOWN, "Open the sidebar, add a variable and edit its value."),           # an action, not a claim
+    (Band.UNKNOWN, "Users can add a variable here."),
+    (Band.CONFIRMED, "The sidebar changes."),
+    (Band.LIKELY, "The sidebar likely changes."),
+    (Band.POSSIBLE, "The sidebar may change."),
 ]
 
 
@@ -247,6 +279,33 @@ def test_the_lint_flags_a_forbidden_verb_in_a_rendered_row(band, text, expected)
     bad = minimal(direct=[item("v", what=text, band=band, confidence=conf)])
     flagged = [i for i in lint(bad) if i.rule == "band-verb"]
     assert flagged and expected <= {i.where.rsplit(": ", 1)[-1] for i in flagged}
+
+
+def test_a_requirement_statement_from_the_spec_is_not_held_to_the_active_voice_rule():
+    # the spec says "changes are saved" about the product; that is not our claim about this PR. The passive
+    # phrases keep being checked, as they always were.
+    assert verb_violations("Changes are saved and the app removes stale rows.", Band.UNKNOWN) == ["changes", "removes"]
+    assert verb_violations("Changes are saved and the app removes stale rows.", Band.UNKNOWN, spec_text=True) == []
+    assert verb_violations("The list is changed.", Band.UNKNOWN, spec_text=True) == ["is changed"]
+    assert verb_violations("It will change.", Band.UNKNOWN, spec_text=True) == ["will"]
+    unknown_req = requirement(statement="Changes are saved automatically and the app removes stale rows.",
+                              band=Band.UNKNOWN, status="cannot_verify")
+    assert "band-verb" not in rules(lint(minimal(requirements=[unknown_req])))
+    flagged = requirement(statement="The environment list is changed.", band=Band.UNKNOWN, status="cannot_verify")
+    assert "band-verb" in rules(lint(minimal(requirements=[flagged])))
+
+
+def test_active_voice_effect_claims_are_flagged_wherever_an_unknown_item_speaks():
+    claim_only = minimal(claims=[claim("The sidebar changes.", band=Band.UNKNOWN)])
+    assert "band-verb" in rules(lint(claim_only))
+    weak = item("w", band=Band.UNKNOWN, what="We cannot tell what this PR does to the sidebar; not determined.")
+    checklist = [ChecklistItem(text="Open the sidebar.", why="this PR breaks it.", item_ids=[weak.id])]
+    flagged = [i for i in lint(minimal(direct=[weak], checklist=checklist)) if i.rule == "band-verb"]
+    assert flagged and flagged[0].where.endswith("breaks")
+    extra = [item(f"u{n}", tier="indirect", label=f"Screen {n}", screen=f"Page {n}", band=Band.UNKNOWN,
+                  what="This PR modifies the screen.", section="S") for n in range(TIER2_CAP + 1)]
+    cut = [i for i in lint(minimal(indirect=extra)) if i.rule == "band-verb" and i.where.startswith("entry")]
+    assert cut                                                              # also the one the cap sent to the appendix
 
 
 def test_requirement_quotes_are_the_specs_words_and_never_flagged():
@@ -323,6 +382,9 @@ def test_what_the_report_did_not_look_at_must_be_listed():
     ("raw-id", "The sidebar is changed by this PR; see req_abcdef123456."),
     ("raw-id", "Screen scr_000000000001 is changed by this PR."),
     ("raw-id", "Element uie_0123456789ab and clm_0123456789ab."),
+    ("raw-id", "Report item itm_0123456789ab is changed by this PR."),
+    ("raw-id", "Review row rev_0123456789ab is changed by this PR."),
+    ("raw-id", "Could-not-determine row und_0123456789ab is changed by this PR."),
     ("file-path", "packages/hoppscotch-common/src/components/environments/Editor.vue is changed by this PR."),
     ("file-path", "The Editor.vue file is changed by this PR."),
     ("file-path", "The en.json text is changed by this PR."),
@@ -336,6 +398,22 @@ def test_no_ids_paths_hashes_or_graph_jargon_in_the_body(rule, text):
     bad = minimal(direct=[item("h", what=text)])
     assert rule in rules(lint(bad)), text
     assert rule in rules(lint_rendered(render_markdown(bad)))
+
+
+def test_raw_id_knows_every_prefix_the_product_mints():
+    """Drift guard: a new `stable_id("xyz", ...)` anywhere in src/ must also be an id the body may not show."""
+    minted: set[str] = set()
+    for path in sorted((REPO / "src" / "blastradius").rglob("*.py")):
+        minted |= set(re.findall(r'stable_id\(\s*"([a-z]+)"', path.read_text(encoding="utf-8")))
+    assert {"itm", "rev", "und", "ev", "req", "scr", "uie", "clm", "el", "cap", "flow", "gap", "snap", "tr"} <= minted
+    for prefix in sorted(minted):
+        assert RAW_ID.search(f"see {prefix}_0123456789ab."), prefix
+    assert minted <= set(ID_PREFIXES)
+
+
+def test_raw_id_is_not_triggered_by_look_alikes():
+    for text in ("The review_board is open.", "A prefix_0123456789ab tag.", "item_list and rev-arrow", "tr_a"):
+        assert not RAW_ID.search(text), text
 
 
 @pytest.mark.parametrize("text", [
@@ -394,6 +472,33 @@ def test_remote_urls_and_images_are_flagged_in_both_formats():
     for bad in bad_pages:
         assert "remote-url" in rules(lint_html(bad))
     assert lint_html(page.replace("</main>", '<img src="data:image/png;base64,AAAA"></main>')) == []
+
+
+def test_a_bare_autolink_left_in_the_markdown_is_flagged_but_the_writers_leave_none():
+    good = md_of()
+    assert "autolink" not in rules(lint_rendered(good))
+    for live in ("write to a@evil.example now", "see www.evil.example", "mailto:a", "xmpp:a", "_www.evil.example"):
+        assert "autolink" in rules(lint_rendered(good + f"\n{live}\n")), live
+    assert "autolink" not in rules(lint_rendered(good + "\nuse `a@evil.example` or `www.evil.example`\n"))
+    assert "autolink" not in rules(lint_rendered(good + "\nwrite to a\\[@\\]evil.example or www\\[.\\]evil.example\n"))
+    bait = "a@evil.example mailto:a@evil.example xmpp:a@evil.example www.evil.example _www.evil.example"
+    r = minimal(direct=[item("a", what=f"The sidebar is changed by this PR. {bait}")], confidence_line=bait,
+                not_checked=[bait])
+    assert "autolink" not in rules(lint(r))
+
+
+def test_invisible_and_bidi_characters_left_in_either_output_are_flagged():
+    good = md_of()
+    assert "invisible-character" not in rules(lint_rendered(good))
+    for ch in ("\u2066", "\u2069", "\u061c", "\u202e", "\u200b", "\u00ad", "\u009b", "\U000e0041"):
+        assert "invisible-character" in rules(lint_rendered(good + f"\nname{ch}here\n")), hex(ord(ch))
+    page = render_html(minimal())
+    assert "invisible-character" not in rules(lint_html(page))
+    assert "invisible-character" in rules(lint_html(page.replace("</main>", "<p>a\u2067b</p></main>")))
+    assert "invisible-character" not in rules(lint_rendered(good + "\n\tindented\r\n"))     # layout is fine
+    hostile = "Sidebar \u2066evil\u2069 \u061cname \u202e"
+    r = minimal(pr_title=hostile, direct=[item("h", label=hostile, what=f"The sidebar is changed by this PR. {hostile}")])
+    assert "invisible-character" not in rules(lint(r))                         # the writers removed them all
 
 
 def test_html_active_content_and_missing_csp_are_flagged():
@@ -508,6 +613,102 @@ def test_duplicate_item_ids_are_flagged():
 
 def test_lint_model_alone_skips_rendering():
     assert lint_model(minimal(not_checked=[])) and rules(lint_model(minimal())) == set()
+
+
+# ------------------------------------------------------------------------------------ golden messages
+def _broken_model():
+    """A report that breaks every rule of the data model once."""
+    ev = "ev_aaaaaaaaaaaa"
+    bad_band = item("band", label="Mismatched band", band=Band.CONFIRMED, confidence=0.3)
+    twin_a, twin_b = item("same", label="Twin A"), item("same", label="Twin B")
+    html = item("html", label="<b>Bold</b>", what="The page is changed by this PR.")
+    unknown = item("unk", label="Unknown screen", band=Band.UNKNOWN, what="This PR breaks the screen.")
+    many = [item(f"m{n}", tier="indirect", label=f"Screen {n}", screen=f"Page {n}", band=Band.POSSIBLE,
+                 what="This screen will change.", section="S") for n in range(TIER2_CAP + 1)]
+    return minimal(
+        risk_level="HIGH", headline='Blast radius: PR #7 "x"\nRisk: LOW. <i>Touches</i>.\nTwo.\nThree.\nFour.',
+        confidence_line="", direct=[bad_band, twin_a, twin_b, html, unknown], indirect=many,
+        checklist=[ChecklistItem(text=f"Do step {n}.", why="because.", item_ids=["itm_nope"]) for n in range(8)]
+        + [ChecklistItem(text="Open it.", why="it will break.", item_ids=[unknown.id])],
+        undetermined=[undetermined(subject=f"S{n}", evidence_ids=[ev]) for n in range(UNDETERMINED_TOP + 1)],
+        not_checked=[], claims=[claim("This will change, perhaps.", Band.CONFIRMED, ()),
+                                claim("The screen is affected.", Band.UNKNOWN, ("ev_dddddddddddd",))])
+
+
+def _rendered_variants() -> dict[str, str]:
+    good = md_of()
+    return {
+        "no risk": good.replace("**Risk: LOW.** ", ""),
+        "section swapped": good.replace("## What to re-test first", "## TMP").replace(
+            "## Directly changed", "## What to re-test first").replace("## TMP", "## Directly changed"),
+        "section extra": good.replace("## Requirements at risk", "## Summary\n\nhello\n\n## Requirements at risk"),
+        "section duplicated": good.replace("## Requirements at risk", "## Directly changed\n\n## Requirements at risk"),
+        "section missing": good.replace("## Directly changed", "### Directly changed"),
+        "band word": good.replace("| Confirmed |", "| Dunno |", 1),
+        "no band cell": good.replace("| Confirmed |", "|", 1),
+        "uncited": good.replace(" [^1]", "", 1),
+        "ids and paths": good.replace("The sidebar is changed by this PR.", "ev_0123456789ab, Editor.vue, "
+                                      "packages/x/y.ts, 64ba4ff75eff, a node and a hop."),
+        "html and urls": good + "\n<img src=x> https://evil.example/a ![p](x)\n",
+        "autolinks": good + "\nwrite a@evil.example or see www.evil.example\n",
+        "invisible": good + "\nname\u2066x\u2069\n",
+        "no undetermined": good.split("## What we could not determine, and who should look")[0]
+        + "## Appendix: evidence\n",
+        "soft undetermined": good.replace("## What we could not determine, and who should look",
+                                          "### What we could not determine, and who should look"),
+        "empty undetermined": good.replace("Nothing outstanding because no failures or items needing review were "
+                                           "recorded for this PR. That is not a claim that nothing was missed; see "
+                                           "what this report did not look at.", ""),
+        "no scope list": good.replace("- Only the signed-out surface of the web app was observed.", ""),
+        "too many words": good.replace("## What to re-test first", "word " * (MAIN_BODY_WORD_BUDGET + 5)
+                                       + "\n\n## What to re-test first"),
+        "unresolved footnote": good.replace("[^1]:", "[^77]:"),
+        "checklist": md_of(checklist=[ChecklistItem(text=f"Do {n}.", why="" if n else "x") for n in range(9)]),
+    }
+
+
+def _html_variants() -> dict[str, str]:
+    page = render_html(minimal())
+    return {
+        "no csp": page.replace('<meta http-equiv="Content-Security-Policy"', '<meta name="x"'),
+        "weak csp": page.replace("default-src 'none'", "default-src *"),
+        "remote attr": page.replace("</main>", '<a href="https://evil.example">x</a></main>'),
+        "css url": page.replace("</main>", '<div style="background:url(https://evil.example/x.png)"></div></main>'),
+        "image": page.replace("</main>", '<img src="//evil.example/x.png"></main>'),
+        "script": page.replace("</main>", "<script>alert(1)</script></main>"),
+        "handler": page.replace("<main", '<main onclick="x()"'),
+        "refresh": page.replace("</main>", '<meta http-equiv="refresh" content="0"></main>'),
+        "import": page.replace("<style>", "<style>@import 'x.css';"),
+        "soft undetermined": page.replace('<h2 id="h-undetermined">', '<h3 id="h-undetermined">').replace(
+            "could not determine, and who should look</h2>", "could not determine, and who should look</h3>"),
+        "raw id": page.replace("</main>", "<p>See ev_0123456789ab</p></main>"),
+        "invisible": page.replace("</main>", "<p>a\u2067b</p></main>"),
+    }
+
+
+def broken_lint_issues() -> list[tuple[str, LintIssue]]:
+    out = [("model", i) for i in lint_model(_broken_model(), known_evidence={"ev_aaaaaaaaaaaa"})]
+    out += [("all", i) for i in lint(_broken_model())]
+    out += [(f"markdown/{label}", i) for label, text in sorted(_rendered_variants().items())
+            for i in lint_rendered(text)]
+    out += [(f"html/{label}", i) for label, text in sorted(_html_variants().items()) for i in lint_html(text)]
+    return out
+
+
+EVERY_RULE = {
+    "risk-first-lines", "section-unexpected", "section-missing", "section-order", "checklist-max",
+    "checklist-why", "band-word", "uncited-sentence", "band-verb", "undetermined-section",
+    "undetermined-weight", "not-checked", "raw-id", "raw-sha", "file-path", "jargon", "html-in-text",
+    "remote-url", "autolink", "invisible-character", "word-budget", "footnote-unresolved", "csp-missing",
+    "active-content", "html-in-field", "band-confidence", "risk-consistency", "headline-lines",
+    "confidence-line", "checklist-ref", "duplicate-id", "tier2-cap", "undetermined-top", "claim-no-evidence",
+    "evidence-unknown"}
+
+
+def test_every_rule_message_and_location_matches_the_golden_file():
+    issues = broken_lint_issues()
+    assert {i.rule for _, i in issues} == EVERY_RULE        # the broken inputs trip every rule there is
+    assert_golden("golden_lint.txt", "".join(f"{label}: {i}\n" for label, i in issues))
 
 
 # ---------------------------------------------------------------------------------- determinism

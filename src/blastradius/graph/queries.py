@@ -17,9 +17,10 @@ Rules this module exists to enforce:
 
 Closure semantics shared by `impact`, `hub_degree` and `absence_near`: "importers of f within n hops" is
 the set of CodeFiles with a path of at most n IMPORTS|RENDERS edges ending at f. Cycles are harmless:
-results are aggregated per file with the minimum hop. `impact` computes it breadth-first with one DISTINCT
-frontier per hop and one witness per node (work is O(edges), not fan-in^hops: a path-enumerating closure
-exhausted the transaction memory pool at 28,000 edges and 3 hops). Needs Neo4j 5.23+ (`CALL (vars) {...}`).
+results are aggregated per file with the minimum hop. All three compute it breadth-first with one DISTINCT
+frontier per hop (`impact` also keeps one witness per node): work is O(edges), not fan-in^hops (a path-
+enumerating closure exhausted the transaction memory pool at 28,000 edges and 3 hops, and `hub_degree` and
+`absence_near` did the same until they were rewritten). Needs Neo4j 5.23+ (`CALL (vars) {...}`).
 
 `impact` row contract (one row per distinct (screen, element); counting screens or elements over the rows
 is therefore a count of distinct nodes, case 51; confidence is for noisy-OR, never for counts):
@@ -331,6 +332,26 @@ _register(
 
 _register(
     Template(
+        "crawl_prune_candidates",
+        """
+    CALL () {
+      MATCH (n:Screen {target: $target}) WHERE n.run_id <> $run_id
+      RETURN 'Screen' AS label, count(n) AS n
+      UNION ALL
+      MATCH (n:UIElement {target: $target}) WHERE n.run_id <> $run_id
+      RETURN 'UIElement' AS label, count(n) AS n
+    }
+    RETURN label, n
+    ORDER BY label
+    """,
+        {"target": _str(), "run_id": _str()},
+        "Screens and UIElements a crawl-layer prune by `run_id` would delete (written by another run): the "
+        "load's shrink guard reads it before pruning. Same predicate as writes.PRUNE['crawl'].",
+    )
+)
+
+_register(
+    Template(
         "transitions",
         """
     CALL () {
@@ -382,7 +403,9 @@ _register(
     LIMIT $limit
     """,
         {"target": _str(), "limit": _int(5000, 1, 100000)},
-        "Canonical elements with no IMPLEMENTED_BY edge: the linker's work list and the UNMAPPED_CODE input.",
+        "Canonical elements with no IMPLEMENTED_BY edge: the linker's work list and the UNMAPPED_CODE input. "
+        "Rows end in a total ORDER BY (screens, name, id); the list columns are sorted.",
+        sorted_lists(screen_ids=str, url_patterns=str, gap_kinds=str),
     )
 )
 
@@ -534,30 +557,35 @@ _register(
     MATCH (f:CodeFile {target: $target, path: p})
     CALL (f) {
       OPTIONAL MATCH (a:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(f)
-      WHERE $hops >= 1
-      RETURN a AS imp
-      UNION
-      MATCH (b:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(:CodeFile {target: $target})
-            -[:IMPORTS|RENDERS]->(f)
-      WHERE $hops >= 2
-      RETURN b AS imp
-      UNION
-      MATCH (c:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(:CodeFile {target: $target})
-            -[:IMPORTS|RENDERS]->(:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(f)
-      WHERE $hops >= 3
-      RETURN c AS imp
+      WHERE $hops >= 1 AND a <> f
+      RETURN collect(DISTINCT a) AS l1
     }
-    WITH ui_total, f, collect(DISTINCT imp) AS imps
-    WITH ui_total, f, [i IN imps WHERE i <> f] AS imps
-    WITH ui_total, f, imps, [i IN imps WHERE i.kind IN $ui_kinds] AS ui_imps
+    CALL (f, l1) {
+      UNWIND l1 AS x
+      MATCH (b:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(x)
+      WHERE $hops >= 2 AND b <> f
+      RETURN collect(DISTINCT b) AS l2
+    }
+    CALL (f, l2) {
+      UNWIND l2 AS x
+      MATCH (c:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(x)
+      WHERE $hops >= 3 AND c <> f
+      RETURN collect(DISTINCT c) AS l3
+    }
+    CALL (l1, l2, l3) {
+      UNWIND l1 + l2 + l3 AS n
+      RETURN collect(DISTINCT n) AS imps
+    }
+    WITH ui_total, f, l1, imps, [i IN imps WHERE i.kind IN $ui_kinds] AS ui_imps
     RETURN f.path AS path, f.kind AS kind, size(imps) AS importers, size(ui_imps) AS ui_importers,
-           size([i IN imps WHERE (i)-[:IMPORTS|RENDERS]->(f)]) AS direct_importers,
+           size(l1) AS direct_importers,
            ui_total,
            CASE WHEN ui_total = 0 THEN 0.0 ELSE toFloat(size(ui_imps)) / ui_total END AS fraction
     ORDER BY fraction DESC, path
     """,
         {"target": _str(), "paths": _paths(), "hops": _hops(), "ui_kinds": Param("str_list", UI_FILE_KINDS)},
-        "Distinct importers of each file within `hops`, and the UI-file share they make up (case 50).",
+        "Distinct importers of each file within `hops`, and the UI-file share they make up (case 50). One "
+        "DISTINCT frontier per hop, as in `impact`: work is O(edges), not fan-in^hops.",
     )
 )
 
@@ -569,22 +597,27 @@ _register(
     UNWIND $changed AS changed_path
     MATCH (seed:CodeFile {target: $target, path: changed_path})
     CALL (seed) {
-      RETURN seed AS impl, 0 AS hops
-      UNION
-      MATCH (a:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(seed)
-      WHERE $hops >= 1
-      RETURN a AS impl, 1 AS hops
-      UNION
-      MATCH (b:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(:CodeFile {target: $target})
-            -[:IMPORTS|RENDERS]->(seed)
-      WHERE $hops >= 2
-      RETURN b AS impl, 2 AS hops
-      UNION
-      MATCH (c:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(:CodeFile {target: $target})
-            -[:IMPORTS|RENDERS]->(:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(seed)
-      WHERE $hops >= 3
-      RETURN c AS impl, 3 AS hops
+      OPTIONAL MATCH (a:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(seed)
+      WHERE $hops >= 1 AND a <> seed
+      RETURN collect(DISTINCT a) AS l1
     }
+    CALL (seed, l1) {
+      UNWIND l1 AS x
+      MATCH (b:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(x)
+      WHERE $hops >= 2 AND b <> seed
+      RETURN collect(DISTINCT b) AS l2
+    }
+    CALL (seed, l2) {
+      UNWIND l2 AS x
+      MATCH (c:CodeFile {target: $target})-[:IMPORTS|RENDERS]->(x)
+      WHERE $hops >= 3 AND c <> seed
+      RETURN collect(DISTINCT c) AS l3
+    }
+    WITH changed_path,
+         [{node: seed, hops: 0}] + [x IN l1 | {node: x, hops: 1}] + [x IN l2 | {node: x, hops: 2}]
+         + [x IN l3 | {node: x, hops: 3}] AS candidates
+    UNWIND candidates AS cand
+    WITH changed_path, cand.node AS impl, min(cand.hops) AS hops
     MATCH (route:Route {target: $target})
     WHERE EXISTS { (route)-[:HANDLED_BY]->(impl) } OR route.layout = impl.path
     MATCH (s:Screen {target: $target})-[:SERVED_BY]->(route)
@@ -602,7 +635,10 @@ _register(
         {"target": _str(), "changed": _paths(), "hops": _hops(), "bundle_hash": _opt_str()},
         "Requirements with a NO_UI_EVIDENCE gap whose searched Screens are served by an impacted file: "
         "'cannot verify' rather than 'unaffected'. `bundle_hash` is required (case 48: a gap is never "
-        "reused across bundles); pass None explicitly to mean gaps from any bundle.",
+        "reused across bundles); pass None explicitly to mean gaps from any bundle. The closure is one "
+        "DISTINCT frontier per hop (work is O(edges), not fan-in^hops); `impacted_screen_ids` and `seeds` "
+        "are sorted.",
+        sorted_lists(impacted_screen_ids=str, seeds=str),
     )
 )
 

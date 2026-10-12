@@ -19,6 +19,8 @@ plus a floor, and a cancelled parse yields no imports and `aborted=True`.
 from __future__ import annotations
 
 import posixpath
+from bisect import bisect_right
+from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -59,6 +61,9 @@ class ScriptFacts:
     reexports: int = 0
     has_error: bool = False             # tree-sitter recovered from a syntax error: imports may be missing
     aborted: bool = False               # the parse exceeded its work budget: no facts were extracted
+    # name -> occurrences as a value outside import / re-export statements (only when asked for; types are not
+    # values). An imported component that appears here is passed around, registered or rendered by this script.
+    value_refs: dict[str, int] = field(default_factory=dict)
 
 
 @lru_cache(maxsize=2)
@@ -68,6 +73,7 @@ def _queries(tsx: bool) -> tuple[Parser, Query, Query]:
     other = Query(lang, """
         (call_expression function: (import)) @dyn
         (comment) @comment
+        [(identifier) (shorthand_property_identifier)] @ref
     """)
     return Parser(lang), imports, other
 
@@ -169,14 +175,16 @@ def _in_document_order(nodes: Iterable[Node]) -> list[Node]:
     return sorted(nodes, key=lambda n: (n.start_byte, n.end_byte))
 
 
-def extract_imports(source: str, *, tsx: bool = False) -> ScriptFacts:
+def extract_imports(source: str, *, tsx: bool = False, refs: bool = False) -> ScriptFacts:
+    """Import bindings, lazy bindings and comment spans of a script; `refs` also fills `value_refs`."""
     parser, q_import, q_other = _queries(tsx)
     tree = _parse(parser, source.encode("utf-8"))
     if tree is None:
         return ScriptFacts(has_error=True, aborted=True)
     root = tree.root_node
     facts = ScriptFacts(has_error=root.has_error)
-    for node in _in_document_order(QueryCursor(q_import).captures(root).get("stmt", [])):
+    statements = _in_document_order(QueryCursor(q_import).captures(root).get("stmt", []))
+    for node in statements:
         src = node.child_by_field_name("source")
         spec = _string_value(src) if src is not None else None
         if spec is None:
@@ -201,11 +209,25 @@ def extract_imports(source: str, *, tsx: bool = False) -> ScriptFacts:
         facts.imports.append(ImportBinding(literal, (), (), "dynamic"))
         _lazy_binding(call, literal, facts.lazy_bindings)
     facts.comment_spans = [(n.start_byte, n.end_byte) for n in _in_document_order(caps.get("comment", []))]
+    if refs:
+        facts.value_refs = _value_refs(caps.get("ref", []), [(n.start_byte, n.end_byte) for n in statements])
     facts.declares_locally = any(
         c.type not in ("import_statement", "comment", "empty_statement")
         and not (c.type == "export_statement" and c.child_by_field_name("source") is not None)
         for c in root.children)
     return facts
+
+
+def _value_refs(nodes: Iterable[Node], statements: list[tuple[int, int]]) -> dict[str, int]:
+    """Identifier occurrences outside the import / re-export statements (top level, so spans never nest)."""
+    starts = [a for a, _ in statements]
+    out: Counter[str] = Counter()
+    for node in nodes:
+        i = bisect_right(starts, node.start_byte) - 1
+        if i >= 0 and node.start_byte < statements[i][1]:
+            continue
+        out[node.text.decode()] += 1
+    return dict(sorted(out.items()))
 
 
 def without_comments(source: str, facts: ScriptFacts) -> str:

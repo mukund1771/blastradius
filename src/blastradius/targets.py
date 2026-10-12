@@ -84,7 +84,7 @@ class TargetConfig(_Cfg):
     notes: str = ""
 
     @classmethod
-    def load(cls, name: str, targets_dir: Path | None = None) -> "TargetConfig":
+    def load(cls, name: str, targets_dir: Path | None = None) -> TargetConfig:
         path = (targets_dir or TARGETS_DIR) / f"{name}.yaml"
         if not path.exists():
             raise FileNotFoundError(f"no target config at {path}")

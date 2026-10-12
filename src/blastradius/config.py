@@ -41,7 +41,7 @@ class Settings(BaseModel):
     contact: str = ""
 
     @classmethod
-    def load(cls) -> "Settings":
+    def load(cls) -> Settings:
         load_dotenv()
         env = os.environ.get
         return cls(

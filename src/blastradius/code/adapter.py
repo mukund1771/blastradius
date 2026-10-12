@@ -15,6 +15,7 @@ from __future__ import annotations
 import importlib
 import os
 import stat
+from collections import Counter
 from collections.abc import Collection, Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
@@ -24,12 +25,34 @@ from ..models import CodeEdge, CodeFile, CodeIndex, KeyUse, RouteDef, TextLitera
 from ..targets import CodeConfig
 from .fileclass import classify_file
 
-__all__ = ["ADAPTERS", "MAX_FILE_BYTES", "CodeAdapter", "IndexPart", "PartialIndexer", "RootStatus",
-           "SourceTree", "classify_file", "get_adapter", "is_indexable"]
+__all__ = ["ADAPTERS", "HARD_PROBLEM_KINDS", "MAX_FILE_BYTES", "PARSE_PARTIAL_RATIO", "UNDECODABLE_FILENAME",
+           "CodeAdapter", "IndexPart", "PartialIndexer", "RootStatus", "SourceTree", "classify_file", "get_adapter",
+           "is_indexable", "parse_partial_reasons"]
 
 ADAPTERS = {"vue": "blastradius.code.adapters.vue:VueAdapter", "twig": "blastradius.code.adapters.twig:TwigAdapter"}
 _SKIP_DIRS = frozenset({"node_modules", ".git", "dist", "coverage"})
 MAX_FILE_BYTES = 8 * 1024 * 1024        # larger than this is data or a bundle, not source to index
+
+# `stats.parse_partial` (the graph's prune guard reads it) is set only when the index is missing real content:
+# a file that could not be read or decoded at all, or parse problems on more than this share of the files read.
+# Two valid files tree-sitter cannot fully parse in a thousand are a note in `parse_errors`, not a partial index.
+PARSE_PARTIAL_RATIO = 0.02
+UNDECODABLE_FILENAME = "undecodable_filename"        # a path that is not valid UTF-8 (Linux allows it): skipped
+HARD_PROBLEM_KINDS = frozenset({"undecodable_bytes", "unreadable_file", "oversize_file", UNDECODABLE_FILENAME})
+
+
+def parse_partial_reasons(pairs: Sequence[tuple[str, str]], indexed_files: int) -> list[str]:
+    """Why an index must be treated as partial, `[]` when it may be pruned against.
+
+    `pairs` are the `(file, problem kind)` rows an adapter recorded (`parse_errors` is their count) and
+    `indexed_files` the source files it read. A hard kind (undecodable, unreadable, oversize, unnamed) always
+    counts; the plain error count counts only above `PARSE_PARTIAL_RATIO` of the files read.
+    """
+    hard = Counter(kind for _, kind in pairs if kind in HARD_PROBLEM_KINDS)
+    reasons = [f"{kind}={n}" for kind, n in sorted(hard.items())]
+    if indexed_files and len(pairs) / indexed_files > PARSE_PARTIAL_RATIO:
+        reasons.append(f"parse_errors={len(pairs)}/{indexed_files}")
+    return reasons
 
 
 class CodeAdapter(Protocol):
@@ -70,7 +93,8 @@ class PartialIndexer(Protocol):
     exts: frozenset[str]            # file extensions the adapter lists (what `is_indexable` is asked with)
 
     def index_part(self, repo_root: Path, cfg: CodeConfig, *, known_paths: Collection[str],
-                   only: Collection[str], dangling: Sequence[CodeEdge] = ()) -> IndexPart: ...
+                   only: Collection[str], dangling: Sequence[CodeEdge] = (),
+                   known_keys: Collection[str] = ()) -> IndexPart: ...
 
 
 def get_adapter(name: str) -> CodeAdapter:
@@ -104,8 +128,10 @@ class SourceTree:
     """The files an adapter may read. Reading anything else raises `PermissionError`.
 
     Attributes besides `paths` say what was *not* read: `symlinks` (links skipped, with the path of the link),
-    `oversize` (files above `MAX_FILE_BYTES`), `roots` (one `RootStatus` per configured root) and
-    `configured` (status of each locale / auto-import file: ok | missing | symlink | escapes_checkout | ...).
+    `oversize` (files above `MAX_FILE_BYTES`), `undecodable_names` (paths that are not valid UTF-8, shown with
+    backslash escapes: they cannot be stored in the index, so they are skipped), `roots` (one `RootStatus` per
+    configured root) and `configured` (status of each locale / auto-import file: ok | missing | symlink |
+    escapes_checkout | ...).
     """
 
     def __init__(self, repo_root: Path, cfg: CodeConfig, exts: Iterable[str]):
@@ -115,6 +141,7 @@ class SourceTree:
         self._found: set[str] = set()
         self._links: set[str] = set()
         self._oversize: set[str] = set()
+        self._bad_names: set[str] = set()
         self.roots: list[RootStatus] = [self._scan_root(r) for r in cfg.roots]
         self.configured: dict[str, str] = {}
         extras = [*cfg.locale_files, *([cfg.auto_import_dts] if cfg.auto_import_dts else [])]
@@ -123,6 +150,7 @@ class SourceTree:
         self.paths: list[str] = sorted(self._found)
         self.symlinks: list[str] = sorted(self._links)
         self.oversize: list[str] = sorted(self._oversize)
+        self.undecodable_names: list[str] = sorted(self._bad_names)
         self._allowed = frozenset(self._found)
 
     # ------------------------------------------------------------------------------------ listing
@@ -161,6 +189,11 @@ class SourceTree:
             for entry in entries:
                 name = entry.name
                 rel = Path(entry.path).relative_to(self.root).as_posix()
+                try:
+                    rel.encode("utf-8")
+                except UnicodeEncodeError:      # not UTF-8 on disk: the path cannot be persisted or hashed
+                    self._bad_names.add(rel.encode("utf-8", "backslashreplace").decode("utf-8"))
+                    continue
                 if entry.is_symlink():
                     if name not in _SKIP_DIRS:
                         self._links.add(rel)

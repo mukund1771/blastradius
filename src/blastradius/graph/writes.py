@@ -239,6 +239,33 @@ WITH r, collect(DISTINCT sid) AS sorted
 SET r.screen_ids = sorted
 """
 
+# Screen ids are fingerprint hashes: a re-crawl of a redeployed app mints new ones while the canonical
+# UIElement ids (and so their IMPLEMENTED_BY / REALIZED_BY edges) survive. An edge whose `screen_ids` names a
+# Screen that no longer exists would silently drop its element from `impact` until the linker ran again, so
+# the load keeps only the ids that still exist and falls back to [] (= every screen of the element, the safe
+# over-approximating direction) when none do. One literal statement per source label (index seek).
+DANGLING_IMPLEMENTED_BY = """
+MATCH (:UIElement {target: $target})-[r:IMPLEMENTED_BY]->()
+WHERE size(coalesce(r.screen_ids, [])) > 0
+WITH r, r.screen_ids AS before,
+     [x IN r.screen_ids WHERE EXISTS { (:Screen {target: $target, id: x}) }] AS live
+WHERE size(live) < size(before)
+SET r.screen_ids = live
+RETURN count(r) AS edges, sum(CASE WHEN size(live) = 0 THEN 1 ELSE 0 END) AS reset_to_all,
+       sum(size(before) - size(live)) AS ids_dropped
+"""
+
+DANGLING_REALIZED_BY = """
+MATCH (:Requirement {target: $target})-[r:REALIZED_BY]->()
+WHERE size(coalesce(r.screen_ids, [])) > 0
+WITH r, r.screen_ids AS before,
+     [x IN r.screen_ids WHERE EXISTS { (:Screen {target: $target, id: x}) }] AS live
+WHERE size(live) < size(before)
+SET r.screen_ids = live
+RETURN count(r) AS edges, sum(CASE WHEN size(live) = 0 THEN 1 ELSE 0 END) AS reset_to_all,
+       sum(size(before) - size(live)) AS ids_dropped
+"""
+
 OWNER_FILE = """
 UNWIND $ids AS id
 MATCH (e:UIElement {target: $target, id: id})-[r:IMPLEMENTED_BY]->(f:CodeFile)

@@ -119,14 +119,18 @@ def build_facts(report: Report, asm: Assembly) -> dict[str, Any]:
 
 
 def areas(report: Report) -> list[str]:
-    """Where the PR touches, in the spec's own section names, else in screen names."""
-    sections = [r.section for r in report.requirements if r.section and r.status in ("at_risk", "loses_only_realization")]
+    """Where a person should look first: screens the PR changes directly, else spec sections, else any screen."""
     ordered: list[str] = []
-    for s in sections:
-        if s not in ordered:
-            ordered.append(s)
+    for i in report.direct:
+        if i.screen and i.band in (Band.CONFIRMED, Band.LIKELY) and i.screen not in ordered:
+            ordered.append(i.screen)
     if not ordered:
-        for i in [*report.direct, *report.indirect]:
+        for s in (r.section for r in report.requirements if r.section and r.status in
+                  ("at_risk", "loses_only_realization")):
+            if s not in ordered:
+                ordered.append(s)
+    if not ordered:
+        for i in report.indirect:
             if i.screen and i.screen not in ordered:
                 ordered.append(i.screen)
     return ordered[:3]
@@ -172,42 +176,56 @@ def template_confidence_line(report: Report, asm: Assembly) -> str:
             f"{n[Band.POSSIBLE]} possible. {tail}")
 
 
+def _retestable(band: Band) -> bool:
+    """Possible and unknown are findings, not actions a person is told to take."""
+    return band in (Band.CONFIRMED, Band.LIKELY)
+
+
 def template_checklist(report: Report, asm: Assembly, th: Thresholds) -> list[ChecklistItem]:
-    """At most `checklist_max` actions, strongest band first; within a band removed wording, then direct items,
-    then saved data (its three steps stay together), then shared code, then indirect screens."""
+    """At most `checklist_max` actions. Direct confirmed/likely, then saved data and shared code at those
+    bands, then at most two indirect likely screens. One action per direct item."""
     ranked: list[tuple[tuple[int, int, float, str], list[ChecklistItem]]] = []
 
-    def controls(i: ReportItem) -> str:
-        return " and ".join(element_action(role, name) for role, name in asm.controls.get(i.id, [])[:2])
+    def one_action(i: ReportItem) -> str:
+        pairs = asm.controls.get(i.id, [])
+        if not pairs:
+            return f"Open the {i.label}."
+        role, name = pairs[0]
+        return f"On the {i.label}, {element_action(role, name)}."
 
     def key(band: Band, group: int, conf: float, ident: str) -> tuple[int, int, float, str]:
         return (BAND_ORDER[::-1].index(band), group, -conf, ident)
 
     for wording in asm.removed_text[:2]:
-        removed = [i for i in report.direct if i.via == REMOVED_TEXT_VIA]
+        removed = [i for i in report.direct if i.via == REMOVED_TEXT_VIA and _retestable(i.band)]
+        if not removed:
+            continue
         line = ChecklistItem(
-            text=f"Look for the removed wording {quoted(wording)} across the screens listed below and check no "
-                 "screen shows a raw text id instead.",
+            text=f"Look for the removed wording {quoted(wording)} on the {removed[0].label}.",
             why=_why(Band.CONFIRMED, "the screen that showed this wording"), item_ids=[i.id for i in removed])
         ranked.append((key(Band.CONFIRMED, 0, 1.0, wording), [line]))
     for i in report.direct:
-        acts = controls(i)
-        text = (f"On the {i.label}, {acts} and check it still behaves as before." if acts
-                else f"Open the {i.label} and check it still behaves as before.")
+        if not _retestable(i.band):
+            continue
         ranked.append((key(i.band, 1, i.confidence, i.id),
-                       [ChecklistItem(text=text, why=_why(i.band, f"the {i.label}"), item_ids=[i.id])]))
+                       [ChecklistItem(text=one_action(i), why=_why(i.band, f"the {i.label}"), item_ids=[i.id])]))
     for s in report.stored_data:
+        if not _retestable(s.band):
+            continue
         steps = [ChecklistItem(text=step, why=_why(s.band, s.label), item_ids=[s.id]) for step in MIGRATION_STEPS]
         ranked.append((key(s.band, 2, s.confidence, s.id), steps))
     for g in report.global_changes:
-        pages = [i.label for i in [*report.direct, *report.indirect] if i.screen][:3]
+        if not _retestable(g.band):
+            continue
+        pages = [i.label for i in report.direct if i.screen and _retestable(i.band)][:3]
         text = ("Click through the main screens of the app as a quick smoke test"
                 + (f", starting with {join_names([quoted(p) for p in pages], 3)}." if pages else "."))
         ranked.append((key(g.band, 3, g.confidence, g.id),
                        [ChecklistItem(text=text, why=_why(g.band, "the shared code"), item_ids=[g.id])]))
-    for i in report.indirect[:2]:
+    indirect = [i for i in report.indirect if i.band is Band.LIKELY][:2]
+    for i in indirect:
         ranked.append((key(i.band, 4, i.confidence, i.id), [ChecklistItem(
-            text=f"Take a quick look at the {i.label}; it shares code this PR edits.",
+            text=f"On the {i.label}, check the control that shares code this PR edits.",
             why=_why(i.band, f"the {i.label}"), item_ids=[i.id])]))
     out: list[ChecklistItem] = []
     for _, block in sorted(ranked, key=lambda r: r[0]):

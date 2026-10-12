@@ -15,6 +15,7 @@ from link_helpers import (
     FakeClient,
     RecordingStore,
     cfg,
+    combined_responder,
     judge_responder,
     make_llm,
     make_run,
@@ -72,8 +73,14 @@ def one(run: RunContext, kind: str, subject: str | None = None) -> dict[str, Any
     return rows[0]
 
 
-def realized(req_id: str, dst: str = "el_x") -> Link:
-    return Link(kind="REALIZED_BY", src=req_id, dst=dst, confidence=0.8, method="bm25_judge", evidence_id="ev_x")
+def crawl_element_ids() -> list[str]:
+    return [e["id"] for s in read_jsonl_dicts(CRAWL / "screens.jsonl") for e in s["elements"]]
+
+
+def realized(req_id: str, dst: str | None = None) -> Link:
+    """A REALIZED_BY link to a control the fixture crawl really has (gaps drops links to other nodes)."""
+    return Link(kind="REALIZED_BY", src=req_id, dst=dst or crawl_element_ids()[0], confidence=0.8,
+                method="bm25_judge", evidence_id="ev_x")
 
 
 # ------------------------------------------------------------------------------------------ formula
@@ -83,11 +90,26 @@ def test_effort_score_and_confidence_formulas():
     assert effort_score(50, "action_budget") == pytest.approx(0.8 * (1 - math.exp(-1)))
     assert not_found_confidence(46, "action_budget") == 0.29
     assert not_found_confidence(10_000, "frontier_empty") == NOT_FOUND_CAP == 0.60     # never above "likely"
-    assert absent_confidence(0, "frontier_empty") == 0.40
+    assert absent_confidence(0, "frontier_empty") == 0.0       # from effort: nothing looked at, no claim
+    assert absent_confidence(46, "action_budget") == 0.38
     assert absent_confidence(10_000, "frontier_empty") == 0.60
     for actions in (0, 5, 46, 150, 1000):                      # a stated negative is never weaker than a miss
         assert absent_confidence(actions, "action_budget") >= not_found_confidence(actions, "action_budget")
     assert not_found_confidence(5, None) < not_found_confidence(40, None) < not_found_confidence(200, None)
+    assert absent_confidence(5, None) < absent_confidence(40, None) < absent_confidence(200, None)
+
+
+def test_a_confirmed_absence_has_no_floor_a_crawl_that_did_nothing_claims_nothing(tmp_path: Path):
+    """(e) The explicit negative used to start at 0.40 whatever the crawl did, so a run that spent zero
+    actions still reported a 'possible' absence. The claim is now a function of the effort."""
+    reqs = [requirement("Request chaining is coming soon", polarity="must_not_exist")]
+    run = crafted(tmp_path, reqs)
+    summary = CrawlSummary.model_validate_json((CRAWL / "summary.json").read_text())
+    idle = summary.model_copy(update={"actions_spent": 0})
+    run.path("crawl", "summary.json").write_text(idle.model_dump_json())
+    run_gaps(run, cfg(), None, None)
+    g = one(run, "NO_UI_EVIDENCE")
+    assert (g["status"], g["confidence"], g["actions_spent"]) == ("CONFIRMED_ABSENT", 0.0, 0)
 
 
 # ------------------------------------------------------------------------------------------- policy
@@ -121,9 +143,12 @@ def test_requirement_gap_policy_table(tmp_path: Path):
         "NO_UI_EVIDENCE", "NOT_FOUND_WITHIN_BUDGET", "SPEC_MAY_BE_STALE", BUNDLE)
     assert g["confidence"] == 0.29 and g["actions_spent"] == 46 and len(g["screens_searched"]) == 25
     g = kinds[by_text["Request chaining is coming soon"]]
-    assert (g["kind"], g["status"], g["confidence"]) == ("NO_UI_EVIDENCE", "CONFIRMED_ABSENT", 0.50)
+    assert (g["kind"], g["status"], g["confidence"]) == ("NO_UI_EVIDENCE", "CONFIRMED_ABSENT", 0.38)
     assert by_text["User can view history"] not in kinds                       # realised: no gap
-    assert by_text["Language choice is not available"] not in kinds            # satisfied negative: no gap
+    # a must_not_exist requirement the UI realises is a contradiction of the spec: a finding, not a pass
+    g = kinds[by_text["Language choice is not available"]]
+    assert (g["kind"], g["status"], g["reason"], g["confidence"]) == (
+        "UNSPECIFIED_UI", "OBSERVED", "contradicts_must_not_exist", 0.0)
     assert by_text["User can use many languages"] not in kinds                 # not known to be UI observable
     assert by_text["User can do something in some edition"] not in kinds
     assert out["negatives_contradicted"] == 1 and out["requirements_not_gapped_unclassified"] == 2
@@ -441,3 +466,179 @@ def test_the_subdirs_gaps_passes_are_accepted_by_the_real_crawl_module(tmp_path:
     for i in range(5):
         scoped = explorer.scoped_run(run, f"goal-{i}")
         assert scoped.path("crawl", "screens.jsonl") == run.run_dir / "crawl" / f"goal-{i}" / "screens.jsonl"
+
+
+# ------------------------------------------------------------------------------------ staleness (case 48)
+def linked_run(tmp_path: Path, run_id: str = "stale") -> RunContext:
+    """The real crawl, index and requirements, linked with the stand-in model: realisations and a state."""
+    from blastradius.link.link import run_link
+
+    run = make_run(tmp_path, run_id=run_id)
+    run_link(run, cfg(), None, make_llm(run, FakeClient(combined_responder()), tmp_path))
+    return run
+
+
+def recrawl_on_disk(run: RunContext, *, bundle: str | None, keep: int | None = None) -> list[str]:
+    """What a re-crawl of a redeployed app leaves in the run: a new bundle and (optionally) fewer screens."""
+    summary = CrawlSummary.model_validate_json((CRAWL / "summary.json").read_text())
+    if bundle is not None:
+        update: dict[str, Any] = {"bundle_hash": bundle, "bundle_hash_end": bundle}
+        run.path("crawl", "summary.json").write_text(summary.model_copy(update=update).model_dump_json())
+    rows = (CRAWL / "screens.jsonl").read_text().splitlines()
+    if keep is not None:
+        rows = rows[:keep]
+        run.path("crawl", "screens.jsonl").write_text("\n".join(rows) + "\n")
+    return [e["id"] for line in rows for e in json.loads(line)["elements"]]
+
+
+def failures_of(run: RunContext, *needles: str) -> list[dict[str, Any]]:
+    return [f for f in run.failures.items if all(n in f["message"] for n in needles)]
+
+
+def test_a_state_from_another_bundle_is_not_trusted_and_says_so(tmp_path: Path):
+    """probe7/probe9: after a re-crawl with a new bundle, `gaps` without a fresh `link` stamped the old
+    judgements with the NEW bundle hash and suppressed real absences."""
+    run = linked_run(tmp_path)
+    fresh = run_gaps(run, cfg(), None, None)
+    assert fresh["requirements_realized"] > 0 and fresh["by_kind"].get("UNMAPPED_CODE", 0) > 0
+    ids = recrawl_on_disk(run, bundle="b2b2b2b2b2b2b2b2", keep=6)
+    out = run_gaps(run, cfg(), None, None)
+
+    rows = gaps_of(run)
+    assert {g["bundle_hash"] for g in rows if g["kind"] != "NOT_UI_TESTABLE"} == {"b2b2b2b2b2b2b2b2"}
+    # no judgement of the old crawl survives as a claim about the new one
+    absence = [g for g in rows if g["kind"] == "NO_UI_EVIDENCE"]
+    assert absence and {(g["reason"], g["confidence"]) for g in absence} == {("JUDGE_UNAVAILABLE", 0.0)}
+    unmapped = {g["subject_id"] for g in rows if g["kind"] == "UNMAPPED_CODE"}
+    assert not unmapped - set(ids)                                          # none from the old crawl
+    assert not unmapped                                                     # ... and none claimed at all
+    assert not [g for g in rows if g["kind"] == "UNSPECIFIED_UI"]           # "no requirement" needs judgements
+    assert out["requirements_realized"] < fresh["requirements_realized"]
+    assert failures_of(run, "link_state.json is stale", "blastradius link")
+    assert out["link_state"]["status"] == "stale" and "b2b2b2b2b2b2b2b2" in out["link_state"]["reason"]
+    assert out["unmapped_code"]["status"] == "skipped" and "stale" in out["unmapped_code"]["reason"]
+    assert out["stale_links_dropped"]["REALIZED_BY"] > 0
+    assert out["unspecified_ui"]["skipped"] == "link_state.json stale"
+
+
+def test_a_state_of_the_same_bundle_but_another_set_of_screens_is_stale_too(tmp_path: Path):
+    run = linked_run(tmp_path)
+    recrawl_on_disk(run, bundle=None, keep=3)                    # same bundle hash, three screens
+    out = run_gaps(run, cfg(), None, None)
+    absence = [g for g in gaps_of(run) if g["kind"] == "NO_UI_EVIDENCE"]
+    assert absence and {(g["reason"], g["confidence"]) for g in absence} == {("JUDGE_UNAVAILABLE", 0.0)}
+    assert failures_of(run, "stale")
+    assert out["link_state"]["status"] == "stale"
+    assert "different set of screens" in out["link_state"]["reason"]
+
+
+def test_a_state_of_another_target_is_stale(tmp_path: Path):
+    run = linked_run(tmp_path)
+    path = run.run_dir / "links" / "link_state.json"
+    path.write_text(json.dumps({**json.loads(path.read_text()), "target": "somewhere-else"}))
+    out = run_gaps(run, cfg(), None, None)
+    absence = [g for g in gaps_of(run) if g["kind"] == "NO_UI_EVIDENCE"]
+    assert absence and {g["reason"] for g in absence} == {"JUDGE_UNAVAILABLE"}
+    assert out["link_state"]["status"] == "stale" and "somewhere-else" in out["link_state"]["reason"]
+
+
+def test_a_current_state_is_used_and_nothing_is_dropped(tmp_path: Path):
+    run = linked_run(tmp_path)
+    out = run_gaps(run, cfg(), None, None)
+    assert out["link_state"] == {"status": "ok", "reason": "", "link_ran": True}
+    assert out["stale_links_dropped"] == {} and out["unmapped_code"]["status"] == "ok"
+    assert not failures_of(run, "stale")
+
+
+def test_links_to_nodes_the_current_crawl_does_not_have_are_dropped(tmp_path: Path):
+    """The state matches, but a REALIZED_BY link points at a control that is not in screens.jsonl."""
+    reqs = [requirement("User can view history")]
+    gone = Link(kind="REALIZED_BY", src=reqs[0]["id"], dst="el_not_in_this_crawl", confidence=0.8,
+                method="bm25_judge", evidence_id="ev_x")
+    run = crafted(tmp_path, reqs, links=[gone])
+    out = run_gaps(run, cfg(), None, None)
+    assert out["requirements_realized"] == 0 and out["stale_links_dropped"] == {"REALIZED_BY": 1}
+    assert one(run, "NO_UI_EVIDENCE", reqs[0]["id"])["status"] == "NOT_FOUND_WITHIN_BUDGET"
+    # a link to a control, a screen or a flow of the current artifacts is kept
+    element = crawl_element_ids()[0]
+    screen_id = read_jsonl_dicts(CRAWL / "screens.jsonl")[0]["id"]
+    run = crafted(tmp_path / "b", reqs, links=[realized(reqs[0]["id"], element)], run_id="b")
+    assert run_gaps(run, cfg(), None, None)["requirements_realized"] == 1
+    run = crafted(tmp_path / "c", reqs, links=[realized(reqs[0]["id"], screen_id)], run_id="c")
+    assert run_gaps(run, cfg(), None, None)["requirements_realized"] == 1
+    run = crafted(tmp_path / "d", reqs, links=[realized(reqs[0]["id"], "flow_abc")], run_id="d")
+    run.path("links", "flows.jsonl").write_text(json.dumps({"id": "flow_abc", "name": "n", "steps": [],
+                                                            "screens": []}) + "\n")
+    assert run_gaps(run, cfg(), None, None)["requirements_realized"] == 1
+
+
+# --------------------------------------------------------------------------- link not run
+def test_gaps_before_link_say_link_not_run_instead_of_hundreds_of_unmapped_code_gaps(tmp_path: Path):
+    reqs = [requirement("User can export a collection as OpenAPI")]
+    run = crafted(tmp_path, reqs, state=False)
+    out = run_gaps(run, cfg(), None, None)
+    assert not [g for g in gaps_of(run) if g["kind"] in ("UNMAPPED_CODE", "UNSPECIFIED_UI")]
+    assert out["link_state"]["link_ran"] is False and out["link_state"]["status"] == "missing"
+    assert out["unmapped_code"]["status"] == "skipped" and "link not run" in out["unmapped_code"]["reason"]
+    assert out["unspecified_ui"]["skipped"] == "link not run"
+    # the requirement side was already honest: nothing was judged, so no absence is claimed
+    g = one(run, "NO_UI_EVIDENCE")
+    assert (g["reason"], g["confidence"]) == ("JUDGE_UNAVAILABLE", 0.0)
+
+
+# --------------------------------------------------------------- a negative the UI shows (case 27)
+def test_a_must_not_exist_requirement_the_ui_shows_is_written_as_a_finding(tmp_path: Path):
+    reqs = [requirement("Request chaining is coming soon", polarity="must_not_exist")]
+    element = next(e for s in read_jsonl_dicts(CRAWL / "screens.jsonl") for e in s["elements"]
+                   if e["name"] == "Settings")
+    run = crafted(tmp_path, reqs, links=[realized(reqs[0]["id"], element["id"])])
+    out = run_gaps(run, cfg(), RecordingStore(), None)
+    g = one(run, "UNSPECIFIED_UI", reqs[0]["id"])
+    assert (g["status"], g["reason"], g["confidence"], g["bundle_hash"]) == (
+        "OBSERVED", "contradicts_must_not_exist", 0.0, BUNDLE)
+    summary = run.evidence.get(g["evidence_id"])["summary"]
+    assert "must not exist" in summary and 'link "Settings"' in summary and "judge 0.80" in summary
+    assert out["negatives_contradicted"] == 1 and out["contradicted_requirement_ids"] == [reqs[0]["id"]]
+    assert not [x for x in gaps_of(run) if x["kind"] == "NO_UI_EVIDENCE"]       # and it is not an absence
+
+
+# -------------------------------------------------------------------------- corrupt inputs (i)
+def truncated(path: Path, keep: float = 0.5) -> None:
+    text = path.read_text()
+    path.write_text(text[: int(len(text) * keep)])
+
+
+def test_corrupt_inputs_are_failures_not_crashes(tmp_path: Path):
+    run = linked_run(tmp_path)
+    truncated(run.run_dir / "code" / "index.json")
+    truncated(run.run_dir / "spec" / "requirements.json")
+    truncated(run.run_dir / "links" / "link_state.json")
+    truncated(run.run_dir / "crawl" / "summary.json", 0.3)
+    (run.run_dir / "crawl" / "goal_effort.json").write_text("{not json")
+    with (run.run_dir / "links" / "links.jsonl").open("a", encoding="utf-8") as fh:
+        fh.write('{"kind": "REALIZED_BY", "src": \n')
+    out = run_gaps(run, cfg(), RecordingStore(), None)
+    assert out["link_state"]["status"] == "invalid"
+    for name in ("code/index.json", "spec/requirements.json", "links/link_state.json", "crawl/summary.json",
+                 "crawl/goal_effort.json", "links/links.jsonl"):
+        assert failures_of(run, name), name
+    assert {f["code"] for f in failures_of(run, "ignored")} == {"CONFIG_INVALID"}
+    assert out["gaps"] > 0                                      # it still reported the crawl side
+
+
+def test_a_state_of_the_wrong_shape_is_invalid_not_a_crash(tmp_path: Path):
+    for body in ('["not", "an", "object"]', json.dumps({"requirements": [1, 2], "unresolved": "x"})):
+        run = crafted(tmp_path / str(abs(hash(body))), [requirement("User can export a collection")])
+        run.path("links", "link_state.json").write_text(body)
+        out = run_gaps(run, cfg(), None, None)
+        assert out["link_state"]["status"] == "invalid"
+        assert one(run, "NO_UI_EVIDENCE")["reason"] == "JUDGE_UNAVAILABLE"
+
+
+def test_unmapped_rows_with_missing_fields_are_skipped_and_counted(tmp_path: Path):
+    run = crafted(tmp_path, [])
+    run.path("links", "link_state.json").write_text(json.dumps({
+        "unresolved": [{"element_id": "el_a"}, {"name": "no id"}, "junk"], "requirements": {}}))
+    out = run_gaps(run, cfg(), None, None)
+    rows = [g for g in gaps_of(run) if g["kind"] == "UNMAPPED_CODE"]
+    assert [g["subject_id"] for g in rows] == ["el_a"] and out["unmapped_rows_malformed"] == 2

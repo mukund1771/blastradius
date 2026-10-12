@@ -325,7 +325,7 @@ def _locale_route(seed: SeedInfo, retr: Retrieval, th: Thresholds, store: Any, i
             hit = by_key.get((screen_id, row["element_id"]))
             if hit is None:
                 hit = Hit(screen_id=screen_id, element_id=row["element_id"], element_role=row["role"],
-                          element_name=row["name"], owner_file=row.get("owner_file"))
+                          element_name=row["name"])
                 retr.hits.append(hit)
                 by_key[hit.key] = hit
             hit.routes.append(route)

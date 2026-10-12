@@ -1,12 +1,13 @@
 """Read templates the reasoning stage needs on top of `impact` (D19, D28; cases 46, 48, 51, 57).
 
 Auto-discovered by `queries.all_templates()` (any `queries_*.py` that exposes TEMPLATES), so `GraphStore.read`
-runs them exactly like the core templates: named, parameterised, constant Cypher, read transactions only. Every
-template returns deterministic rows (a total ORDER BY, list columns sorted by the `post` hook).
+runs them exactly like the core templates: named, parameterised, constant Cypher, read transactions only.
+Every template returns deterministic rows (a total ORDER BY, list columns sorted by the `post` hook).
 
   requirements_by_id(requirement_ids)   the spec statement, verbatim quote and section of each requirement
   screens_by_id(screen_ids)             title, dialog title, kind, tabs and url pattern of each Screen
-  keys_used_by_files(paths)             i18n keys a CodeFile uses (static and dynamic prefix) with the English value
+  keys_used_by_files(paths)             i18n keys a CodeFile uses (static and dynamic prefix) with the
+                                        English value
   element_context(element_ids)          per (element, screen): flows with a STEP on it and the requirements
                                         realised by it, its flow or its screen (same shape as `impact`)
   importer_files(paths)                 direct importers/renderers of each file with their file class
@@ -35,7 +36,8 @@ _register(
     ORDER BY requirement_id
     """,
         {"target": _str(), "requirement_ids": _paths()},
-        "The statement, verbatim quote, section and edition of each requirement id (an unknown id yields no row).",
+        "The statement, verbatim quote, section and edition of each requirement id (an unknown id yields no "
+        "row).",
     )
 )
 
@@ -119,7 +121,7 @@ _register(
     ORDER BY path, importer, edge_kind
     """,
         {"target": _str(), "paths": _paths()},
-        "Direct importers and renderers of each file with their file class (the PROBE action's census). A file "
-        "nothing imports yields one row with a null importer.",
+        "Direct importers and renderers of each file with their file class (the PROBE action's census). A "
+        "file nothing imports yields one row with a null importer.",
     )
 )

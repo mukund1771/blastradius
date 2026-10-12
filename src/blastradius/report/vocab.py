@@ -8,6 +8,7 @@ the renderer writes and what the lint accepts cannot drift apart. `reason.verify
 from __future__ import annotations
 
 import re
+import unicodedata
 
 from ..models import Band
 from .model import ReqStatus, RiskLevel
@@ -91,11 +92,44 @@ BAND_FORBIDDEN: dict[Band, tuple[str, ...]] = {
     Band.UNKNOWN: ("will", "would", "probably", "likely", "certainly", "definitely", "confirmed",
                    "might be affected", "worth a quick look", "is changed by this PR"),
 }
-# "any claim of effect" for the unknown band: passive effect phrases, unless the sentence is itself framed as
-# not knowing ("we cannot tell whether the screen is affected" is not a claim).
+# "any claim of effect" for the unknown band. REPORT_SPEC's table gives the other bands "will change", "is changed
+# by this PR", "probably affected", "likely changes" and "might be affected"; the unknown band may only say "we
+# cannot tell" or "not determined". So an unknown sentence must not say that something changes, is affected or
+# breaks in ANY voice: passive ("is changed", "has been affected"), modal ("may change", "could be affected"),
+# negated ("does not change", "is not affected") or plain active ("This PR modifies the sidebar", "The sidebar
+# broke"), unless the sentence is itself framed as not knowing ("we cannot tell whether it changes").
+# (base, third person, past, participle) of the verbs of that table and their close synonyms
+EFFECT_VERBS: tuple[tuple[str, str, str, str], ...] = (
+    ("change", "changes", "changed", "changed"), ("affect", "affects", "affected", "affected"),
+    ("break", "breaks", "broke", "broken"), ("impact", "impacts", "impacted", "impacted"),
+    ("alter", "alters", "altered", "altered"), ("modify", "modifies", "modified", "modified"),
+    ("update", "updates", "updated", "updated"), ("replace", "replaces", "replaced", "replaced"),
+    ("remove", "removes", "removed", "removed"), ("add", "adds", "added", "added"),
+    ("rename", "renames", "renamed", "renamed"), ("rewrite", "rewrites", "rewrote", "rewritten"),
+    ("delete", "deletes", "deleted", "deleted"), ("edit", "edits", "edited", "edited"),
+)
+
+
+def _alt(forms: set[str]) -> str:
+    return "|".join(sorted(forms, key=lambda f: (-len(f), f)))
+
+
+_BASE = _alt({v[0] for v in EFFECT_VERBS})
+_INFLECTED = _alt({f for v in EFFECT_VERBS for f in v[1:]} | {"unchanged", "unaffected"})   # also a claim
+_PARTICIPLE = _alt({v[3] for v in EFFECT_VERBS} | {v[2] for v in EFFECT_VERBS})
+_ADVERBS = r"(?:\s+(?:not|also|still|already|then|now|never|just|only|simply|likely|probably))*"
 _EFFECT = re.compile(
-    r"\b(?:is|are|was|were|gets?|got)\s+(?:changed|affected|broken|impacted|modified|updated|altered|replaced|"
-    r"removed|added)\b|\bchanges?\s+(?:the|how|what)\b", re.IGNORECASE)
+    # passive and perfect: is/was/gets/has been ... changed
+    rf"\b(?:is|are|was|were|be|been|being|gets?|got|has|have|had){_ADVERBS}\s+(?:been\s+)?(?:{_PARTICIPLE})\b"
+    # modal and auxiliary: may change, could be affected, does not change
+    rf"|\b(?:may|might|could|does|did|doesn't|didn't|won't){_ADVERBS}\s+(?:be\s+)?(?:{_BASE}|{_PARTICIPLE})\b"
+    r"|\bchanges?\s+(?:the|how|what)\b"
+    # plain active: "the sidebar changes", "this PR modified the page"
+    rf"|\b(?:{_INFLECTED})\b", re.IGNORECASE)
+# the same rule for a requirement statement quoted from the spec: only what it always checked (passive effect
+# phrases and "changes the ...")
+_EFFECT_SPEC = re.compile(
+    rf"\b(?:is|are|was|were|gets?|got)\s+(?:{_PARTICIPLE})\b|\bchanges?\s+(?:the|how|what)\b", re.IGNORECASE)
 _UNKNOWN_FRAME = re.compile(
     r"\b(?:cannot|can't|could not|couldn't|unable to|not determined|undetermined|whether|no way to tell|"
     r"no evidence|not known|unknown)\b", re.IGNORECASE)
@@ -113,25 +147,32 @@ _FORBIDDEN_RE: dict[Band, tuple[tuple[str, re.Pattern[str]], ...]] = {
 }
 
 
-def verb_violations(text: str, band: Band) -> list[str]:
+def verb_violations(text: str, band: Band, *, spec_text: bool = False) -> list[str]:
     """The forbidden phrases for `band` that occur in `text` (sorted, unique).
 
     Quoted material (a spec quote, a PR title) is not ours and is skipped. A "confirmed" sentence may not hedge,
     a "likely" one may not promise, a "possible" one may not say "will" or "probably", and an "unknown" one may
-    not claim an effect at all.
+    not claim an effect at all, in any voice. `spec_text` marks a requirement statement taken from the spec
+    (not our sentence): the unknown band then applies only the passive phrases and "changes the ...", because
+    a spec says "changes are saved" or "the system removes expired data" about the product, which is not a
+    claim about this PR.
     """
     plain = _QUOTED.sub(" ", text)
     found = {phrase for phrase, rx in _FORBIDDEN_RE[band] if rx.search(plain)}
     if band is Band.UNKNOWN:
-        for sentence in _SENTENCE.split(plain):
-            if not _UNKNOWN_FRAME.search(sentence):
-                effects = {m.group(0).lower() for m in _EFFECT.finditer(sentence)}
-                found.update(e for e in effects if not any(e in phrase for phrase in found))
+        rx = _EFFECT_SPEC if spec_text else _EFFECT
+        effects = {" ".join(m.group(0).lower().split()) for sentence in _SENTENCE.split(plain)
+                   if not _UNKNOWN_FRAME.search(sentence) for m in rx.finditer(sentence)}
+        # "will change" is already reported as "will", "is changed by this PR" as itself: report each claim once
+        found |= {e for e in effects if not any(e in phrase or phrase in e for phrase in found)}
     return sorted(found)
 
 
 # ------------------------------------------------------------------------------------ body hygiene
-ID_PREFIXES = ("ev", "req", "scr", "uie", "clm", "el", "cap", "flow", "gap", "snap", "tr")
+# every prefix `stable_id(...)` is called with in src/blastradius (a test greps for new ones): evidence, requirement,
+# screen, UI element, claim, control, capture, flow, gap, snapshot and trace ids, the report's own item ("itm") and
+# review ("rev") ids, and the could-not-determine row ("und") id
+ID_PREFIXES = ("ev", "req", "scr", "uie", "clm", "el", "cap", "flow", "gap", "snap", "tr", "itm", "rev", "und")
 RAW_ID = re.compile(r"\b(?:" + "|".join(ID_PREFIXES) + r")_[0-9A-Za-z]{3,}\b")
 RAW_SHA = re.compile(r"\b(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b")
 FILE_PATH = re.compile(
@@ -142,6 +183,20 @@ FILE_PATH = re.compile(
 JARGON = re.compile(r"\b(?:nodes?|edges?|graphs?|closures?|hops?)\b", re.IGNORECASE)
 HTML_TAG = re.compile(r"</?[A-Za-z][^<>]*>|<!--|<[!?][A-Za-z]")
 REMOTE_URL = re.compile(r"(?i)\b(?:https?|ftp)://|!\[")
+# a link that Markdown renderers (GFM's "autolink literal") create without any markup: a `www.` host, a
+# `mailto:` or `xmpp:` address, or a bare e-mail address. The writers defang all of them; the lint checks none is left.
+BARE_AUTOLINK = re.compile(
+    r"(?i)(?<![A-Za-z0-9])www\.[a-z0-9][\w.-]*|\b(?:mailto|xmpp):|[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+
+
+def invisible_characters(text: str) -> list[str]:
+    """`U+XXXX` of every control (Cc) or format (Cf) character in `text` except line breaks and tabs (sorted).
+
+    Bidi embeddings and isolates, zero-width characters, the soft hyphen, C1 controls and tag characters change
+    what a reader sees or hide text from them. The writers remove them; the lint checks that none is left.
+    """
+    return sorted({f"U+{ord(c):04X}" for c in text
+                   if c not in "\n\r\t" and unicodedata.category(c) in ("Cc", "Cf")})
 
 
 def has_html_tag(text: str) -> bool:

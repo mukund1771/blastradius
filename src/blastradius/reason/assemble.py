@@ -146,8 +146,18 @@ def _live(hit: Hit, seeds: dict[str, SeedInfo]) -> list[Route]:
     return out
 
 
+def _strong_direct(hit: Hit, route: Route) -> bool:
+    """Hop 0 onto a changed file or a changed string. A shared label ("one of k files", k > 3) below 0.5
+    is not direct: the file merely contains the same words."""
+    if route.hops != 0 or route.direction not in ("self", "copy") or not route.admitted:
+        return False
+    if len(hit.impl_files) > 3 and route.impl_confidence < 0.5:
+        return False
+    return route.impl_confidence >= 0.5 or len(hit.impl_files) <= 1
+
+
 def _is_direct(route: Route) -> bool:
-    return route.direction in ("self", "copy")
+    return route.hops == 0 and route.direction in ("self", "copy")
 
 
 def _best(routes: list[Route]) -> Route:
@@ -162,24 +172,25 @@ def _verb(band: Band) -> str:
     return _VERB.get(band, "we cannot tell whether it is affected; not determined")
 
 
+def _listed_control(hit: Hit) -> bool:
+    """Named in the body only when the link is unique or at least 0.5. Shared ties stay in the "N more" count."""
+    best = max((r.impl_confidence for r in hit.routes if r.admitted), default=0.0)
+    if len(hit.impl_files) > 3 and best < 0.5:
+        return False
+    return best >= 0.5 or len(hit.impl_files) <= 1
+
+
 def _controls(hits: list[Hit]) -> list[str]:
     seen: dict[str, None] = {}
     for h in sorted(hits, key=lambda h: (h.element_name, h.element_id)):
+        if not _listed_control(h):
+            continue
         name = h.element_name or h.element_role or "control"
         seen.setdefault(quoted(name), None)
     return list(seen)
 
 
-def _added_phrase(hits: list[Hit], seeds: dict[str, SeedInfo], labels: dict[str, str]) -> str:
-    """New files the PR adds that are drawn inside this screen's changed code (found through the head overlay)."""
-    names = sorted({labels.get(r.seed, "") for h in hits for r in h.routes
-                    if r.direction == "overlay" and r.admitted and seeds.get(r.seed) is not None
-                    and seeds[r.seed].added} - {""})
-    return f" New in this PR here: {join_names([quoted(n) for n in names], 2)}." if names else ""
-
-
-def _direct_text(band: Band, hits: list[Hit], routes: list[Route], seeds: dict[str, SeedInfo],
-                 labels: dict[str, str]) -> tuple[str, str | None]:
+def _direct_text(band: Band, hits: list[Hit], routes: list[Route], seeds: dict[str, SeedInfo]) -> tuple[str, str | None]:
     notes = sorted({r.note for r in routes if r.direction == "copy" and r.note})
     severe = any(r.high_severity for r in routes)
     controls = _controls(hits)
@@ -190,8 +201,8 @@ def _direct_text(band: Band, hits: list[Hit], routes: list[Route], seeds: dict[s
         text += " Screens that still use the removed text can show a raw text id instead of words."
     if any(seeds.get(r.seed) is not None and seeds[r.seed].kind.value == "DELETE" for r in routes):
         text += " The code behind these controls is removed by this PR."
-    text += f" Controls involved: {join_names(controls, 3)}."
-    text += _added_phrase(hits, seeds, labels)
+    if controls:
+        text += f" Controls involved: {join_names(controls, 3)}."
     return text, (REMOVED_TEXT_VIA if severe else None)
 
 
@@ -216,8 +227,11 @@ def _via_phrase(routes: list[Route], seeds: dict[str, SeedInfo]) -> str:
 def _indirect_text(band: Band, hits: list[Hit], routes: list[Route], seeds: dict[str, SeedInfo]) -> str:
     kinds = sorted({_kind_of(seeds.get(r.seed)) for r in routes})
     why = "; ".join(_KIND_PHRASE.get(k, _KIND_PHRASE["BODY"]) for k in kinds[:2])
-    return (f"This screen {_verb(band)}. It uses {_via_phrase(routes, seeds)}, which this PR edits ({why}). "
-            f"Controls built from code that uses it: {join_names(_controls(hits), 3)}.")
+    text = (f"This screen {_verb(band)}. It uses {_via_phrase(routes, seeds)}, which this PR edits ({why}).")
+    named = _controls(hits)
+    if named:
+        text += f" Controls built from code that uses it: {join_names(named, 3)}."
+    return text
 
 
 # ------------------------------------------------------------------------------------------ builder
@@ -254,10 +268,27 @@ class _Builder:
         run, the claim rests on this run's `reason.impact` row at the item's confidence (never on a made-up id)."""
         known = set(self._known(e for e, _ in edges))
         kept = sorted({(e, c) for e, c in edges if e in known}) or [(own, conf)]
-        claim = Claim(id=stable_id("clm", self.pr.number, text), text=f"{subject}: {text}",
+        claim = Claim(id=stable_id("clm", self.pr.number, subject, text), text=f"{subject}: {text}",
                       evidence_ids=sorted({own, *[e for e, _ in kept]}), band=band)
         self.basis[claim.id] = [{"evidence_id": e, "confidence": c} for e, c in kept]
         return claim
+
+    def _grouped_controls(self, hits: list[Hit]) -> list[str]:
+        """One evidence row per (role, name): "in N files", capped. Duplicate link rows are not cited."""
+        groups: dict[tuple[str, str], set[str]] = {}
+        for h in hits:
+            if not _listed_control(h):
+                continue
+            name = h.element_name or h.element_role or "control"
+            role = h.element_role or "control"
+            groups.setdefault((role, name), set()).update(r.file for r in h.routes if r.file)
+        ids: list[str] = []
+        for role, name in sorted(groups)[:8]:
+            n = len(groups[(role, name)])
+            ids.append(self.run.evidence.add(
+                "reason.control", f"{self.pr.repo}#{self.pr.number}:{role}:{name}:{n}",
+                f'{role} "{name}" in {n} file(s)'))
+        return ids
 
     def _edges_at_band(self, routes: list[Route], band: Band) -> list[tuple[str, float]]:
         """The routes that carry the item's band (the claim cites these, so its lowest cited edge is its band)."""
@@ -281,11 +312,12 @@ class _Builder:
         for key in sorted(by_unit):
             unit = self.units[key]
             entries = by_unit[key]
-            direct_entries = [(h, rs) for h, rs in entries if any(_is_direct(r) for r in rs)]
+            direct_entries = [(h, [r for r in rs if _strong_direct(h, r)]) for h, rs in entries]
+            direct_entries = [(h, rs) for h, rs in direct_entries if rs]
             use = direct_entries or entries
             tier: Tier = "direct" if direct_entries else "indirect"
             hits = [h for h, _ in use]
-            per_hit_routes = [[r for r in rs if _is_direct(r)] if tier == "direct" else rs for _, rs in use]
+            per_hit_routes = [rs for _, rs in use]
             routes = [r for rs in per_hit_routes for r in rs]
             conf = combine(_best(rs).confidence for rs in per_hit_routes)
             band = band_for(conf)
@@ -300,7 +332,7 @@ class _Builder:
                    band: Band) -> tuple[ReportItem, Claim]:
         seeds_used = sorted({r.seed for r in routes})
         if tier == "direct":
-            what, via = _direct_text(band, hits, routes, self.seeds, self.labels)
+            what, via = _direct_text(band, hits, routes, self.seeds)
             if via is None and any(r.direction == "copy" for r in routes):
                 via = "changed wording"
         else:
@@ -309,15 +341,16 @@ class _Builder:
         reqs = sorted({str(q["id"]) for h in hits for q in h.requirements})
         key = f"{unit.key[0]}|{unit.key[1]}"
         own = self._impact_evidence(tier, key, unit.label, len(hits), conf, via or "")
-        seed_ev = [self.seeds[s].evidence_id for s in seeds_used if s in self.seeds and self.seeds[s].evidence_id]
-        route_ev = sorted(set(self._known(ev for r in routes for ev in r.evidence_ids)))
+        seed_ev = [self.seeds[s].evidence_id for s in seeds_used if s in self.seeds and self.seeds[s].evidence_id][:6]
+        self._known(ev for r in routes for ev in r.evidence_ids)  # other-run link rows stay flagged, not cited
+        grouped = self._grouped_controls(hits)
         files = sorted({self.seeds[s].display_path if s in self.seeds else s for s in seeds_used} |
                        {r.file for r in routes if r.file})
         item = ReportItem(
             id=stable_id("itm", self.pr.number, tier, key), tier=tier, screen=unit.label, label=unit.label,
             what_changed=what, band=band, confidence=conf, section=None, via=via, flows=flows,
-            requirement_ids=reqs, evidence_ids=sorted({own, *seed_ev, *route_ev}), files=files)
-        claim = self._claim(unit.label, what, band, self._edges_at_band(routes, band), own, conf)
+            requirement_ids=reqs, evidence_ids=sorted({own, *seed_ev, *grouped}), files=files)
+        claim = self._claim(unit.label, what, band, [(e, conf) for e in grouped], own, conf)
         self.controls[item.id] = sorted({(h.element_role, h.element_name) for h in hits if h.element_name})
         self.removed_text |= {r.old_text for r in routes if r.high_severity and r.old_text}
         return item, claim
@@ -406,6 +439,19 @@ def _requirement_confidence(hit_conf: float, link_conf: float) -> float:
     return round(hit_conf * link_conf, 4)
 
 
+def spec_requirement_ids(run: RunContext) -> set[str]:
+    """Ids this run actually extracted. An earlier run's graph rows are not this run's spec."""
+    path = run.run_dir / "spec" / "requirements.json"
+    if not path.is_file():
+        return set()
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    rows = data if isinstance(data, list) else data.get("requirements", []) if isinstance(data, dict) else []
+    return {str(r["id"]) for r in rows if isinstance(r, dict) and r.get("id")}
+
+
 def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval, seeds: dict[str, SeedInfo],
                        bundle_hash: str | None, locale_texts: list[str], diff_texts: list[str],
                        context: set[str]) -> tuple[list[RequirementRisk], dict[str, float], int]:
@@ -420,6 +466,9 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
     risks: dict[str, RequirementRisk] = {}
     confs: dict[str, float] = {}
     unrelated = 0
+    allowed = spec_requirement_ids(run)
+    if not allowed:
+        return [], {}, 0
 
     # at risk: requirements realised by an affected control, its screen or its flow
     per_req: dict[str, list[tuple[float, str | None, list[str]]]] = {}
@@ -431,8 +480,11 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
         best = max(r.confidence for r in live)
         ev = sorted({e for r in live for e in r.evidence_ids})
         for q in hit.requirements:
+            rid = str(q["id"])
+            if rid not in allowed:
+                continue
             link = float(q.get("confidence") or 0.0)
-            per_req.setdefault(str(q["id"]), []).append((round(best * link, 4), q.get("evidence_id"), ev))
+            per_req.setdefault(rid, []).append((round(best * link, 4), q.get("evidence_id"), ev))
     ids = sorted(per_req)
     info = {r["requirement_id"]: r for r in store.read("requirements_by_id", requirement_ids=ids)} if ids else {}
     removed = {s.path for s in seeds.values() if s.status == "removed"}
@@ -446,7 +498,7 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
         if band is Band.UNKNOWN:
             continue
         evidence = sorted({e for _, link_ev, route_ev in per_req[rid] for e in [link_ev, *route_ev]
-                           if e and run.evidence.exists(e)})
+                           if e and run.evidence.exists(e)})[:4]
         status = "loses_only_realization" if rid in lost else "at_risk"
         risks[rid] = RequirementRisk(requirement_id=rid, statement=row["text"], quote=row["quote"],
                                      section=row["section"] or "", status=status, band=band,   # type: ignore[arg-type]
@@ -461,7 +513,7 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
         context = context | {t for r in risks.values() for t in tokens(r.section)}
         for row in rows:
             rid = row["requirement_id"]
-            if rid in risks:
+            if rid not in allowed or rid in risks:
                 continue
             q = store.read("requirements_by_id", requirement_ids=[rid])
             if not q or not q[0].get("quote"):
@@ -758,6 +810,15 @@ def assemble(run: RunContext, cfg: TargetConfig, store: Any, pr: PRData, retr: R
         review.extend(g.reviews)
     if weak:
         review.append(weak)
+    fresh = sorted({labels[s.path] for s in retr.seeds if s.added and labels.get(s.path)})
+    if fresh:
+        fresh_words = join_names([quoted(n) for n in fresh], 6)
+        review.append(ReviewItem(
+            id=stable_id("rev", "pr", "NEW_IN_PR"), code="UNMAPPED_CHANGE", reason_kind="NEW_IN_PR",
+            subject="New in this PR; not observable in the live app yet",
+            detail=f"This PR adds {fresh_words}. The live app does not show that yet",
+            what_to_check=f"After this PR is deployed, open the screen that should contain {fresh_words}.",
+            rank=4))
     review = sorted({r.id: r for r in review}.values(), key=lambda r: (r.rank, r.reason_kind, r.id))
     top = th.retrieval.undetermined_top
     undetermined = aggregate_review(review, top)
@@ -794,7 +855,8 @@ def _requirement_claim(b: _Builder, r: RequirementRisk, conf: float) -> Claim:
     }[r.status]
     own = b.run.evidence.add("reason.requirement", f"{b.pr.repo}#{b.pr.number}:{r.requirement_id}:{r.status}",
                              f"requirement {r.requirement_id} is {r.status} at {r.band.value}")
-    claim = Claim(id=stable_id("clm", b.pr.number, quoted_statement, text), text=f"{quoted_statement}: {text}",
+    claim = Claim(id=stable_id("clm", b.pr.number, r.requirement_id, quoted_statement, text),
+                  text=f"{quoted_statement}: {text}",
                   evidence_ids=sorted({own, *r.evidence_ids}), band=r.band)
     b.basis[claim.id] = [{"evidence_id": e, "confidence": conf} for e in sorted({own, *r.evidence_ids})]
     return claim
@@ -842,7 +904,7 @@ def _counts(report: Report, retr: Retrieval, overflow: list[ReportItem], direct:
     return {
         "screens": len({i.screen for i in items if i.screen}),
         "flows": len({f for i in items for f in i.flows}),
-        "requirements": len({r for i in items for r in i.requirement_ids}),
+        "requirements": len({r.requirement_id for r in report.requirements}),
         "direct": len(direct), "indirect": len(shown) + len(overflow), "indirect_shown": len(shown),
         "global": len(report.global_changes), "stored_data": len(report.stored_data),
         "screen_nodes": len({h.screen_id for h in retr.hits if h.live_routes()}),

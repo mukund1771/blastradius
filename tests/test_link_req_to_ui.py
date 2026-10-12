@@ -299,6 +299,23 @@ def test_secret_shaped_ui_text_is_masked_in_what_the_judge_reads_but_still_ranks
     assert users and all(secret not in u and "[REDACTED" in u for u in users)
 
 
+def test_dom_role_and_route_pattern_are_redacted_and_capped_in_what_the_judge_reads(tmp_path: Path):
+    """(d) The label the judge reads is built from page-derived words: the element's role and, for a screen
+    without a title, its url pattern. Both used to go into the prompt as they came from the DOM."""
+    secret = "ghp_" + "A1b2C3d4E5" * 4
+    element = UIElementObs(id="el_1", role=f"button {secret}", name="Export collection",
+                           text="Export collection")
+    page = ScreenState(id="s1", target="t", url="https://app.test/x", url_pattern=f"/export/{secret}/" + "y" * 300,
+                       fingerprint="s1", capture_id="cap_s1", elements=[element])
+    for doc in build_docs([page], "t"):
+        assert secret not in doc.label and len(doc.label) < 400, doc.label
+    run = run_for(tmp_path)
+    client = FakeClient(scripted([{}]))
+    link_req_to_ui(run, make_llm(run, client, tmp_path), [req("User can export a collection")], [page], "t")
+    users = [c["messages"][0]["content"] for c in client.calls]
+    assert users and all(secret not in u and "y" * 100 not in u and "[REDACTED" in u for u in users)
+
+
 # ----------------------------------------------------------------- real crawl + hand-written fixture
 @pytest.fixture(scope="module")
 def real_screens() -> list[ScreenState]:

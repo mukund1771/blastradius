@@ -19,13 +19,13 @@ from __future__ import annotations
 
 import importlib
 import json
-from typing import Any, Optional
+from typing import Any
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
-from .config import RUNS_DIR, Settings
+from .config import RUNS_DIR
 from .run import RunContext
 from .targets import TargetConfig
 from .trace import load_trace, render_tree
@@ -46,7 +46,7 @@ def _resolve(dotted: str) -> Any:
         raise typer.Exit(2) from exc
 
 
-def _ctx(target: str, run: Optional[str], *, create: bool = False, new: bool = False) -> tuple[RunContext, TargetConfig]:
+def _ctx(target: str, run: str | None, *, create: bool = False, new: bool = False) -> tuple[RunContext, TargetConfig]:
     """Resolve the run a stage works in.
 
     Explicit --run wins (created if absent and create=True). With no --run, a stage attaches to the latest run
@@ -83,6 +83,8 @@ def _store(ctx: RunContext) -> Any:
 TargetOpt = typer.Option("hoppscotch", "--target", "-t", help="targets/<name>.yaml")
 RunOpt = typer.Option(None, "--run", "-r", help="run id (default: latest)")
 OfflineOpt = typer.Option(False, "--offline", help="never call the API; use cached responses only")
+GoalOpt = typer.Option([], "--goal", help="requirement text to search for (repeatable)")
+WhichOpt = typer.Option([], "--which", help="subset: invariants, recall, oracle, judge, stability")
 
 
 @app.command()
@@ -109,7 +111,7 @@ def doctor(target: str = TargetOpt, no_models: bool = typer.Option(False, "--no-
 
 
 @trace_app.command("tree")
-def trace_tree(run: Optional[str] = typer.Argument(None, help="run id (default: latest)")) -> None:
+def trace_tree(run: str | None = typer.Argument(None, help="run id (default: latest)")) -> None:
     """Print the span tree for a run; spans with no end are marked OPEN (a crash)."""
     ctx = RunContext.attach(run or "latest")
     console.print(render_tree(load_trace(ctx.run_dir / "trace.jsonl")))
@@ -117,12 +119,12 @@ def trace_tree(run: Optional[str] = typer.Argument(None, help="run id (default: 
 
 
 @app.command()
-def crawl(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = OfflineOpt,
+def crawl(target: str = TargetOpt, run: str | None = RunOpt, offline: bool = OfflineOpt,
           source: str = typer.Option("live", help="live | recorded"),
-          recorded_dir: Optional[str] = typer.Option(None, help="folder of html/png captures (source=recorded)"),
-          max_actions: Optional[int] = typer.Option(None),
+          recorded_dir: str | None = typer.Option(None, help="folder of html/png captures (source=recorded)"),
+          max_actions: int | None = typer.Option(None),
           new: bool = typer.Option(False, "--new", help="start a fresh run even if a latest run exists"),
-          goal: list[str] = typer.Option([], "--goal", help="requirement text to search for (repeatable)")) -> None:
+          goal: list[str] = GoalOpt) -> None:
     """Explore the live app and capture screens, elements and transitions."""
     ctx, cfg = _ctx(target, run, create=True, new=new)
     fn = _resolve("blastradius.crawl.explorer:run_crawl")
@@ -133,7 +135,7 @@ def crawl(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = 
 
 
 @app.command()
-def ingest(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = OfflineOpt) -> None:
+def ingest(target: str = TargetOpt, run: str | None = RunOpt, offline: bool = OfflineOpt) -> None:
     """Fetch the spec and extract atomic, quote-verified requirements."""
     ctx, cfg = _ctx(target, run, create=True)
     fn = _resolve("blastradius.spec.ingest:run_ingest")
@@ -143,8 +145,8 @@ def ingest(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool =
 
 
 @app.command()
-def index(target: str = TargetOpt, run: Optional[str] = RunOpt, ref: Optional[str] = typer.Option(None),
-          pr: Optional[int] = typer.Option(None, help="record this PR number in the index stats; the head overlay itself is applied by `pr`")) -> None:
+def index(target: str = TargetOpt, run: str | None = RunOpt, ref: str | None = typer.Option(None),
+          pr: int | None = typer.Option(None, help="record this PR number in the index stats; the head overlay itself is applied by `pr`")) -> None:
     """Index the target's frontend source into files, render/import edges, routes and i18n keys."""
     ctx, cfg = _ctx(target, run, create=True)
     fn = _resolve("blastradius.code.index:run_index")
@@ -154,7 +156,7 @@ def index(target: str = TargetOpt, run: Optional[str] = RunOpt, ref: Optional[st
 
 
 @app.command()
-def load(target: str = TargetOpt, run: Optional[str] = RunOpt) -> None:
+def load(target: str = TargetOpt, run: str | None = RunOpt) -> None:
     """Load crawl, spec and code artifacts into Neo4j."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.graph.load:run_load")
@@ -164,7 +166,7 @@ def load(target: str = TargetOpt, run: Optional[str] = RunOpt) -> None:
 
 
 @app.command()
-def link(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = OfflineOpt) -> None:
+def link(target: str = TargetOpt, run: str | None = RunOpt, offline: bool = OfflineOpt) -> None:
     """Link UI to code and requirements to UI; write evidence-bearing edges."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.link.link:run_link")
@@ -174,7 +176,7 @@ def link(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = O
 
 
 @app.command()
-def gaps(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = OfflineOpt,
+def gaps(target: str = TargetOpt, run: str | None = RunOpt, offline: bool = OfflineOpt,
          recrawl: bool = typer.Option(False, help="bounded goal-directed re-crawl for unresolved requirements")) -> None:
     """Materialise Gap nodes (absence with recorded search effort)."""
     ctx, cfg = _ctx(target, run)
@@ -185,7 +187,7 @@ def gaps(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = O
 
 
 @app.command()
-def flows(target: str = TargetOpt, run: Optional[str] = RunOpt) -> None:
+def flows(target: str = TargetOpt, run: str | None = RunOpt) -> None:
     """Mine user flows from the transition graph."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.link.flows:run_flows")
@@ -196,7 +198,7 @@ def flows(target: str = TargetOpt, run: Optional[str] = RunOpt) -> None:
 
 @app.command()
 def pr(number: int = typer.Argument(..., help="PR number in the target's repo"), target: str = TargetOpt,
-       run: Optional[str] = RunOpt, offline: bool = OfflineOpt) -> None:
+       run: str | None = RunOpt, offline: bool = OfflineOpt) -> None:
     """Blast-radius report for a pull request."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.reason.pipeline:run_pr")
@@ -206,8 +208,8 @@ def pr(number: int = typer.Argument(..., help="PR number in the target's repo"),
 
 
 @app.command(name="eval")
-def eval_cmd(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = OfflineOpt,
-             which: list[str] = typer.Option([], "--which", help="subset: invariants, recall, oracle, judge, stability")) -> None:
+def eval_cmd(target: str = TargetOpt, run: str | None = RunOpt, offline: bool = OfflineOpt,
+             which: list[str] = WhichOpt) -> None:
     """Run the evaluation suite and print honest numbers."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.evalkit.run:run_eval")

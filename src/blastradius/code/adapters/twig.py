@@ -68,8 +68,9 @@ import yaml
 
 from ...models import CodeEdge, CodeFile, CodeIndex, FileClass, KeyUse, RouteDef, TextLiteral
 from ...targets import CodeConfig
-from ..adapter import IndexPart, SourceTree
+from ..adapter import UNDECODABLE_FILENAME, IndexPart, SourceTree, parse_partial_reasons
 from ..fileclass import classify_file
+from ..i18n import scrub_yaml_surrogates
 
 INDEXED_EXTS = frozenset({".twig", ".yaml", ".yml"})
 EdgeKind = Literal["IMPORTS", "RENDERS"]
@@ -82,6 +83,7 @@ YAML_PARSE_ERROR = "yaml_parse_error"
 YAML_TOO_LARGE = "yaml_too_large"
 LOCALE_PARSE_ERROR = "locale_parse_error"
 LOCALE_TRUNCATED = "locale_truncated"
+YAML_LONE_SURROGATE = "yaml_lone_surrogate"     # a `\ud800` escape: replaced by U+FFFD (it cannot be persisted)
 
 _UNLISTED_CAP = 50
 _CATALOGUE_NODE_CAP = 50_000      # nodes walked in one catalogue: an alias bomb must not become a stall
@@ -651,8 +653,11 @@ class TwigAdapter:
         return sorted(paths | set(cfg.locale_files))
 
     def index_part(self, repo_root: Path, cfg: CodeConfig, *, known_paths: Collection[str],
-                   only: Collection[str], dangling: Sequence[CodeEdge] = ()) -> IndexPart:
+                   only: Collection[str], dangling: Sequence[CodeEdge] = (),
+                   known_keys: Collection[str] = ()) -> IndexPart:
         """Facts of the files in `only`, resolved against `known_paths` (the PR head overlay's contract).
+
+        `known_keys` is accepted for the protocol and unused: the catalogue itself is context here.
 
         Non-template files that are present in `repo_root` but not in `only` (see `context_paths`) are read as
         context: they feed the hook table, the route mounts and the catalogue, and produce nothing themselves.
@@ -706,6 +711,8 @@ class _Build:
     def load(self) -> None:
         for path in self.tree.oversize:
             self._note(path, OVERSIZE_FILE)
+        for name in self.tree.undecodable_names:
+            self._note(name, UNDECODABLE_FILENAME)
         for path in self.tree.paths:
             if not self._emits(path) and path.endswith(".twig"):
                 continue                # templates stand alone; wiring, routing and catalogues are context
@@ -717,6 +724,11 @@ class _Build:
             text, problem = _decode(data)
             if problem:
                 self._note(path, problem)
+            if not path.endswith(".twig"):      # PyYAML does not join `\ud83d\ude00`: every half is lone
+                text, escapes = scrub_yaml_surrogates(text)
+                if escapes:
+                    self._note(path, YAML_LONE_SURROGATE)
+                    self.n["yaml_surrogate_escapes_replaced"] += escapes
             self.texts[path], self.sha[path] = text, _blob_sha(data)
         self.universe |= set(self.texts)
         self.twig_paths = sorted(p for p in self.universe if p.endswith(".twig"))
@@ -770,7 +782,7 @@ class _Build:
         base = classify_file(path, self.cfg)
         if path.endswith(".twig") or path in self.wiring:
             # A template's NAME decides nothing here: `security.html.twig` is the header's login menu and
-            # `notice.html.twig` a flash message, not documentation (fileclass reads `SECURITY`/`NOTICE` as docs).
+            # `notice.html.twig` a flash message, not documentation (a template is never a doc by name).
             kind = base if base in (FileClass.TEST, FileClass.GENERATED) else self._twig_kind(path)
         else:                       # routing and config YAML: never docs, whatever `security.yml` is called
             kind = FileClass.SOURCE_OTHER if base is FileClass.DOCS else base
@@ -1180,10 +1192,14 @@ class _Build:
     def _problem_stats(self) -> dict[str, Any]:
         pairs = [(f, k) for f, kinds in sorted(self.issues.items()) for k in sorted(kinds)]
         links = self.tree.symlinks
+        partial = parse_partial_reasons(pairs, len(self.texts))
         return {
             "parse_errors": len(pairs), "parse_error_files": len(self.issues),
             "parse_error_kinds": dict(sorted(Counter(k for _, k in pairs).items())),
             "parse_error_sample": [{"file": f, "kind": k} for f, k in pairs[:_UNLISTED_CAP]],
+            # True only when real content is missing (see `parse_partial_reasons`); `parse_errors` is the count
+            "parse_partial": bool(partial), "parse_partial_reasons": partial,
+            "yaml_surrogate_escapes_replaced": self.n["yaml_surrogate_escapes_replaced"],
             "symlinks_skipped": len(links), "symlinks_skipped_sample": links[:_UNLISTED_CAP],
         }
 

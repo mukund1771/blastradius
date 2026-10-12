@@ -290,3 +290,232 @@ def test_run_index_records_a_failure_when_the_checkout_fails(tmp_path: Path, mon
         run_index(run, _target(), ref="nope")
     assert run.failures.items[0]["code"] == str(FailureCode.CODE_CHECKOUT_FAILED)
     assert json.loads((run.run_dir / "failures.jsonl").read_text().splitlines()[0])["code"] == "CODE_CHECKOUT_FAILED"
+
+
+# ================================================================================ close-out additions
+# Rules added after the link engineer's review of the live crawl: literal key uses, registered components,
+# a linear template merge, lone surrogates, and the parse-partial marker. Each builds a tiny tree under tmp_path.
+def build(tmp_path: Path, files: dict[str, str | bytes], **cfg_kw) -> CodeIndex:
+    for rel, content in files.items():
+        path = tmp_path / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content if isinstance(content, bytes) else content.encode())
+    kw = {"repo": "acme/co", "adapter": "vue", "roots": ["src"], "locale_files": ["locales/en.json"],
+          "auto_import_dts": "src/components.d.ts", "alias": {"~/": "src/"}, **cfg_kw}
+    return VueAdapter().index(tmp_path, CodeConfig(**kw), SHA)
+
+
+EN = json.dumps({"navigation": {"rest": "REST", "realtime": "Realtime"}, "action": {"enable": "Enable"},
+                 "other": {"unused": "Unused"}, "home": {"title": "Home"}})
+LITERAL_TREE = {
+    "locales/en.json": EN,
+    "src/components/Sidenav.vue": (
+        "<template><nav><a v-for=\"item in items\" :key=\"item.id\">{{ t(item.title) }}</a></nav></template>\n"
+        "<script setup lang=\"ts\">\n"
+        "const items = [{ id: 'rest', title: \"navigation.rest\" }, { id: 'rt', title: 'navigation.realtime' }]\n"
+        "// title: \"other.unused\"\n"
+        "const noise = ['not.a.key', 'navigation', \"navigation.rest.extra\"]\n"
+        "</script>\n"),
+    "src/components/EncodingPicker.vue": (
+        "<template><p>{{ t(name(mode)) }}</p></template>\n"
+        "<script setup lang=\"ts\">\n"
+        "const name = (m: string) => { switch (m) { case 'enable': return \"action.enable\" } }\n"
+        "</script>\n"),
+    "src/components/Both.vue": (
+        "<template><p>{{ t('navigation.rest') }}</p></template>\n"
+        "<script setup lang=\"ts\">\nconst again = \"navigation.rest\"\n</script>\n"),
+    "src/components/__tests__/Sidenav.spec.ts": "export const x = 'navigation.rest'\n",
+    "src/helpers/menu.ts": "export const menu = { label: `home.title` }\n",
+}
+
+
+def test_a_script_literal_equal_to_a_known_key_is_a_static_key_use(tmp_path: Path):
+    idx = build(tmp_path, LITERAL_TREE)
+    uses = {(u.file, u.key, u.dynamic) for u in idx.key_uses}
+    side = "src/components/Sidenav.vue"
+    assert {(side, "navigation.rest", False), (side, "navigation.realtime", False),
+            ("src/components/EncodingPicker.vue", "action.enable", False),
+            ("src/helpers/menu.ts", "home.title", False)} <= uses
+    assert not any(k in ("other.unused", "not.a.key", "navigation", "navigation.rest.extra") for _, k, _ in uses)
+    assert not any(f.endswith("Sidenav.spec.ts") for f, _, _ in uses)             # tests never count
+    assert len([u for u in idx.key_uses if u.file.endswith("Both.vue")]) == 1     # a call and a literal: one use
+    s = idx.stats
+    assert s["script_literal_key_uses"] == 4 and s["script_literal_keys_distinct"] == 4
+    assert s["script_literal_key_use_sample"] == [
+        {"file": "src/components/EncodingPicker.vue", "key": "action.enable"},
+        {"file": "src/components/Sidenav.vue", "key": "navigation.realtime"},
+        {"file": "src/components/Sidenav.vue", "key": "navigation.rest"},
+        {"file": "src/helpers/menu.ts", "key": "home.title"}]
+    assert s["key_uses"] == len(idx.key_uses) == 5
+    assert s["keys_used_distinct"] == 1                  # `keys_used_*` keep meaning "named by a t() call"
+
+
+def test_literal_key_uses_reach_the_link_stage_as_static_uses_of_the_file(tmp_path: Path):
+    from blastradius.link.cascade import build_text_maps
+
+    maps = build_text_maps(build(tmp_path, LITERAL_TREE))
+    assert maps.key_files["navigation.rest"] == ("src/components/Both.vue", "src/components/Sidenav.vue")
+    assert maps.file_keys["src/components/EncodingPicker.vue"] == ("action.enable",)
+    assert maps.value_keys["enable"] == ("action.enable",)
+
+
+def test_no_locale_means_no_literal_key_uses(tmp_path: Path):
+    files = {k: v for k, v in LITERAL_TREE.items() if k != "locales/en.json"}
+    idx = build(tmp_path, files)
+    assert idx.stats["script_literal_key_uses"] == 0
+    assert [(u.file, u.key) for u in idx.key_uses] == [("src/components/Both.vue", "navigation.rest")]   # the call
+
+
+def test_part_uses_the_base_keys_when_the_locale_file_is_not_re_read(tmp_path: Path):
+    """The overlay re-reads only changed files; a changed component must keep its literal key uses."""
+    build(tmp_path, LITERAL_TREE)
+    cfg = CodeConfig(repo="acme/co", adapter="vue", roots=["src"], locale_files=["locales/en.json"],
+                     auto_import_dts="src/components.d.ts", alias={"~/": "src/"})
+    known = {f.relative_to(tmp_path).as_posix() for f in tmp_path.rglob("*") if f.is_file()}
+    only = {"src/components/Sidenav.vue"}
+    blind = VueAdapter().index_part(tmp_path, cfg, known_paths=known, only=only)
+    told = VueAdapter().index_part(tmp_path, cfg, known_paths=known, only=only,
+                                   known_keys=["navigation.rest", "navigation.realtime"])
+    assert blind.key_uses == [] and blind.i18n is None
+    assert [(u.key, u.dynamic) for u in told.key_uses] == [("navigation.realtime", False), ("navigation.rest", False)]
+    assert told.i18n is None                              # the overlay keeps the base table
+
+
+REGISTRY_TREE = {
+    **{f"src/components/{n}.vue": f"<template><p>{n} body</p></template>\n" for n in "ABCDEFLZ"},
+    "src/platform.ts": "export const platform = { ui: {} }\n",
+    "src/components/Base.vue": (
+        "<template><div>\n"
+        "  <component :is=\"current.component\" />\n"
+        "  <component :is=\"ok ? B : 'C'\" />\n"
+        "  <D />\n"
+        "</div></template>\n"
+        "<script setup lang=\"ts\">\n"
+        "import A from './A.vue'\nimport B from './B.vue'\nimport C from './C.vue'\nimport D from './D.vue'\n"
+        "import E from './E.vue'\nimport { platform } from '../platform'\n"
+        "const L = defineAsyncComponent(() => import('./L.vue'))\n"
+        "const unusedLazy = defineAsyncComponent(() => import('./Z.vue'))\n"
+        "const steps = [{ component: A }, { component: markRaw(D) }, L]\n"
+        "type Keep = typeof platform\n"
+        "</script>\n"),
+    # an import named only in the script, but nothing in the template asks for a dynamic component
+    "src/components/NoHole.vue": (
+        "<template><p>plain</p></template>\n"
+        "<script setup lang=\"ts\">\nimport A from './A.vue'\nconst keep = [A]\n</script>\n"),
+    # a member chain names no component, and an import that is never used as a value is not registered
+    "src/components/Member.vue": (
+        "<template><component :is=\"platform.ui.extra\" /></template>\n"
+        "<script setup lang=\"ts\">\nimport { platform } from '../platform'\nimport F from './F.vue'\n"
+        "const where = platform.ui\n</script>\n"),
+    # the hole is explained by the expression, so the registry rule must not add the other import
+    "src/components/Explained.vue": (
+        "<template><component :is=\"ok ? B : A\" /></template>\n"
+        "<script setup lang=\"ts\">\nimport A from './A.vue'\nimport B from './B.vue'\n"
+        "import Z from './Z.vue'\nconst z = [Z]\n</script>\n"),
+}
+
+
+def test_registered_components_are_rendered_with_via_registered(tmp_path: Path):
+    idx = build(tmp_path, REGISTRY_TREE)
+    base = "src/components/Base.vue"
+    got = {e.dst: e.via for e in idx.edges if e.kind == "RENDERS" and e.src == base}
+    assert got == {
+        "src/components/A.vue": "registered",          # in the registry array, rendered by `current.component`
+        "src/components/B.vue": "registered",          # a branch of a ternary
+        "src/components/C.vue": "registered",          # a quoted component name bound to an import
+        "src/components/D.vue": "D",                    # tagged too: the tag stays the evidence
+        "src/components/L.vue": "registered",          # a lazy binding that the script passes around
+    }
+    renders = {(e.src, e.dst) for e in idx.edges if e.kind == "RENDERS"}
+    assert not any(src.endswith(("NoHole.vue", "Member.vue")) for src, _ in renders)
+    assert ("src/components/Explained.vue", "src/components/Z.vue") not in renders
+    assert {("src/components/Explained.vue", "src/components/A.vue"),
+            ("src/components/Explained.vue", "src/components/B.vue")} <= renders
+    assert not any(e.dst == "src/platform.ts" and e.kind == "RENDERS" for e in idx.edges)
+    s = idx.stats
+    assert s["registered_renders"] == 6 and s["renders"] == sum(e.kind == "RENDERS" for e in idx.edges)
+    assert s["registered_renders_by"] == {"expression": 4, "registry": 2}
+    assert s["dynamic_components_unexplained"] == 2          # `current.component` and `platform.ui.extra`
+
+
+def test_a_registered_edge_is_evidence_like_any_render_edge(tmp_path: Path):
+    from blastradius.code.index import edge_evidence_parts
+
+    idx = build(tmp_path, REGISTRY_TREE)
+    edge = next(e for e in idx.edges if e.kind == "RENDERS" and e.via == "registered")
+    kind, ref, summary = edge_evidence_parts(edge)
+    assert kind == "code.render" and summary.endswith("via registered") and ref == f"{edge.src}->{edge.dst}"
+    assert render_closure(idx.edges, ["src/components/Base.vue"])["src/components/A.vue"] == 1
+
+
+def test_many_template_blocks_merge_in_linear_time(tmp_path: Path, monkeypatch):
+    """Invalid Vue with N `<template>` blocks: the tag merge must not compare every tag with every earlier one."""
+    from blastradius.code.adapters import vue as vue_mod
+    from blastradius.code.adapters.vue_sfc import TemplateScan
+
+    comparisons = 0
+
+    class Tag(str):
+        __hash__ = str.__hash__
+
+        def __eq__(self, other: object) -> bool:
+            nonlocal comparisons
+            comparisons += 1
+            return str.__eq__(self, other)
+
+    n = 400
+    blocks = "".join(f"<template><X{i} /></template>\n" for i in range(n))
+    monkeypatch.setattr(vue_mod, "scan_template", lambda src, *, is_native: TemplateScan(
+        tags=[Tag(src[src.index("<X") + 1:src.index(" />")]), Tag("Shared")]))
+    facts = vue_mod._analyse_vue(blocks)
+    assert facts.tags == ["X0", "Shared", *(f"X{i}" for i in range(1, n))]       # first-seen order, no repeats
+    assert "multiple_template_blocks" in facts.issues
+    assert comparisons < 20 * n                      # list membership made this about n * n / 2 = 80,000
+
+
+def test_template_tags_merge_keeps_first_seen_order_across_blocks():
+    from blastradius.code.adapters.vue import _analyse_vue
+
+    facts = _analyse_vue("<template><Beta /><Alpha /></template><template><Alpha /><Gamma /></template>")
+    assert facts.tags == ["Beta", "Alpha", "Gamma"]
+
+
+def test_a_lone_surrogate_escape_in_the_locale_is_replaced_counted_and_the_index_serialises(tmp_path: Path):
+    locale = ('{"a": {"lone": "bad \\ud800 half", "pair": "ok \\ud83d\\ude00 ok", "\\udc00key": "k"},'
+              ' "b": "fine"}')
+    idx = build(tmp_path, {"locales/en.json": locale, "src/a.vue": "<template><p>{{ t('a.lone') }}</p></template>"})
+    assert idx.i18n["a.lone"] == "bad \ufffd half"
+    assert idx.i18n["a.pair"] == "ok \U0001f600 ok"             # a valid pair is one character, kept
+    assert idx.i18n["a.\ufffdkey"] == "k" and idx.i18n["b"] == "fine"
+    assert idx.stats["i18n_surrogates_replaced"] == 2          # one value, one key
+    assert idx.stats["parse_error_kinds"] == {"locale_lone_surrogate": 1}
+    again = CodeIndex.model_validate_json(idx.model_dump_json())      # used to raise PydanticSerializationError
+    assert again.i18n == idx.i18n
+
+
+def test_flatten_and_scrub_helpers_handle_collisions_in_document_order():
+    from blastradius.code.i18n import scrub_surrogates, scrub_yaml_surrogates
+
+    pairs = [("a\ud800", "first"), ("a\udc00", "second"), ("ok", "fine")]      # ruff folds surrogates in dict literals
+    out, changed = scrub_surrogates(dict(pairs))
+    assert out == {"a\ufffd": "second", "ok": "fine"} and changed == 2
+    text, n = scrub_yaml_surrogates('a: "x \\ud800 y \\U0000DC00 z \\u00e9"\nb: plain\n')
+    assert n == 2 and text == 'a: "x \\ufffd y \\ufffd z \\u00e9"\nb: plain\n'
+
+
+def test_a_registered_edge_whose_target_is_gone_is_dropped_never_looked_up_as_a_tag_name(tmp_path: Path):
+    """`via="registered"` is not a tag: a component that is literally called `Registered` must not inherit it."""
+    from blastradius.models import CodeEdge
+
+    files = {"src/components/Registered.vue": "<template><p>a decoy</p></template>\n",
+             "src/components/Host.vue": "<template><p>host</p></template>\n"}
+    for rel, text in files.items():
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text(text)
+    cfg = CodeConfig(repo="acme/co", adapter="vue", roots=["src"], auto_import_dts="src/components.d.ts")
+    gone = CodeEdge(src="src/components/Host.vue", dst="src/components/Old.vue", kind="RENDERS", via="registered")
+    tag = CodeEdge(src="src/components/Host.vue", dst="src/components/Old.vue", kind="RENDERS", via="Registered")
+    part = VueAdapter().index_part(tmp_path, cfg, known_paths=sorted(files), only=["src/components/Host.vue"],
+                                   dangling=[gone, tag])
+    assert part.dropped == [gone]
+    assert [(e.via, e.dst) for e in part.redirected] == [("Registered", "src/components/Registered.vue")]

@@ -1591,15 +1591,16 @@ def test_classification_and_capture_output_is_independent_of_the_hash_seed():
 # ---- residual findings from the independent verifier (blank title, secret names, bytes, status range)
 def test_blank_title_falls_back_to_the_body_title_so_the_interstitial_still_fires():
     body = "<title>Just a moment...</title><script>window._cf_chl_opt={}</script>"
-    kw = dict(status=200, headers={"content-type": "text/html", "server": "cloudflare"}, body_text=body,
-              interactive_count=None, anchor=None, url=URL)
+    kw = {"status": 200, "headers": {"content-type": "text/html", "server": "cloudflare"}, "body_text": body,
+          "interactive_count": None, "anchor": None, "url": URL}
     assert classify_capture(title="", **kw).verdict is BLOCKED
     assert classify_capture(title=None, **kw).verdict is BLOCKED
 
 
 def test_collapse_exempt_patterns_accepts_a_bare_string():
     priors = {f"https://x/{c}": "f" for c in "abc"}
-    kw = dict(status=200, headers={}, title="App", body_text="<html></html>", interactive_count=None, anchor=None)
+    kw = {"status": 200, "headers": {}, "title": "App", "body_text": "<html></html>",
+          "interactive_count": None, "anchor": None}
     assert classify_capture(url="https://x/a", prior_fingerprints=priors, collapse_exempt_patterns="/zzz$",
                             **kw).verdict is SUSPECT        # a string must not be iterated per character
     assert classify_capture(url="https://x/a", prior_fingerprints=priors, collapse_exempt_patterns="/a$",

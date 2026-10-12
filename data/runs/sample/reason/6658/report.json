@@ -1,0 +1,1883 @@
+{
+  "checklist": [
+    {
+      "item_ids": [
+        "itm_1f517b652063"
+      ],
+      "text": "On the GraphQL page, click “Collections”.",
+      "why": "the GraphQL page is changed by this PR."
+    },
+    {
+      "item_ids": [
+        "itm_e65f9b278c5e"
+      ],
+      "text": "On the Home page, click “Collections”.",
+      "why": "the Home page is changed by this PR."
+    },
+    {
+      "item_ids": [
+        "itm_055053de9e80"
+      ],
+      "text": "Export your saved data, import the export again, and check nothing is lost.",
+      "why": "Saved collection data is changed by this PR."
+    },
+    {
+      "item_ids": [
+        "itm_055053de9e80"
+      ],
+      "text": "Open data saved by the previous version in the new build and check it still loads.",
+      "why": "Saved collection data is changed by this PR."
+    },
+    {
+      "item_ids": [
+        "itm_055053de9e80"
+      ],
+      "text": "If you use sync or teams, sync once and check the same data appears on a second device.",
+      "why": "Saved collection data is changed by this PR."
+    },
+    {
+      "item_ids": [
+        "itm_8a6a4b06c590"
+      ],
+      "text": "Click through the main screens of the app as a quick smoke test, starting with “Home page” and “GraphQL page”.",
+      "why": "the shared code is probably affected by this PR."
+    }
+  ],
+  "claims": [
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0113caa87e2b",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_1bdfa91c3448"
+      ],
+      "id": "clm_00786591d2ee",
+      "text": "“User can add dynamic behavior to GraphQL queries by defining variables, headers, and authorization.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_124e6f4b053a",
+        "ev_1ece28fed3e1",
+        "ev_4a9d1a34148b",
+        "ev_4bd182703e2c",
+        "ev_63908c6cbc2a"
+      ],
+      "id": "clm_02866d0fed12",
+      "text": "“User can create a new collection by clicking Add new in the collections section and entering a name.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5",
+        "ev_9f9fbae395d7"
+      ],
+      "id": "clm_03bc32d3c684",
+      "text": "“User can review the generated pre-request script and click Accept Change to apply it to the pre-request script section.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_73cd28f9c73f"
+      ],
+      "id": "clm_069475a7c0a1",
+      "text": "“User can assign a selected value to an environment variable using the Set as Variable option from the context menu.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_3aea58ea3012",
+        "ev_50b6f972e034",
+        "ev_9027495af54f"
+      ],
+      "id": "clm_06dbd7be5f7a",
+      "text": "WebSocket page: This screen might be affected by this PR; worth a quick look. It uses 3 pieces of shared code (backend helpers, collection, import export steps url import), which this PR edits (its behaviour changed; only type definitions or comments changed). Controls built from code that uses it: “Import” and “Send”."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5",
+        "ev_cd5d409dc1ec"
+      ],
+      "id": "clm_152772a31f08",
+      "text": "“User can click the Modify with AI icon in the Tests section to generate test scripts.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_1ece28fed3e1",
+        "ev_354d887d7efa",
+        "ev_420607c6a31a",
+        "ev_4a9d1a34148b",
+        "ev_d0b1b1a0761b"
+      ],
+      "id": "clm_164f2bfcbc4e",
+      "text": "“User can create collections and add requests to them to share with the team or use later.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_1425c928a675",
+        "ev_1ac85f66443c",
+        "ev_6c10b297f389",
+        "ev_6ffffe2ff715",
+        "ev_77d73f07dee8"
+      ],
+      "id": "clm_1d9da967abdc",
+      "text": "“User can generate API documentation from their Collections”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5",
+        "ev_fd545ce4091a"
+      ],
+      "id": "clm_249079111188",
+      "text": "“User can click the Modify with AI icon within the Pre-request Script section to generate a pre-request script.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_52603663e867",
+        "ev_98d4fcdbb5cd"
+      ],
+      "id": "clm_29f4de249aa3",
+      "text": "Save as dialog on the GraphQL page: This screen might be affected by this PR; worth a quick look. Controls involved: “Search”."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_2d2c88b34aab",
+        "ev_33728ae0be73",
+        "ev_3c046c31691e",
+        "ev_4230353c36d0"
+      ],
+      "id": "clm_301468d587b1",
+      "text": "“User can open a request from history by clicking it in the history section.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_5032144afd85",
+        "ev_6f63e6277e57",
+        "ev_7a37d43a39f6",
+        "ev_a41849476c42"
+      ],
+      "id": "clm_359ec13dd5db",
+      "text": "New Collection dialog on the GraphQL page: This screen might be affected by this PR; worth a quick look. It uses the shared collection code, which this PR edits (the way it is called changed). Controls built from code that uses it: “Cancel”, “Label” and “Save”."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_8bbf9c99d6ec"
+      ],
+      "id": "clm_363a5c794a78",
+      "text": "“User can delete all requests from history by clicking the Clear history button in the history section.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_28b609d4920b"
+      ],
+      "id": "clm_3d655bc48875",
+      "text": "“User can specify authorization, headers, and variables for nested requests and folders in collection properties.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_00c64f0c9d03",
+        "ev_0f358e0dc7e7",
+        "ev_37d10d358b20",
+        "ev_46ca8f5590a1"
+      ],
+      "id": "clm_401fbfe0aa43",
+      "text": "Menu popup on the Home page: This screen might be affected by this PR; worth a quick look. Controls involved: “DELETE”, “Documentation” and “Edit”."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5",
+        "ev_4a0943443de5"
+      ],
+      "id": "clm_439498bd219c",
+      "text": "“User can use the \"Tests\" tab of an API request to add code that stores response data in environment variables for use in later requests.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0c9f421fa2e1",
+        "ev_0f3555cafca3",
+        "ev_13c1916d7a92",
+        "ev_2cf17f738c8c",
+        "ev_625724e75976"
+      ],
+      "id": "clm_440a9f85c7a3",
+      "text": "“User can save responses as examples to populate mock routes with realistic data.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5",
+        "ev_ed9648fc56e5"
+      ],
+      "id": "clm_4752d51a0f49",
+      "text": "“User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_03112b92412d",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1",
+        "ev_34b41033dcc5"
+      ],
+      "id": "clm_49ac2eaeaf1c",
+      "text": "“User can add the current request to a collection with the New request button in the collection's options.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_2c83419cb406",
+        "ev_4230353c36d0",
+        "ev_6705bf060010"
+      ],
+      "id": "clm_4f8ebe17fdf5",
+      "text": "“User can right-click a collection and select the \"Run Collection\" option.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_28e6bc95cba8"
+      ],
+      "id": "clm_4fc05fe5e7c6",
+      "text": "“User can see updates to request variables persisted and reflected in the UI, while other script updates are session-specific.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_38e96c82266e",
+        "ev_4230353c36d0",
+        "ev_6489faef584d"
+      ],
+      "id": "clm_51165b91b674",
+      "text": "“User can right-click a collection or subfolder to open its properties.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_3785ab5aa609"
+      ],
+      "id": "clm_51d833fd733c",
+      "text": "“User can filter favorite requests using the Filter button and the Favorites filter in the history section.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1",
+        "ev_0ce524ab2e4d",
+        "ev_e991e83068e0"
+      ],
+      "id": "clm_541a0bac341f",
+      "text": "“User can click the Modify with AI icon next to the request name field to have the system automatically name a request when saving it to a collection.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_5d1ba9b64cc2",
+        "ev_8388711ac7ae",
+        "ev_c4c0f896920d"
+      ],
+      "id": "clm_5bc7fe5d73d8",
+      "text": "“User can create mock servers in Hoppscotch that simulate API endpoints with custom responses, status codes, and latency.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_08c735f98f69",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1",
+        "ev_4ad859fef92b"
+      ],
+      "id": "clm_5c3f3c1e3910",
+      "text": "“User can create a sub-collection by clicking Add new on a collection and entering a name.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_176e45432ae1",
+        "ev_4230353c36d0",
+        "ev_5d0ba140861d",
+        "ev_8cb88f5029f2"
+      ],
+      "id": "clm_63c9b90ea34f",
+      "text": "“User can delete a request from history using the Delete button in the history entry's options.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_2cf17f738c8c",
+        "ev_2f0300865468",
+        "ev_4230353c36d0",
+        "ev_aee1a91faca3"
+      ],
+      "id": "clm_684e1559007c",
+      "text": "“User can use the AI Assistant, an experimental chat assistant, to act on the request, response, environment, and collections they are working with.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_0f60fd6530a8",
+        "ev_734411129d41"
+      ],
+      "id": "clm_6f4c2c9a5c02",
+      "text": "“User can specify Scope and pass the token as a Header or Query Parameter in Authorization Code grant.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5",
+        "ev_fa26b3288d8c"
+      ],
+      "id": "clm_73bd9c4183b0",
+      "text": "“User can run Tests on the responses received.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_06a33d5bf82a",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "id": "clm_774969562d6f",
+      "text": "“User can select Accept Change to integrate the generated test into the test script editor.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_64a03cc42186",
+        "ev_e31a9aee39bc"
+      ],
+      "id": "clm_7989b2b0dc20",
+      "text": "“User can organize collections by dragging and dropping them to the desired location.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_23a8f4937c00",
+        "ev_2cf17f738c8c",
+        "ev_5f25d4c2ac7d",
+        "ev_6334aa661c0a",
+        "ev_651fe7a795ea"
+      ],
+      "id": "clm_85dfb02b5a81",
+      "text": "“User can use the query builder to design and run queries to fetch data once connected.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_3f6bf3976413",
+        "ev_4230353c36d0",
+        "ev_6705bf060010"
+      ],
+      "id": "clm_86463281babf",
+      "text": "“User can hover over a collection name and click the \"Run Collection\" icon.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_009f677c7350",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_105ba2a80c68",
+        "ev_d02e32f70558"
+      ],
+      "id": "clm_8787093906d1",
+      "text": "“User can enter a server endpoint and initiate a connection in the GraphQL request section.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_0096cda55836",
+        "ev_00aa58701d06",
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_e52eac6237a7"
+      ],
+      "id": "clm_8ab840eb563e",
+      "text": "“User can click the Modify with AI icon in the Request Body section to generate a request body.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_5032144afd85",
+        "ev_6f63e6277e57",
+        "ev_a41849476c42",
+        "ev_f1c58675259e"
+      ],
+      "id": "clm_96c99deb2fe2",
+      "text": "New Collection dialog on the Home page: This screen might be affected by this PR; worth a quick look. It uses the shared collection code, which this PR edits (the way it is called changed). Controls built from code that uses it: “Cancel”, “Label” and “Save”."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_33728ae0be73",
+        "ev_3c046c31691e",
+        "ev_4230353c36d0",
+        "ev_e687ff0d03d9"
+      ],
+      "id": "clm_9fb2dd9dbae7",
+      "text": "“User can filter history by clicking the Filter button in the history section and selecting a filter.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_3b2fb32e6ee0"
+      ],
+      "id": "clm_a0cbca14fa94",
+      "text": "“User can save a request to history by clicking Send on the request page, which saves it automatically.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_2a8ad396e9d0",
+        "ev_33728ae0be73",
+        "ev_3c046c31691e",
+        "ev_4230353c36d0"
+      ],
+      "id": "clm_a4f649c663a5",
+      "text": "“User can open the history of their requests by clicking the History icon on the side panel.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0719f7fa50a1",
+        "ev_45d333dc756a"
+      ],
+      "id": "clm_a75c6f612a22",
+      "text": "“User can add dynamic behaviors to requests by specifying Headers, Request Body, Authorization Headers, Parameters, and Pre-request scripts.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1",
+        "ev_0cddb1a82900",
+        "ev_0ce524ab2e4d"
+      ],
+      "id": "clm_aa8f2f2962f5",
+      "text": "“User can save a request to a new location using Save as from the drop-down next to the Save button.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0b69161e348f",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_f47a7360d0d5"
+      ],
+      "id": "clm_abf4a7b00c71",
+      "text": "“User can access collections by clicking the Collections icon on the side panel.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_071c2dab7f2a",
+        "ev_a1d466c60688"
+      ],
+      "id": "clm_ae1812627f56",
+      "text": "“User can create a mock server from scratch or from an existing Collection.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5",
+        "ev_8192f6de965f"
+      ],
+      "id": "clm_b0f4672edd78",
+      "text": "“User can validate the generated body and select Accept Change to populate the request body field.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1",
+        "ev_0ce524ab2e4d",
+        "ev_5f305d53b8ca"
+      ],
+      "id": "clm_b2ef02b4efe5",
+      "text": "“User can add a request to a collection by clicking Save on the request page and selecting the collection.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_08fa63fa260b",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_d8055ae8bfd4"
+      ],
+      "id": "clm_b4f0f0a50c06",
+      "text": "“User can create sub-collections by dragging and dropping a collection into another collection.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_964178b58f37",
+        "ev_984107d9bc63",
+        "ev_e55fdf0376ea"
+      ],
+      "id": "clm_b511d9a81bca",
+      "text": "Code shared across much of the app: This PR edits the shared package (“hoppscotch data”). Many screens are probably affected by this PR. The lists in this report are therefore not exhaustive."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_cb2c9ff2612c"
+      ],
+      "id": "clm_c0280c47bbcd",
+      "text": "“User can get a mock server URL after creation to call from an app or Hoppscotch requests.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_3aea58ea3012",
+        "ev_50b6f972e034",
+        "ev_d3796c844db6"
+      ],
+      "id": "clm_c1cc693301f8",
+      "text": "Socket.IO page: This screen might be affected by this PR; worth a quick look. It uses 3 pieces of shared code (backend helpers, collection, import export steps url import), which this PR edits (its behaviour changed; only type definitions or comments changed). Controls built from code that uses it: “Import” and “Send”."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5",
+        "ev_a16aec22ab13"
+      ],
+      "id": "clm_c36c708511ef",
+      "text": "“User can click the \"Save as Example\" icon in the response section to save a response as an example.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_0665d2950baf",
+        "ev_0f3555cafca3",
+        "ev_15002bfa747d",
+        "ev_204876695976",
+        "ev_9cd03b802145"
+      ],
+      "id": "clm_ca315b13f722",
+      "text": "“User can open the Environments icon on the sidebar to create environments.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_1425c928a675",
+        "ev_1c96ba752e94",
+        "ev_83e9c9535fd4"
+      ],
+      "id": "clm_d345d37bc323",
+      "text": "“User can use the schema explorer to understand how data is structured.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0b1a25f94c56",
+        "ev_611711237105"
+      ],
+      "id": "clm_d856bc64cf84",
+      "text": "“User can create secret environment variables whose values are masked with asterisks and not synced to the server.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "confirmed",
+      "evidence_ids": [
+        "ev_984107d9bc63",
+        "ev_cb0b1906da39",
+        "ev_e55fdf0376ea"
+      ],
+      "id": "clm_dcc56a87d560",
+      "text": "Saved collection data: The saved collection data format is changed by this PR. Data saved by older versions has to keep opening in the new build."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_9a5fe18ab8e6"
+      ],
+      "id": "clm_e34935bd7572",
+      "text": "“User can build, test, and share APIs directly in the browser using the Hoppscotch Web App.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "confirmed",
+      "evidence_ids": [
+        "ev_0e50cd0b9e70",
+        "ev_50b2d504420b",
+        "ev_98d4fcdbb5cd",
+        "ev_9a7ea37bb08c",
+        "ev_c265b360c673"
+      ],
+      "id": "clm_e76b3e2cf83b",
+      "text": "GraphQL page: This screen is changed by this PR. Controls involved: “Collections”, “Documentation”, “More” and 1 more."
+    },
+    {
+      "band": "confirmed",
+      "evidence_ids": [
+        "ev_1227401b5e7c",
+        "ev_4aee47b0094b",
+        "ev_50b2d504420b",
+        "ev_9a7ea37bb08c",
+        "ev_c265b360c673"
+      ],
+      "id": "clm_f18d2546a2a8",
+      "text": "Home page: This screen is changed by this PR. Controls involved: “Collections”, “Documentation”, “More” and 1 more."
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_ac1fca482214"
+      ],
+      "id": "clm_f70c56c9ee26",
+      "text": "“User can favorite a request and unfavorite it via the Favorite button in the history entry's options.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_99246e498c01"
+      ],
+      "id": "clm_f78f752585cf",
+      "text": "“User can add fixed or ranged latency as a delay to mock responses.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_4c3c3d27ef27",
+        "ev_98d4fcdbb5cd",
+        "ev_9a7ea37bb08c"
+      ],
+      "id": "clm_fcd6ac19108b",
+      "text": "Save as dialog on the Home page: This screen might be affected by this PR; worth a quick look. Controls involved: “More” and “Search”."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_25ff0629e7a3",
+        "ev_2cf17f738c8c",
+        "ev_33a66bccb6b9",
+        "ev_3ef6a1a3d484",
+        "ev_caddf21ff533"
+      ],
+      "id": "clm_ff6f08d63d1c",
+      "text": "“User can select from a range of HTTP methods such as GET, POST and PUT for a request.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    }
+  ],
+  "confidence_line": "Confidence: 3 items confirmed, 1 probable and 7 possible. 4 things could not be determined and are listed below with the same weight as the findings.",
+  "direct": [
+    {
+      "band": "confirmed",
+      "confidence": 0.99,
+      "evidence_ids": [
+        "ev_1227401b5e7c",
+        "ev_18326c530d81",
+        "ev_4aee47b0094b",
+        "ev_50b2d504420b",
+        "ev_9a7ea37bb08c",
+        "ev_a24d5f263cf4",
+        "ev_c265b360c673"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/collections/Collection.vue",
+        "packages/hoppscotch-common/src/components/collections/index.vue"
+      ],
+      "flows": [],
+      "id": "itm_e65f9b278c5e",
+      "label": "Home page",
+      "requirement_ids": [
+        "req_04e46d9ed399",
+        "req_0bbd5f0e70f2",
+        "req_10122ac6ce1a",
+        "req_18383c56dec8",
+        "req_18444664dc0d",
+        "req_1b544c59a825",
+        "req_1f5961c9f955",
+        "req_21b7a82f89ef",
+        "req_5f040c91914f",
+        "req_606faa4c4e13",
+        "req_62faf923c343",
+        "req_69263667dd08",
+        "req_704bac30b8d4",
+        "req_741ef7e034a6",
+        "req_7c0b317fd334",
+        "req_a11de9dc8a10",
+        "req_a2deaac054d3",
+        "req_a352512e6ba8",
+        "req_b074b70d7b29",
+        "req_bd9364e190b4",
+        "req_ca957a0958ba",
+        "req_cd7435eb4b61",
+        "req_cedfd3417308",
+        "req_d0244e570cf2",
+        "req_de6af3bbc4f4",
+        "req_e0e1717f7fff",
+        "req_e98358ca45a9",
+        "req_eaba14acfe8b",
+        "req_ef494b31c799",
+        "req_fc55fe49f1fe"
+      ],
+      "screen": "Home page",
+      "section": null,
+      "tier": "direct",
+      "via": null,
+      "what_changed": "This screen is changed by this PR. Controls involved: “Collections”, “Documentation”, “More” and 1 more."
+    },
+    {
+      "band": "confirmed",
+      "confidence": 0.99,
+      "evidence_ids": [
+        "ev_0e50cd0b9e70",
+        "ev_18326c530d81",
+        "ev_50b2d504420b",
+        "ev_98d4fcdbb5cd",
+        "ev_9a7ea37bb08c",
+        "ev_a24d5f263cf4",
+        "ev_c265b360c673"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/collections/Collection.vue",
+        "packages/hoppscotch-common/src/components/collections/index.vue"
+      ],
+      "flows": [],
+      "id": "itm_1f517b652063",
+      "label": "GraphQL page",
+      "requirement_ids": [
+        "req_21df567193b7",
+        "req_262a77629ec0",
+        "req_68820fea04b5",
+        "req_748eb8f9dbf9"
+      ],
+      "screen": "GraphQL page",
+      "section": null,
+      "tier": "direct",
+      "via": null,
+      "what_changed": "This screen is changed by this PR. Controls involved: “Collections”, “Documentation”, “More” and 1 more."
+    },
+    {
+      "band": "possible",
+      "confidence": 0.499,
+      "evidence_ids": [
+        "ev_00c64f0c9d03",
+        "ev_0f358e0dc7e7",
+        "ev_18326c530d81",
+        "ev_37d10d358b20",
+        "ev_46ca8f5590a1"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/collections/Collection.vue"
+      ],
+      "flows": [],
+      "id": "itm_91a8ddace7ec",
+      "label": "Menu popup on the Home page",
+      "requirement_ids": [
+        "req_1b544c59a825",
+        "req_bcfa3ab48380"
+      ],
+      "screen": "Menu popup on the Home page",
+      "section": null,
+      "tier": "direct",
+      "via": null,
+      "what_changed": "This screen might be affected by this PR; worth a quick look. Controls involved: “DELETE”, “Documentation” and “Edit”."
+    },
+    {
+      "band": "possible",
+      "confidence": 0.499,
+      "evidence_ids": [
+        "ev_18326c530d81",
+        "ev_4c3c3d27ef27",
+        "ev_98d4fcdbb5cd",
+        "ev_9a7ea37bb08c",
+        "ev_a24d5f263cf4"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/collections/Collection.vue",
+        "packages/hoppscotch-common/src/components/collections/index.vue"
+      ],
+      "flows": [],
+      "id": "itm_fca98e6c3698",
+      "label": "Save as dialog on the Home page",
+      "requirement_ids": [],
+      "screen": "Save as dialog on the Home page",
+      "section": null,
+      "tier": "direct",
+      "via": null,
+      "what_changed": "This screen might be affected by this PR; worth a quick look. Controls involved: “More” and “Search”."
+    },
+    {
+      "band": "possible",
+      "confidence": 0.3,
+      "evidence_ids": [
+        "ev_52603663e867",
+        "ev_98d4fcdbb5cd",
+        "ev_a24d5f263cf4"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/collections/index.vue"
+      ],
+      "flows": [],
+      "id": "itm_53fc90ddb42d",
+      "label": "Save as dialog on the GraphQL page",
+      "requirement_ids": [
+        "req_0b11b11f956f",
+        "req_3d628eebc38b",
+        "req_4056f688470e",
+        "req_8f8a53fde411",
+        "req_c956eff2f8dd"
+      ],
+      "screen": "Save as dialog on the GraphQL page",
+      "section": null,
+      "tier": "direct",
+      "via": null,
+      "what_changed": "This screen might be affected by this PR; worth a quick look. Controls involved: “Search”."
+    }
+  ],
+  "global_changes": [
+    {
+      "band": "likely",
+      "confidence": 0.576,
+      "evidence_ids": [
+        "ev_964178b58f37",
+        "ev_984107d9bc63",
+        "ev_e55fdf0376ea"
+      ],
+      "files": [
+        "packages/hoppscotch-data/src/collection/index.ts",
+        "packages/hoppscotch-data/src/collection/v/13.ts"
+      ],
+      "flows": [],
+      "id": "itm_8a6a4b06c590",
+      "label": "Code shared across much of the app",
+      "requirement_ids": [],
+      "screen": null,
+      "section": null,
+      "tier": "global",
+      "via": "shared package",
+      "what_changed": "This PR edits the shared package (“hoppscotch data”). Many screens are probably affected by this PR. The lists in this report are therefore not exhaustive."
+    }
+  ],
+  "headline": "Blast radius: PR #6658 “feat: refresh collections imported from URL”\nRisk: HIGH. Touches Home page and GraphQL page. 9 screens, 0 user flows, 51 requirements. It also changes code shared across the app. It also changes how data is saved.",
+  "indirect": [
+    {
+      "band": "possible",
+      "confidence": 0.499,
+      "evidence_ids": [
+        "ev_5032144afd85",
+        "ev_6f63e6277e57",
+        "ev_7a37d43a39f6",
+        "ev_a41849476c42",
+        "ev_e55fdf0376ea"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/collections/graphql/Add.vue",
+        "packages/hoppscotch-data/src/collection/index.ts"
+      ],
+      "flows": [],
+      "id": "itm_691347debebb",
+      "label": "New Collection dialog on the GraphQL page",
+      "requirement_ids": [
+        "req_cd7435eb4b61"
+      ],
+      "screen": "New Collection dialog on the GraphQL page",
+      "section": "Collections > Organizing collections",
+      "tier": "indirect",
+      "via": "the shared collection code",
+      "what_changed": "This screen might be affected by this PR; worth a quick look. It uses the shared collection code, which this PR edits (the way it is called changed). Controls built from code that uses it: “Cancel”, “Label” and “Save”."
+    },
+    {
+      "band": "possible",
+      "confidence": 0.499,
+      "evidence_ids": [
+        "ev_5032144afd85",
+        "ev_6f63e6277e57",
+        "ev_a41849476c42",
+        "ev_e55fdf0376ea",
+        "ev_f1c58675259e"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/collections/graphql/Add.vue",
+        "packages/hoppscotch-data/src/collection/index.ts"
+      ],
+      "flows": [],
+      "id": "itm_77ae64085a8e",
+      "label": "New Collection dialog on the Home page",
+      "requirement_ids": [],
+      "screen": "New Collection dialog on the Home page",
+      "section": null,
+      "tier": "indirect",
+      "via": "the shared collection code",
+      "what_changed": "This screen might be affected by this PR; worth a quick look. It uses the shared collection code, which this PR edits (the way it is called changed). Controls built from code that uses it: “Cancel”, “Label” and “Save”."
+    },
+    {
+      "band": "possible",
+      "confidence": 0.499,
+      "evidence_ids": [
+        "ev_3aea58ea3012",
+        "ev_48ee70ad4e31",
+        "ev_50b6f972e034",
+        "ev_c2313f3347d7",
+        "ev_d3796c844db6",
+        "ev_e9ddbf1363ef"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/aichat/Assistant.vue",
+        "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+        "packages/hoppscotch-common/src/components/realtime/Communication.vue",
+        "packages/hoppscotch-common/src/helpers/backend/helpers.ts",
+        "packages/hoppscotch-common/src/helpers/collection/collection.ts"
+      ],
+      "flows": [],
+      "id": "itm_a4003dbc3f7a",
+      "label": "Socket.IO page",
+      "requirement_ids": [],
+      "screen": "Socket.IO page",
+      "section": null,
+      "tier": "indirect",
+      "via": "3 pieces of shared code (backend helpers, collection, import export steps url import)",
+      "what_changed": "This screen might be affected by this PR; worth a quick look. It uses 3 pieces of shared code (backend helpers, collection, import export steps url import), which this PR edits (its behaviour changed; only type definitions or comments changed). Controls built from code that uses it: “Import” and “Send”."
+    },
+    {
+      "band": "possible",
+      "confidence": 0.499,
+      "evidence_ids": [
+        "ev_3aea58ea3012",
+        "ev_48ee70ad4e31",
+        "ev_50b6f972e034",
+        "ev_9027495af54f",
+        "ev_c2313f3347d7",
+        "ev_e9ddbf1363ef"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/aichat/Assistant.vue",
+        "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+        "packages/hoppscotch-common/src/components/realtime/Communication.vue",
+        "packages/hoppscotch-common/src/helpers/backend/helpers.ts",
+        "packages/hoppscotch-common/src/helpers/collection/collection.ts"
+      ],
+      "flows": [],
+      "id": "itm_72cc93baa9f1",
+      "label": "WebSocket page",
+      "requirement_ids": [],
+      "screen": "WebSocket page",
+      "section": null,
+      "tier": "indirect",
+      "via": "3 pieces of shared code (backend helpers, collection, import export steps url import)",
+      "what_changed": "This screen might be affected by this PR; worth a quick look. It uses 3 pieces of shared code (backend helpers, collection, import export steps url import), which this PR edits (its behaviour changed; only type definitions or comments changed). Controls built from code that uses it: “Import” and “Send”."
+    }
+  ],
+  "not_checked": [
+    "Only the signed-out surface of the web app was observed.",
+    "One viewport size was used.",
+    "Only English text (`en`) was compared.",
+    "Frontend files only: backend, scripts and build tooling are outside this analysis.",
+    "Cloud web edition only: desktop and self-hosted behaviour was not assessed.",
+    "Other programs that read this saved data (a command-line tool, the backend, the desktop app) were not assessed.",
+    "The crawl stopped at its action budget, so some screens were not observed.",
+    "The product documentation may be older than the app, so some requirements may be out of date.",
+    "Some source files could not be read completely."
+  ],
+  "pr_number": 6658,
+  "pr_title": "feat: refresh collections imported from URL",
+  "requirements": [
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "After reviewing the generated script, click Accept Change to apply it to the pre-request script section of your API request.",
+      "requirement_id": "req_18383c56dec8",
+      "section": "AI Features > Generate Pre-request Scripts",
+      "statement": "User can review the generated pre-request script and click Accept Change to apply it to the pre-request script section.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "Click the Modify with AI icon ( .⟡+ ) within the Pre-request Script section.",
+      "requirement_id": "req_704bac30b8d4",
+      "section": "AI Features > Generate Pre-request Scripts",
+      "statement": "User can click the Modify with AI icon within the Pre-request Script section to generate a pre-request script.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_0096cda55836",
+        "ev_00aa58701d06",
+        "ev_026ea2883963",
+        "ev_063397a0b6f2"
+      ],
+      "quote": "Click the Modify with AI icon ( .⟡+ ) in the Request Body section.",
+      "requirement_id": "req_bd9364e190b4",
+      "section": "AI Features > Generate Request Body",
+      "statement": "User can click the Modify with AI icon in the Request Body section to generate a request body.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "Click the Modify with AI icon ( .⟡+ ) in the Tests section.",
+      "requirement_id": "req_a352512e6ba8",
+      "section": "AI Features > Generate Test Scripts",
+      "statement": "User can click the Modify with AI icon in the Tests section to generate test scripts.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1",
+        "ev_0ce524ab2e4d"
+      ],
+      "quote": "When saving an API request to a collection, click the Modify with AI icon ( .⟡+ ) next to the request name field to have the system automatically assign a name based on the request's context and properties.",
+      "requirement_id": "req_3d628eebc38b",
+      "section": "AI Features > Rename API Requests",
+      "statement": "User can click the Modify with AI icon next to the request name field to have the system automatically name a request when saving it to a collection.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_5d1ba9b64cc2",
+        "ev_8388711ac7ae"
+      ],
+      "quote": "Create mock servers in Hoppscotch to simulate API endpoints with custom responses, status codes, and latency for prototyping and testing.",
+      "requirement_id": "req_adef6d2c4695",
+      "section": "API Mocking",
+      "statement": "User can create mock servers in Hoppscotch that simulate API endpoints with custom responses, status codes, and latency.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "Specify the authorization, headers, and variables that all nested requests or folders should adhere to.",
+      "requirement_id": "req_cedfd3417308",
+      "section": "Collections > Collection Properties",
+      "statement": "User can specify authorization, headers, and variables for nested requests and folders in collection properties.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1",
+        "ev_0ce524ab2e4d"
+      ],
+      "quote": "To add a new request to your collection, you can click on the \"Save\" button on the request page and select the collection you want to add it to.",
+      "requirement_id": "req_c956eff2f8dd",
+      "section": "Collections > Save requests to collections",
+      "statement": "User can add a request to a collection by clicking Save on the request page and selecting the collection.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "You can use the Set as Variable option from the context menu to assign a selected value to an environment variable.",
+      "requirement_id": "req_ef494b31c799",
+      "section": "Context Menu > Set as Variable",
+      "statement": "User can assign a selected value to an environment variable using the Set as Variable option from the context menu.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_0665d2950baf",
+        "ev_0f3555cafca3",
+        "ev_15002bfa747d",
+        "ev_204876695976"
+      ],
+      "quote": "Click on the \"Environments\" icon on the sidebar to create environments.",
+      "requirement_id": "req_56b132947294",
+      "section": "Environments > Creating an environment",
+      "statement": "User can open the Environments icon on the sidebar to create environments.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0b1a25f94c56"
+      ],
+      "quote": "All secret variable values in Hoppscotch will be masked using asterisks (\\\\\\*).",
+      "requirement_id": "req_18444664dc0d",
+      "section": "Environments > Types of Variables in an Environment",
+      "statement": "User can create secret environment variables whose values are masked with asterisks and not synced to the server.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_33728ae0be73",
+        "ev_3c046c31691e",
+        "ev_4230353c36d0"
+      ],
+      "quote": "You can access the history of your requests by clicking on the \"History\" icon on the side panel.",
+      "requirement_id": "req_03da4ecbda2d",
+      "section": "History",
+      "statement": "User can open the history of their requests by clicking the History icon on the side panel.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "You can also delete all requests from your history by clicking on the \"Clear history\" button in the history section.",
+      "requirement_id": "req_de6af3bbc4f4",
+      "section": "History > Deleting requests from history",
+      "statement": "User can delete all requests from history by clicking the Clear history button in the history section.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "Favorite requests can be filtered by clicking on the \"Filter\" button in the history section and selecting the \"Favorites\" filter.",
+      "requirement_id": "req_10122ac6ce1a",
+      "section": "History > Favorite requests",
+      "statement": "User can filter favorite requests using the Filter button and the Favorites filter in the history section.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "You can favorite a request by clicking on the \"Favorite\" button on the history entry's options.",
+      "requirement_id": "req_ca957a0958ba",
+      "section": "History > Favorite requests",
+      "statement": "User can favorite a request and unfavorite it via the Favorite button in the history entry's options.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "To save a request to your history, you can click on the \"Send\" button on the request page.",
+      "requirement_id": "req_0bbd5f0e70f2",
+      "section": "History > Save requests to history",
+      "statement": "User can save a request to history by clicking Send on the request page, which saves it automatically.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "Access the Hoppscotch Web App to build, test, and share APIs directly in your browser.",
+      "requirement_id": "req_fc55fe49f1fe",
+      "section": "Hoppscotch Web App",
+      "statement": "User can build, test, and share APIs directly in the browser using the Hoppscotch Web App.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "Hoppscotch also provides the capability to run Tests on the responses you receive.",
+      "requirement_id": "req_741ef7e034a6",
+      "section": "RESTful API Testing > Request",
+      "statement": "User can run Tests on the responses received.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0719f7fa50a1"
+      ],
+      "quote": "You can also add dynamic behaviors to your requests by specifying Headers, Request Body, Authorization Headers, Parameters, and Pre-request scripts.",
+      "requirement_id": "req_e0e1717f7fff",
+      "section": "RESTful API Testing > Request",
+      "statement": "User can add dynamic behaviors to requests by specifying Headers, Request Body, Authorization Headers, Parameters, and Pre-request scripts.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "Write pre-request scripts and post-request tests in Hoppscotch using JavaScript to add dynamic behavior, set variables, and validate responses.",
+      "requirement_id": "req_21b7a82f89ef",
+      "section": "Scripts",
+      "statement": "User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "Please note that only updates to request variables get persisted and reflected in the UI while the remaining are specific to the session.",
+      "requirement_id": "req_7c0b317fd334",
+      "section": "Scripts > hopp.request Namespace > hopp.request.variables.set(key: string, value: string)",
+      "statement": "User can see updates to request variables persisted and reflected in the UI, while other script updates are session-specific.",
+      "status": "at_risk"
+    },
+    {
+      "band": "likely",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "In the \"Tests\" tab of the first API request (that returns the tokens), add the following code:",
+      "requirement_id": "req_1f5961c9f955",
+      "section": "Scripts > pw.response > Setting Environment Variables from API Responses",
+      "statement": "User can use the \"Tests\" tab of an API request to add code that stores response data in environment variables for use in later requests.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_2cf17f738c8c",
+        "ev_2f0300865468",
+        "ev_4230353c36d0"
+      ],
+      "quote": "The AI Assistant is an experimental chat assistant that can act on the request, response, environment, and collections you're working with.",
+      "requirement_id": "req_eab4e3bd569b",
+      "section": "AI Features > AI Assistant",
+      "statement": "User can use the AI Assistant, an experimental chat assistant, to act on the request, response, environment, and collections they are working with.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "Validate the generated body and select Accept Change to populate the request body field.",
+      "requirement_id": "req_5f040c91914f",
+      "section": "AI Features > Generate Request Body",
+      "statement": "User can validate the generated body and select Accept Change to populate the request body field.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "Select Accept Change to integrate it into the test script editor for execution.",
+      "requirement_id": "req_606faa4c4e13",
+      "section": "AI Features > Generate Test Scripts",
+      "statement": "User can select Accept Change to integrate the generated test into the test script editor.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_1425c928a675",
+        "ev_1ac85f66443c",
+        "ev_6c10b297f389",
+        "ev_6ffffe2ff715"
+      ],
+      "quote": "Generate API documentation from your Collections",
+      "requirement_id": "req_1b544c59a825",
+      "section": "API Documentation > What you can do",
+      "statement": "User can generate API documentation from their Collections",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_071c2dab7f2a"
+      ],
+      "quote": "You can create a mock server from scratch or from an existing Collection.",
+      "requirement_id": "req_62faf923c343",
+      "section": "API Mocking > Create a mock server",
+      "statement": "User can create a mock server from scratch or from an existing Collection.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "Once created, you'll get a mock server URL you can call from your app or your Hoppscotch requests.",
+      "requirement_id": "req_69263667dd08",
+      "section": "API Mocking > Create a mock server",
+      "statement": "User can get a mock server URL after creation to call from an app or Hoppscotch requests.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "Delay: Add fixed or ranged latency (for example, 250-1500 ms)",
+      "requirement_id": "req_b074b70d7b29",
+      "section": "API Mocking > Latency, errors, and headers",
+      "statement": "User can add fixed or ranged latency as a delay to mock responses.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0c9f421fa2e1",
+        "ev_0f3555cafca3",
+        "ev_13c1916d7a92",
+        "ev_2cf17f738c8c"
+      ],
+      "quote": "In Hoppscotch, you can save responses as examples to quickly populate mock routes with realistic data.",
+      "requirement_id": "req_9a0d7f2f4686",
+      "section": "API Mocking > Save a response as an Example",
+      "statement": "User can save responses as examples to populate mock routes with realistic data.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_113b6e2447a5"
+      ],
+      "quote": "In the response section, click the \"Save as Example\" icon",
+      "requirement_id": "req_d0244e570cf2",
+      "section": "API Mocking > Save a response as an Example",
+      "statement": "User can click the \"Save as Example\" icon in the response section to save a response as an example.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_6489faef584d"
+      ],
+      "quote": "Right-click on a collection or a subfolder within a collection to open its properties.",
+      "requirement_id": "req_e98358ca45a9",
+      "section": "Authorization > Managing Authorization at the Collection Level",
+      "statement": "User can right-click a collection or subfolder to open its properties.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_026ea2883963",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_0f60fd6530a8"
+      ],
+      "quote": "You can also specify the desired permissions in the Scope field and pass the token as a Header or as a Query Parameter.",
+      "requirement_id": "req_68820fea04b5",
+      "section": "Authorization > OAuth 2.0 > Grant types > 1. Authorization Code",
+      "statement": "User can specify Scope and pass the token as a Header or Query Parameter in Authorization Code grant.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_1ece28fed3e1",
+        "ev_354d887d7efa",
+        "ev_420607c6a31a",
+        "ev_4a9d1a34148b"
+      ],
+      "quote": "You can create collections and add requests to them to share with your team or to use later.",
+      "requirement_id": "req_791a74af2d16",
+      "section": "Collections",
+      "statement": "User can create collections and add requests to them to share with the team or use later.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0b69161e348f",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0"
+      ],
+      "quote": "You can access the collections by clicking the \"Collections\" icon on the side panel.",
+      "requirement_id": "req_eaba14acfe8b",
+      "section": "Collections",
+      "statement": "User can access collections by clicking the Collections icon on the side panel.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_124e6f4b053a",
+        "ev_1ece28fed3e1",
+        "ev_4a9d1a34148b",
+        "ev_4bd182703e2c"
+      ],
+      "quote": "To create a new collection, click on the \"Add new\" button on the collections section and enter the name of the collection.",
+      "requirement_id": "req_1a9637e480a3",
+      "section": "Collections > Creating a new collection",
+      "statement": "User can create a new collection by clicking Add new in the collections section and entering a name.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_08c735f98f69",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1"
+      ],
+      "quote": "You can also create a sub-collection by clicking on the \"Add new\" button on the desired collection and entering the name of the sub-collection.",
+      "requirement_id": "req_8f8a53fde411",
+      "section": "Collections > Creating a new collection",
+      "statement": "User can create a sub-collection by clicking Add new on a collection and entering a name.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_64a03cc42186"
+      ],
+      "quote": "You can organize your collections by dragging and dropping them to the desired location.",
+      "requirement_id": "req_a11de9dc8a10",
+      "section": "Collections > Organizing collections",
+      "statement": "User can organize collections by dragging and dropping them to the desired location.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_08fa63fa260b",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0"
+      ],
+      "quote": "You can also create sub-collections by dragging and dropping a collection into another collection.",
+      "requirement_id": "req_cd7435eb4b61",
+      "section": "Collections > Organizing collections",
+      "statement": "User can create sub-collections by dragging and dropping a collection into another collection.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_03112b92412d",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1"
+      ],
+      "quote": "To add a request to a collection, click on the \"New request\" button on the collection's options to save the current request to the collection.",
+      "requirement_id": "req_0b11b11f956f",
+      "section": "Collections > Organizing collections > Adding requests to collections",
+      "statement": "User can add the current request to a collection with the New request button in the collection's options.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_01551b8ceb64",
+        "ev_0bebfe905396",
+        "ev_0c9f421fa2e1",
+        "ev_0ce524ab2e4d"
+      ],
+      "quote": "Click on the drop-down menu next to the save button and click on \"Save as\" to save the request to a new location.",
+      "requirement_id": "req_4056f688470e",
+      "section": "Collections > Save requests to collections",
+      "statement": "User can save a request to a new location using Save as from the drop-down next to the Save button.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_1425c928a675",
+        "ev_1c96ba752e94"
+      ],
+      "quote": "GraphQL uses a schema to define the structure of the data, the schema explorer helps you to understand how your data is structured.",
+      "requirement_id": "req_21df567193b7",
+      "section": "GraphQL API Testing > Other features > Schema",
+      "statement": "User can use the schema explorer to understand how data is structured.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_009f677c7350",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_105ba2a80c68"
+      ],
+      "quote": "The request section houses the feature to enter your server endpoint and initiate a connection.",
+      "requirement_id": "req_262a77629ec0",
+      "section": "GraphQL API Testing > Request",
+      "statement": "User can enter a server endpoint and initiate a connection in the GraphQL request section.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0113caa87e2b",
+        "ev_03dc9b198240",
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3"
+      ],
+      "quote": "You can also add dynamic behavior to your queries by defining variables, headers, and authorization.",
+      "requirement_id": "req_748eb8f9dbf9",
+      "section": "GraphQL API Testing > Request",
+      "statement": "User can add dynamic behavior to GraphQL queries by defining variables, headers, and authorization.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_23a8f4937c00",
+        "ev_2cf17f738c8c",
+        "ev_6334aa661c0a",
+        "ev_651fe7a795ea"
+      ],
+      "quote": "Once the connection is made, the query builder assists you in designing queries to fetch the data that you require and run it.",
+      "requirement_id": "req_d7294f811b8f",
+      "section": "GraphQL API Testing > Request",
+      "statement": "User can use the query builder to design and run queries to fetch data once connected.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_33728ae0be73",
+        "ev_3c046c31691e",
+        "ev_4230353c36d0"
+      ],
+      "quote": "To access a request from your history, click on the desired request in the history section.",
+      "requirement_id": "req_da8ae4b3d067",
+      "section": "History > Accessing requests from history",
+      "statement": "User can open a request from history by clicking it in the history section.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_176e45432ae1",
+        "ev_4230353c36d0",
+        "ev_5d0ba140861d"
+      ],
+      "quote": "To delete a request from your history, click on the \"Delete\" button on the history entry's options.",
+      "requirement_id": "req_65597e37ad65",
+      "section": "History > Deleting requests from history",
+      "statement": "User can delete a request from history using the Delete button in the history entry's options.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_0f3555cafca3",
+        "ev_33728ae0be73",
+        "ev_3c046c31691e",
+        "ev_4230353c36d0"
+      ],
+      "quote": "You can filter your history by clicking on the \"Filter\" button in the history section and selecting the desired filter.",
+      "requirement_id": "req_c8565d9dd9a3",
+      "section": "History > Filter history",
+      "statement": "User can filter history by clicking the Filter button in the history section and selecting a filter.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_25ff0629e7a3",
+        "ev_2cf17f738c8c",
+        "ev_33a66bccb6b9",
+        "ev_3ef6a1a3d484"
+      ],
+      "quote": "You can select from a range of HTTP methods such as GET, POST, PUT etc.",
+      "requirement_id": "req_bcfa3ab48380",
+      "section": "RESTful API Testing > Request",
+      "statement": "User can select from a range of HTTP methods such as GET, POST and PUT for a request.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_6705bf060010"
+      ],
+      "quote": "Right-click on the collection and select the \"Run Collection\" option.",
+      "requirement_id": "req_04e46d9ed399",
+      "section": "Runner > Running a Collection",
+      "statement": "User can right-click a collection and select the \"Run Collection\" option.",
+      "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_063397a0b6f2",
+        "ev_0f3555cafca3",
+        "ev_4230353c36d0",
+        "ev_6705bf060010"
+      ],
+      "quote": "Alternatively, hover over the collection name and click on the \"Run Collection\" icon.",
+      "requirement_id": "req_a2deaac054d3",
+      "section": "Runner > Running a Collection",
+      "statement": "User can hover over a collection name and click the \"Run Collection\" icon.",
+      "status": "at_risk"
+    }
+  ],
+  "risk_level": "HIGH",
+  "snapshot": {
+    "app_version": "2026.9.0",
+    "base_behind_main_commits": 9,
+    "crawl_actions": 150,
+    "crawl_bundle_hash": "c81a0323d1f5b4f5",
+    "crawl_screens": 55,
+    "deployed_vs_indexed": null,
+    "doc_version": "2026.5.0",
+    "indexed_commit": "63273f8e599e73f0fb38c0739314e8d46b6bc83d",
+    "pr_base_sha": "d86e59f6e9574c69f01b300691b9f4396eeb38d2",
+    "pr_head_sha": "735a6a0806f90e013339ea76d08d0b6cb2d9c62c",
+    "repo": "hoppscotch/hoppscotch",
+    "spec_sha": null,
+    "target": "hoppscotch"
+  },
+  "stored_data": [
+    {
+      "band": "confirmed",
+      "confidence": 0.85,
+      "evidence_ids": [
+        "ev_984107d9bc63",
+        "ev_cb0b1906da39",
+        "ev_e55fdf0376ea"
+      ],
+      "files": [
+        "packages/hoppscotch-data/src/collection/index.ts",
+        "packages/hoppscotch-data/src/collection/v/13.ts"
+      ],
+      "flows": [],
+      "id": "itm_055053de9e80",
+      "label": "Saved collection data",
+      "requirement_ids": [],
+      "screen": null,
+      "section": null,
+      "tier": "stored_data",
+      "via": "saved data format",
+      "what_changed": "The saved collection data format is changed by this PR. Data saved by older versions has to keep opening in the new build."
+    }
+  ],
+  "target": "hoppscotch",
+  "undetermined": [
+    {
+      "code": "UNMAPPED_CHANGE",
+      "evidence_ids": [],
+      "subject": "New in this PR; not observable in the live app yet",
+      "what_to_check": "After this PR is deployed, open the screen that should contain “v 13”.",
+      "why": "This PR adds “v 13”. The live app does not show that yet."
+    },
+    {
+      "code": "NEEDS_HUMAN",
+      "evidence_ids": [
+        "ev_1786871934d1",
+        "ev_c2313f3347d7"
+      ],
+      "subject": "the shared import export steps url import code",
+      "what_to_check": "Decide which screens that rely on import export steps url import need a re-test; the list shown is not exhaustive.",
+      "why": "The only links we found to screens are weak."
+    },
+    {
+      "code": "NEEDS_HUMAN",
+      "evidence_ids": [
+        "ev_24c5b710b5c4",
+        "ev_7f6d7f751b84"
+      ],
+      "subject": "the collections import code",
+      "what_to_check": "Find where collections import appears in the product and try it by hand; this change is not tied to any screen we observed.",
+      "why": "No control we observed is built from this file or from code that uses it within two steps (it may be backend-only, internal, or on a screen the crawl did not reach)."
+    },
+    {
+      "code": "NEEDS_HUMAN",
+      "evidence_ids": [],
+      "subject": "8 screen(s) linked only by very weak evidence: “Collections dialog on the Home page”, “New Folder dialog on the Home page”, “Support dialog on the Home page” and 5 more",
+      "what_to_check": "Look at these screens if time allows; nothing says they are affected.",
+      "why": "The connection from the change to these screens is too weak to call an effect."
+    }
+  ]
+}

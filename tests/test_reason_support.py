@@ -242,6 +242,9 @@ class World:
             quote="Select the environment from the dropdown to see its variables", source_url="https://docs.example/env",
             section="Environments", edition="cloud-web", ui_observable="yes", spec_sha="spec0001")
         self.store.write_requirements([self.requirement], self.run.run_id)
+        spec = self.run.path("spec", "requirements.json")
+        spec.write_text(json.dumps([self.requirement.model_dump(mode="json")], indent=2) + "\n",
+                        encoding="utf-8")
         ev = self.run.evidence.add("link.bm25_judge", "req_envedit0001", "requirement realised by the selector")
         self.store.write_links([Link(kind="REALIZED_BY", src="req_envedit0001", dst="el_30f24fa5dad0",
                                      confidence=0.8, method="bm25_judge", evidence_id=ev)], self.run.run_id)

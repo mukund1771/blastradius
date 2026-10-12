@@ -20,7 +20,9 @@ list is shuffled with a seed derived from (requirement id, sample index) and lab
     level      = 1.0 full, 0.7 partial (the weaker of the supporting samples)
 
 At most 3 links per requirement. A sample that says `none_of_above` supports nothing, whatever it lists.
-Everything the judge sees (requirement text and quote, element names, screen titles) is untrusted-wrapped.
+Everything the judge sees (requirement text and quote, element names, screen titles) is untrusted-wrapped,
+and every page-derived word in it (role and route pattern included) went through `prompt_text`: secret
+shapes masked, length capped.
 
 Which requirements are judged. Skipped by policy (they become gaps in link.gaps): ui_observable == "no",
 requires_login, edition desktop or self-host. A requirement with polarity must_not_exist is judged like any
@@ -61,6 +63,7 @@ SCREEN_NAMES = 40
 OWN_TEXT_WEIGHT = 3        # an element's own words count this many times against its screen context
 LEVEL: dict[str, float] = {"full": 1.0, "partial": 0.7}
 SKIP_EDITIONS = frozenset({"desktop", "self-host"})
+ROLE_CHARS = 40            # DOM words that are not copy (role, route pattern) are cut shorter than copy
 
 
 # ------------------------------------------------------------------------------------------ documents
@@ -80,7 +83,9 @@ def _context(s: ScreenState) -> list[str]:
 
 
 def _where(s: ScreenState) -> str:
-    parts = [f'screen "{prompt_text(s.title)}"' if s.title else f"route {s.url_pattern}"]
+    # every page-derived string a prompt carries goes through prompt_text: secret shapes masked, length capped
+    route = prompt_text(s.url_pattern, 2 * ROLE_CHARS)
+    parts = [f'screen "{prompt_text(s.title)}"' if s.title else f"route {route}"]
     if s.dialog_title:
         parts.append(f'dialog "{prompt_text(s.dialog_title)}"')
     if s.active_tabs:
@@ -111,7 +116,8 @@ def build_docs(screens: Sequence[ScreenState], target: str) -> list[UiDoc]:
         # judged in the context of one screen; the claim covers that route in any of its states (tabs, dialogs)
         same_route = tuple(sorted(i for i in shown_on[cid] if by_screen[i].url_pattern == s.url_pattern))
         docs.append(UiDoc(cid, "element", oid, sid, same_route, " ".join([*names * OWN_TEXT_WEIGHT, *_context(s)]),
-                          f'{el.role} {" / ".join(repr(prompt_text(n)) for n in names)} on {_where(s)}'))
+                          f'{prompt_text(el.role, ROLE_CHARS)} '
+                          f'{" / ".join(repr(prompt_text(n)) for n in names)} on {_where(s)}'))
     for s in ordered:
         names = list(dict.fromkeys(
             " ".join(el.name.split()) for el in sorted(s.elements, key=lambda e: (e.ordinal, e.id)) if el.name))

@@ -23,16 +23,32 @@ Cascade, per Link(IMPLEMENTED_BY, src=UIElementObs.id, dst=CodeFile.path, screen
     remains, source literals (`CodeIndex.literals`) are tried the same way with prior 0.70 (same floor).
     Literals shorter than 3 characters, without a letter, or equal to a brand word (the target's name and
     display name) are ignored: they appear everywhere and prove nothing.
- 3. Dedup per (element, file) keeps the best (confidence, method). Observations that the graph merges into
-    one canonical element (graph.canonical) are given the same value per file, so the writer's last-write-
-    wins MERGE cannot make the stored confidence depend on row order. Each link adds a `link.<method>`
-    evidence row (ref = element id) naming the text, the key and the page whose closure held the file.
+ 2b. Context. The state a screen is in says which of the k files is the likelier owner, and two rules use it
+    softly (`cascade._score`): (i) modal and tab states: when k > 1, the files that ALSO use the i18n key of
+    the dialog title (else of an active tab label) keep the normal value (prior / remaining k) and the others
+    are demoted to x0.5 of theirs, floor 0.15, not dropped ("Save" in the "New Collection" dialog is
+    collections/Add.vue, not environments/Add.vue); (ii) the page title: a route page file that uses the
+    control's text as its own document title (usePageHead) is demoted the same way when the control is
+    also seen on screens where that page is not rendered. The code index records no usage position, so
+    (ii) is a rule on the evidence the link stage has (text == the brand-stripped document title, file = the
+    route's page, control present elsewhere): a contract request asks the index to say "head" itself.
+ 3. One value per (element, file, screen). A file that is one of two candidates on one screen and the only
+    one on another carries 0.45 on the first and 0.90 on the second: rows are written per (element, file,
+    confidence) with the screens that value was derived on, never the best value on all of them. Each link
+    adds a `link.<method>` evidence row (ref = element id) naming the text that matched (as the page shows
+    it), the key and the page whose closure held the file. The graph store keys IMPLEMENTED_BY by
+    (element, file, method) and keeps the best row's confidence with the union of the screens: per-screen
+    confidence is exact in links.jsonl and best-of in the graph until the store changes (contract request).
  4. LLM fallback for the named interactive elements nothing above resolved: one call per screen (<= 25
     controls per call, <= 25 calls per run), candidates = component/page/layout files of R(screen) with up
     to 12 of their English values, the 40 best by overlap with the controls' tokens. Output per control is
     a candidate label or NONE, a certainty (high 0.60, medium 0.45, low 0.30: never above the 0.60 cap) and
     an `external` flag (the control looks rendered by a third-party UI kit, case 34). Page text is
-    untrusted-wrapped; the model answers with labels, so it cannot invent a path.
+    untrusted-wrapped; the model answers with labels, so it cannot invent a path. Files OUTSIDE R(screen)
+    (<= 10 per call, after the in-closure ones, marked "outside this page") are offered only for a
+    control whose own text matched a string of that file (the closure under-reaches `<component :is>` and
+    helper-produced text); a pick of one is accepted only for such a control and is written at half its
+    certainty value (high 0.30, medium 0.225, low 0.15) with an evidence row that says it is unconfirmed.
  5. What remains is returned as `Unresolved` rows with a reason; link.gaps turns them into UNMAPPED_CODE.
 
 Steps 1 to 3 are pure functions in `cascade`; this module groups observations into canonical elements, runs
@@ -66,21 +82,29 @@ from .cascade import (
     Hit,
     Reach,
     Reachability,
+    ScreenContext,
     TextMaps,
     build_text_maps,
     element_texts,
     resolve_text,
+    screen_context,
     screen_order,
 )
 from .text import normalise_text, prompt_text, tokens
 
-PROMPT_VERSION = "ui-to-code-pick-1"
+PROMPT_VERSION = "ui-to-code-pick-2"
 MAX_PICK_CALLS = 25
 PICK_BATCH = 25
 PICK_CANDIDATES = 40
 PICK_VALUES = 12
+OUTSIDE_CANDIDATES = 10      # files outside R(screen) offered per batch, only those whose text matches
+OUTSIDE_FACTOR = 0.5         # a pick the render closure does not confirm keeps half of its certainty value
+ROLE_CHARS = 40
 CERTAINTY: dict[str, float] = {"high": 0.60, "medium": 0.45, "low": 0.30}
 PICK_KINDS = frozenset({FileClass.COMPONENT, FileClass.PAGE, FileClass.LAYOUT})
+# files outside the render closure that may hold a control's text: UI source, plus the services and helpers
+# that produce strings (spotlight searchers, notification builders); never tests, generated code or locales
+OUTSIDE_KINDS = PICK_KINDS | {FileClass.SERVICE, FileClass.UTIL, FileClass.SOURCE_OTHER}
 INTERACTIVE_ROLES = frozenset({
     "button", "link", "textbox", "searchbox", "checkbox", "radio", "menuitem", "menuitemcheckbox",
     "menuitemradio", "tab", "switch", "combobox", "option", "slider", "spinbutton", "treeitem",
@@ -110,8 +134,9 @@ each with some of the text the file displays. For every control choose the one c
 text or name best explains the control, or NONE when no candidate plausibly renders it. Prefer NONE to a \
 weak guess. Set certainty to high only when the control's text equals text a candidate displays. Set \
 external to true when the control looks rendered by a third-party UI component library rather than by \
-app source (generic widgets whose text arrives from the caller). Reply only with the structured output, \
-one pick per control."""
+app source (generic widgets whose text arrives from the caller). A candidate marked "outside this page" is \
+not rendered under the page according to the import graph: choose it only when the text it displays equals \
+the control's text. Reply only with the structured output, one pick per control."""
 
 
 @dataclass(frozen=True)
@@ -119,6 +144,7 @@ class Candidate:
     label: str
     file: str
     values: tuple[str, ...]
+    outside: bool = False            # not in R(screen): offered only because its text matches the control's
 
 
 def pick_candidates(reach: Reach, maps: TextMaps, kinds: dict[str, FileClass],
@@ -138,8 +164,28 @@ def pick_candidates(reach: Reach, maps: TextMaps, kinds: dict[str, FileClass],
     return [Candidate(f"c{i}", f, vals) for i, (_, _, f, vals) in enumerate(scored[:PICK_CANDIDATES], 1)]
 
 
+def outside_candidates(groups: Sequence[_Group], reach: Reach, maps: TextMaps, kinds: dict[str, FileClass],
+                       control_tokens: set[str], first_label: int) -> list[Candidate]:
+    """Files outside R(screen) that use a string equal to a control's text (`_Group.outside`), at most
+    OUTSIDE_CANDIDATES, the ones matching most controls first. A file whose text does not match any control
+    of the batch is never offered: R is a prior, not a wall, but only text evidence may lift it."""
+    votes: Counter[str] = Counter()
+    for g in groups:
+        for f in g.outside:
+            if f not in reach.hops and kinds.get(f) in OUTSIDE_KINDS:
+                votes[f] += 1
+    ranked = sorted(votes, key=lambda f: (-votes[f], f))[:OUTSIDE_CANDIDATES]
+    out = []
+    for i, f in enumerate(ranked, first_label):
+        values = sorted({maps.key_values[k] for k in maps.file_keys.get(f, ()) if k in maps.key_values})
+        shown = sorted(values, key=lambda v: (-len(control_tokens & set(tokens(v))), v))[:PICK_VALUES]
+        out.append(Candidate(f"c{i}", f, tuple(shown), outside=True))
+    return out
+
+
 def _control_line(label: str, el: UIElementObs) -> str:
-    parts = [f"role={el.role}", f"name={json.dumps(prompt_text(el.name), ensure_ascii=False)}"]
+    parts = [f"role={prompt_text(el.role, ROLE_CHARS)}",
+             f"name={json.dumps(prompt_text(el.name), ensure_ascii=False)}"]
     for attr in ("text", "aria_label", "placeholder", "title_attr"):
         val = getattr(el, attr)
         if val and val != el.name:
@@ -152,9 +198,11 @@ def pick_prompt(screen: ScreenState, reach: Reach, controls: Sequence[tuple[str,
     ctrl = untrusted("\n".join(_control_line(label, el) for label, el in controls), "crawl:controls")
     cand = untrusted("\n".join(
         f"{c.label}: {c.file.rsplit('/', 1)[-1]} ({c.file}) displays: "
-        + (" | ".join(json.dumps(v, ensure_ascii=False) for v in c.values) or "(no static text)")
+        + (" | ".join(json.dumps(prompt_text(v), ensure_ascii=False) for v in c.values) or "(no static text)")
+        + (" [outside this page]" if c.outside else "")
         for c in candidates), "code:candidates")
-    return (f"Page: route {reach.pattern or 'unknown'}, screen kind {screen.kind}.\n\n"
+    route = prompt_text(reach.pattern or "unknown", ROLE_CHARS * 2)
+    return (f"Page: route {route}, screen kind {screen.kind}.\n\n"
             f"Controls seen on this page:\n{ctrl}\n\nCandidate source files:\n{cand}\n\n"
             "Choose a candidate label or NONE for every control.")
 
@@ -183,8 +231,9 @@ class _Group:
     """One canonical element: its observations, where they were seen, and what resolved it."""
     cid: str
     seen: list[tuple[str, UIElementObs]]                 # (screen id, observation) by screen priority
-    best: dict[str, Hit] = field(default_factory=dict)   # file -> best hit
-    where: dict[tuple[str, str], set[str]] = field(default_factory=dict)   # (obs id, file) -> screen ids
+    best: dict[str, Hit] = field(default_factory=dict)   # file -> best hit over every screen
+    # (obs id, file) -> screen id -> hit
+    hits: dict[tuple[str, str], dict[str, Hit]] = field(default_factory=dict)
     matched_text: bool = False
     outside: set[str] = field(default_factory=set)
 
@@ -219,19 +268,24 @@ def _build_groups(screens: Sequence[ScreenState], target: str) -> list[_Group]:
     ]
 
 
-def _derive(groups: list[_Group], reach: Reachability, by_screen: dict[str, ScreenState], maps: TextMaps) -> None:
+def _derive(groups: list[_Group], reach: Reachability, by_screen: dict[str, ScreenState], maps: TextMaps,
+            contexts: dict[str, ScreenContext]) -> None:
     for g in groups:
+        shown_on = [reach.of(by_screen[sid].url_pattern) for sid, _ in g.seen]
         for sid, el in g.seen:
             texts = element_texts(el)
             if not texts:
                 continue
-            res = resolve_text([t for t, _ in texts], reach.of(by_screen[sid].url_pattern), maps)
+            r = reach.of(by_screen[sid].url_pattern)
+            # route pages of this screen that are not rendered on some other screen showing the same element
+            elsewhere = {f for f in r.pages if any(f not in other.hops for other in shown_on)}
+            res = resolve_text([t for t, _ in texts], r, maps, contexts[sid], elsewhere)
             g.matched_text |= res.matched_text
             g.outside |= res.outside
             for hit in res.hits:
                 if _better(hit, g.best.get(hit.file)):
                     g.best[hit.file] = hit
-                g.where.setdefault((el.id, hit.file), set()).add(sid)
+                g.hits.setdefault((el.id, hit.file), {})[sid] = hit
 
 
 def _call_pick(run: RunContext, llm: LLM, screen: ScreenState, reach: Reach, controls: list[tuple[str, _Group]],
@@ -244,14 +298,14 @@ def _call_pick(run: RunContext, llm: LLM, screen: ScreenState, reach: Reach, con
 
 def _run_picks(run: RunContext, llm: LLM, groups: list[_Group], by_screen: dict[str, ScreenState],
                reach: Reachability, maps: TextMaps, kinds: dict[str, FileClass], budget: CallBudget,
-               ) -> tuple[dict[str, str], dict[str, tuple[str, str]]]:
-    """(reason per group the LLM did not link, pick per group: (file, certainty))."""
+               ) -> tuple[dict[str, str], dict[str, tuple[str, str, bool]]]:
+    """(reason per group the LLM did not link, pick per group: (file, certainty, outside R(screen)))."""
     pending: dict[str, list[_Group]] = {}
     for g in groups:
         if not g.best and element_texts(g.rep) and g.rep.role in INTERACTIVE_ROLES:
             pending.setdefault(g.seen[0][0], []).append(g)
     reasons: dict[str, str] = {}
-    picks: dict[str, tuple[str, str]] = {}
+    picks: dict[str, tuple[str, str, bool]] = {}
     for sid in sorted(pending, key=lambda s: screen_order(by_screen[s])):
         screen, r = by_screen[sid], reach.of(by_screen[sid].url_pattern)
         todo = sorted(pending[sid], key=lambda g: (g.rep.ordinal, g.rep.id))
@@ -259,6 +313,7 @@ def _run_picks(run: RunContext, llm: LLM, groups: list[_Group], by_screen: dict[
             batch = todo[start : start + PICK_BATCH]
             ctoks = {t for g in batch for text, _ in element_texts(g.rep) for t in tokens(text)}
             cands = pick_candidates(r, maps, kinds, ctoks)
+            cands += outside_candidates(batch, r, maps, kinds, ctoks, len(cands) + 1)
             if not cands:
                 reasons.update({g.cid: "no_candidate" for g in batch})
                 continue
@@ -267,65 +322,88 @@ def _run_picks(run: RunContext, llm: LLM, groups: list[_Group], by_screen: dict[
             if out is None:
                 reasons.update({g.cid: "llm_budget" for g in batch})
                 continue
-            files = {c.label: c.file for c in cands}
+            by_label = {c.label: c for c in cands}
             answered = {p.control: p for p in out.picks}
             for label, g in controls:
                 p = answered.get(label)
-                if p is not None and p.file in files:
-                    picks[g.cid] = (files[p.file], p.certainty)
+                c = by_label.get(p.file) if p is not None else None
+                # a file outside R is accepted only for a control whose own text matched a string of that file
+                if p is not None and c is not None and (not c.outside or c.file in g.outside):
+                    picks[g.cid] = (c.file, p.certainty, c.outside)
                 else:
                     reasons[g.cid] = "external_package" if (p and p.external) else "llm_none"
     return reasons, picks
 
 
-def _apply_pick(g: _Group, pick: tuple[str, str], reach: Reachability, by_screen: dict[str, ScreenState]) -> None:
-    file, certainty = pick
-    g.best[file] = Hit(file, "llm_pick", min(CERTAINTY[certainty], METHOD_PRIOR["llm_pick"]),
-                       normalise_text(g.rep.name or g.rep.text))
+def _apply_pick(g: _Group, pick: tuple[str, str, bool], reach: Reachability,
+                by_screen: dict[str, ScreenState]) -> None:
+    file, certainty, outside = pick
+    conf = min(CERTAINTY[certainty], METHOD_PRIOR["llm_pick"])
+    if outside:                      # the render closure does not confirm it: lower, and say so
+        conf = round(conf * OUTSIDE_FACTOR, 4)
+    hit = Hit(file, "llm_pick", conf, normalise_text(g.rep.name or g.rep.text),
+              note="outside the render closure of the page" if outside else "")
+    g.best[file] = hit
     for sid, el in g.seen:
-        if file in reach.of(by_screen[sid].url_pattern).hops:
-            g.where.setdefault((el.id, file), set()).add(sid)
+        if outside or file in reach.of(by_screen[sid].url_pattern).hops:
+            g.hits.setdefault((el.id, file), {})[sid] = hit
 
 
 def _explain(hit: Hit, el: UIElementObs, shown: str, file: str, page: str, pattern: str | None) -> str:
     where = f"rendered under {page} (route {pattern or 'none'})"
     shared = f"; one of {hit.of} files with this text on the page" if hit.of > 1 else ""
+    why = f"; {'demoted: ' if hit.demoted else ''}{hit.note}" if hit.note and hit.method != "llm_pick" else ""
     if hit.method == "llm_pick":
+        if hit.note:
+            return (f'{el.role} "{shown}": the model chose {file}, which uses a string equal to this '
+                    f"text but is {hit.note} (route {pattern or 'none'}); lower confidence")
         return f'{el.role} "{shown}": the model chose {file} among candidates {where}'
     if hit.keys:
         return (f'{el.role} "{shown}" equals the English value of i18n key {", ".join(hit.keys[:3])}; '
-                f"{file} uses it and is {where}{shared}")
-    return f'{el.role} "{shown}" equals a text literal of {file}, {where}{shared}'
+                f"{file} uses it and is {where}{shared}{why}")
+    return f'{el.role} "{shown}" equals a text literal of {file}, {where}{shared}{why}'
 
 
 def _link_rows(run: RunContext, g: _Group, reach: Reachability, by_screen: dict[str, ScreenState],
                judge: str | None) -> list[Link]:
+    """One row per (observation, file, confidence): a file that is one of two candidates on one screen and the
+    only one on another carries each value on the screens it was derived on, never the best on all of them."""
     obs = {el.id: el for _, el in g.seen}
     rows = []
-    for (oid, file), sids in sorted(g.where.items()):
-        hit, el = g.best[file], obs[oid]
-        first = min(sids)
-        r = reach.of(by_screen[first].url_pattern)
-        texts = element_texts(el)
-        summary = _explain(hit, el, texts[0][1] if texts else "", file, r.owner.get(file, "?"), r.pattern)
-        rows.append(Link(kind="IMPLEMENTED_BY", src=oid, dst=file, confidence=hit.confidence, method=hit.method,
-                         evidence_id=run.evidence.add(f"link.{hit.method}", oid, summary),
-                         judge=judge if hit.method == "llm_pick" else None, screen_ids=sorted(sids)))
+    for (oid, file), per_screen in sorted(g.hits.items()):
+        el = obs[oid]
+        original = dict(element_texts(el))
+        by_conf: dict[float, list[str]] = {}
+        for sid, hit in per_screen.items():
+            by_conf.setdefault(hit.confidence, []).append(sid)
+        for conf in sorted(by_conf, reverse=True):
+            sids = sorted(by_conf[conf])
+            hit = per_screen[sids[0]]
+            r = reach.of(by_screen[sids[0]].url_pattern)
+            shown = original.get(hit.text, hit.text)        # the text that matched, as the page shows it
+            summary = _explain(hit, el, shown, file, r.owner.get(file, "?"), r.pattern)
+            rows.append(Link(kind="IMPLEMENTED_BY", src=oid, dst=file, confidence=conf, method=hit.method,
+                             evidence_id=run.evidence.add(f"link.{hit.method}", oid, summary),
+                             judge=judge if hit.method == "llm_pick" else None, screen_ids=sids))
     return rows
 
 
 def _dedupe(links: list[Link]) -> list[Link]:
-    """One link per (src, dst): the graph keys IMPLEMENTED_BY by (element, file, method) and an observation
-    id can belong to two canonical elements, so two rows would race. Best (confidence, method) wins."""
-    best: dict[tuple[str, str], Link] = {}
-    screens: dict[tuple[str, str], set[str]] = {}
+    """One link per (src, dst, confidence): an observation id can belong to two canonical elements, so two
+    groups can derive the same row; their screens are unioned. Rows of one (src, dst) that differ in
+    confidence stay apart, each with its own screens (a store keyed by (element, file, method) keeps the
+    best of them: see the contract request in the report)."""
+    best: dict[tuple[str, str, float], Link] = {}
+    screens: dict[tuple[str, str, float], set[str]] = {}
     for l in links:
-        key = (l.src, l.dst)
+        key = (l.src, l.dst, l.confidence)
         screens.setdefault(key, set()).update(l.screen_ids)
         old = best.get(key)
-        if old is None or (l.confidence, _METHOD_RANK[l.method]) > (old.confidence, _METHOD_RANK[old.method]):
+        rank = (_METHOD_RANK[l.method], l.evidence_id)
+        if old is None or rank > (_METHOD_RANK[old.method], old.evidence_id):
             best[key] = l
-    return [best[k].model_copy(update={"screen_ids": sorted(screens[k])}) for k in sorted(best)]
+    return [best[k].model_copy(update={"screen_ids": sorted(screens[k])})
+            for k in sorted(best, key=lambda k: (k[0], k[1], -k[2]))]
 
 
 def _unresolved(g: _Group, reasons: dict[str, str]) -> Unresolved:
@@ -348,6 +426,7 @@ def _unresolved(g: _Group, reasons: dict[str, str]) -> Unresolved:
 
 def _summarise(groups: list[_Group], links: list[Link], unresolved: list[Unresolved], budget: CallBudget,
                reach: Reachability, patterns: Iterable[str], llm_on: bool) -> dict[str, Any]:
+    screen_hits = [h for g in groups for per_screen in g.hits.values() for h in per_screen.values()]
     hist: dict[str, Counter[str]] = {}
     for l in links:
         hist.setdefault(l.method, Counter())[f"{l.confidence:.2f}"] += 1
@@ -366,6 +445,13 @@ def _summarise(groups: list[_Group], links: list[Link], unresolved: list[Unresol
         "links_by_method": dict(sorted(Counter(l.method for l in links).items())),
         "confidence_histogram": {m: dict(sorted(h.items())) for m, h in sorted(hist.items())},
         "unresolved_reasons": dict(sorted(Counter(u.reason for u in unresolved).items())),
+        "screen_hits": {
+            "total": len(screen_hits),
+            "demoted": sum(1 for h in screen_hits if h.demoted),
+            "preferred_by_context": sum(1 for h in screen_hits if h.note and not h.demoted
+                                        and h.method != "llm_pick"),
+            "llm_pick_outside_closure": sum(1 for h in screen_hits if h.method == "llm_pick" and h.note),
+        },
         "route_resolution": dict(sorted(Counter(reach.of(p).how for p in set(patterns)).items())),
         "testid_rung": {"elements_with_testid": sum(1 for g in groups if any(
             el.testid for _, el in g.seen)), "status": "skipped: CodeIndex carries no testid table"},
@@ -386,8 +472,10 @@ def link_ui_to_code(run: RunContext, cfg: TargetConfig, index: CodeIndex, screen
     kinds = {f.path: f.kind for f in index.files}
     by_screen = {s.id: s for s in screens}
     groups = _build_groups(screens, cfg.name)
+    brands = (cfg.display_name, cfg.name)
+    contexts = {s.id: screen_context(s, brands) for s in screens}
     with run.stage("link.ui_to_code.cascade") as span:
-        _derive(groups, reach, by_screen, maps)
+        _derive(groups, reach, by_screen, maps, contexts)
         span.set(canonical_elements=len(groups))
 
     budget = CallBudget(max_pick_calls)

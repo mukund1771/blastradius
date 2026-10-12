@@ -137,7 +137,7 @@ class _Hits:
         if hit is None:
             hit = Hit(screen_id=row["screen_id"], element_id=row["element_id"],
                       element_role=row.get("element_role") or "", element_name=row.get("element_name") or "",
-                      owner_file=row.get("owner_file"), hidden_on_screen=bool(row.get("hidden_on_screen")),
+                      hidden_on_screen=bool(row.get("hidden_on_screen")),
                       impl_files=sorted({e["file"] for e in row.get("impl_edges") or []}),
                       flows=[{"id": f["id"], "name": f["name"]} for f in row.get("flows") or []],
                       requirements=[dict(q) for q in row.get("requirements") or []])
@@ -269,7 +269,7 @@ def _locale_routes(run: RunContext, store: Any, diffs: Sequence[LocaleDiff], hit
                     route.restrict("copy_other_element", th.caps.copy_other_element)
                     route.note = f"{note} (this control shares a file with that text but shows other words)"
                 base = {"screen_id": screen_id, "element_id": row["element_id"],
-                        "element_role": row["role"], "element_name": row["name"], "owner_file": row["owner_file"]}
+                        "element_role": row["role"], "element_name": row["name"]}
                 c = ctx.get((screen_id, row["element_id"]), {})
                 hits.add_row(run, {**base, "flows": c.get("flows", []), "requirements": c.get("requirements", [])},
                              route)

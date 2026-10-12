@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import importlib
-import os
 import shutil
 import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
-from pathlib import Path
 
 import httpx
 
@@ -94,7 +92,7 @@ def _docker() -> Check:
         return Check("docker", "FAIL", "docker CLI not found", "Install Docker Desktop")
     try:
         r = subprocess.run(["docker", "info", "--format", "{{.ServerVersion}}"], capture_output=True, text=True,
-                           timeout=15)
+                           timeout=15, check=False)
     except subprocess.TimeoutExpired:
         return Check("docker", "FAIL", "daemon not responding", "Start Docker Desktop")
     if r.returncode != 0:

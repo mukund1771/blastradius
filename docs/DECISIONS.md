@@ -72,6 +72,11 @@ Things marked *verifier-reported* were not independently checked on this machine
 | D20 | **BM25 + LLM judge with NONE** | Embeddings/Voyage: second key, premature; revisit only if leave-one-out recall@20 < 0.8 | decided |
 | D25 | **Hop cap 2 + one forward hop (P0); PPR to P2** | PPR as the cure: gain on #6658 came from forward edges (n=1 for PPR) | decided |
 | D29 | **Two-tier report + Global + Persisted-data + Could-not-determine** | Flat list: `@hoppscotch/data` and the layout light every screen | decided |
+| D36 | **Direct means hop 0 and a strong link**: direction self or copy, and confidence ≥ 0.5 or a single file. A string in more than three files below 0.5 is not a named control | Treat every hop-0 string match as a control the QA lead must click (the #6645 home page listed dozens) | decided |
+| D37 | **New keys are one undetermined row**, not a sentence on every affected screen | Attach "new in this PR" to each screen that shares a file with the key | decided |
+| D38 | **The risk line names the direct screens**, then spec sections only when no direct screen is confirmed or likely | Lead with the first requirement section (on #6645 that was AI Features, which the PR does not edit) | decided |
+| D39 | **A claim id includes its subject** (and a requirement id for requirement claims). Two screens can share a sentence | Hash the sentence alone (the invariant `ids_unique` failed on the live reports) | decided |
+| D40 | **The headline requirement count is the distinct rows in the requirements table** | Count only requirement ids attached to screen items (the table then disagrees with the headline) | decided |
 
 ### Eval
 

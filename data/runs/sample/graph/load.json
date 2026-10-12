@@ -1,0 +1,105 @@
+{
+  "bundle_drift": false,
+  "bundle_hash": "c81a0323d1f5b4f5",
+  "bundle_hash_end": "c81a0323d1f5b4f5",
+  "code_snapshot_id": "63273f8e599e73f0fb38c0739314e8d46b6bc83d",
+  "counts": {
+    "APPEARS_ON": 1468,
+    "CodeFile": 1273,
+    "ENDS_AT": 30,
+    "Flow": 40,
+    "Gap": 577,
+    "HANDLED_BY": 21,
+    "HAS_GAP": 390,
+    "I18nKey": 2219,
+    "IMPLEMENTED_BY": 1292,
+    "IMPORTS": 5728,
+    "LEADS_TO": 321,
+    "PullRequest": 0,
+    "REALIZED_BY": 0,
+    "RENDERS": 463,
+    "Requirement": 160,
+    "Route": 20,
+    "Run": 3,
+    "SEARCHED": 599,
+    "SERVED_BY": 55,
+    "STARTS_AT": 30,
+    "STEP": 42,
+    "Screen": 55,
+    "UIElement": 443,
+    "USES_KEY": 2671
+  },
+  "crawl_snapshot_id": "snap_168b1e81cda5",
+  "dangling_attribution": {
+    "edges": 0,
+    "ids_dropped": 0,
+    "narrowed": 0,
+    "reset_to_all": 0
+  },
+  "elapsed_s": 23.473,
+  "layers": {
+    "code": {
+      "files": 1273,
+      "i18n_keys": 2219,
+      "i18n_keys_without_value": 21,
+      "imports": 5728,
+      "key_uses": 2671,
+      "nodes_created": 0,
+      "relationships_created": 0,
+      "renders": 463,
+      "routes": 20,
+      "stub_files": 0
+    },
+    "crawl": {
+      "appearances": 1468,
+      "appearances_matched": 1468,
+      "elements": 443,
+      "nodes_created": 0,
+      "observations": 1468,
+      "relationships_created": 0,
+      "screens": 55,
+      "transitions": 321,
+      "transitions_element_level": 321,
+      "transitions_element_unresolved": 0,
+      "transitions_screen_level": 0,
+      "transitions_skipped": 0
+    },
+    "spec": {
+      "nodes_created": 160,
+      "relationships_created": 0,
+      "requirements": 160
+    }
+  },
+  "loaded_at": "2026-10-12T15:44:24.668+00:00",
+  "notices": [
+    "spec: pruned 19 Requirement (not asserted by run crawl-gate-150)"
+  ],
+  "other_runs": [
+    "gate-e2e-1",
+    "gate-code-1"
+  ],
+  "pruned": {
+    "APPEARS_ON": 0,
+    "CodeFile": 0,
+    "HANDLED_BY": 0,
+    "I18nKey": 0,
+    "IMPORTS": 0,
+    "LEADS_TO": 0,
+    "RENDERS": 0,
+    "Requirement": 19,
+    "Route": 0,
+    "Screen": 0,
+    "UIElement": 0,
+    "USES_KEY": 0,
+    "detached_relationships": 18
+  },
+  "run_id": "crawl-gate-150",
+  "served_by": {
+    "nodes_created": 0,
+    "relationships_created": 0,
+    "screens": 55,
+    "served": 55,
+    "unserved": 0
+  },
+  "target": "hoppscotch"
+}

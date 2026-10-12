@@ -101,3 +101,57 @@ def test_real_clone_index_is_identical_across_five_hash_seeds():
         pytest.skip(f"the cached hoppscotch clone is not at {RECON_SHA[:10]}")
     digests = {seed: _digest_under_seed(_REAL_INDEX_SNIPPET, seed) for seed in (0, 1, 2, 3, 4)}
     assert len(set(digests.values())) == 1, f"real index depends on the process: {digests}"
+
+
+# The close-out rules iterate sets (literal keys, registered targets, issue kinds): a tree that exercises all of
+# them must hash the same in every process, and the digest must include the new stats.
+_CLOSEOUT_TREE = """
+import hashlib, json, sys, tempfile
+from pathlib import Path
+from blastradius.code.adapters.vue import VueAdapter
+from blastradius.targets import CodeConfig
+
+root = Path(tempfile.mkdtemp())
+files = {
+    "locales/en.json": json.dumps({"nav": {f"k{i:02d}": f"Item {i}" for i in range(30)}}),
+    "src/components/Base.vue": (
+        "<template><component :is=\\"current.component\\" /><component :is=\\"a ? C00 : 'C01'\\" /></template>\\n"
+        "<template><Z1 /><Z0 /></template>\\n<script setup lang=\\"ts\\">\\n"
+        + "".join(f"import C{i:02d} from './C{i:02d}.vue'\\n" for i in range(24))
+        + "const all = [" + ", ".join(f"C{i:02d}" for i in range(24)) + "]\\n"
+        + "const keys = [" + ", ".join(f"'nav.k{i:02d}'" for i in range(30)) + "]\\n"
+        "</script>\\n"),
+    "src/bad.ts": "export const = = {{{{\\n",
+    "src/enc.ts": b"export const x = 1 // \\xff\\n",
+}
+for i in range(24):
+    files[f"src/components/C{i:02d}.vue"] = f"<template><p>c{i}</p></template>\\n"
+for rel, content in files.items():
+    path = root / rel
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(content if isinstance(content, bytes) else content.encode())
+cfg = CodeConfig(repo="acme/co", ref="main", adapter="vue", roots=["src"], locale_files=["locales/en.json"])
+"""
+_CLOSEOUT_INDEX = _CLOSEOUT_TREE + """
+idx = VueAdapter().index(root, cfg, "c" * 40)
+assert idx.stats["registered_renders"] >= 24 and idx.stats["script_literal_key_uses"] == 30, idx.stats
+assert idx.stats["parse_partial"] is True
+print(hashlib.sha256(idx.model_dump_json().encode()).hexdigest())
+"""
+_CLOSEOUT_PART = _CLOSEOUT_TREE + """
+part = VueAdapter().index_part(root, cfg, known_paths=sorted(files), only=["src/components/Base.vue"],
+                               known_keys=[f"nav.k{i:02d}" for i in range(30)])
+assert len(part.key_uses) == 30 and any(e.via == "registered" for e in part.edges)
+dump = [[e.model_dump() for e in part.edges], [u.model_dump() for u in part.key_uses], part.issues]
+print(hashlib.sha256(json.dumps(dump, sort_keys=True).encode()).hexdigest())
+"""
+
+
+def test_close_out_rules_are_identical_across_hash_seeds():
+    digests = {_digest_under_seed(_CLOSEOUT_INDEX, seed) for seed in (0, 1, 2, 3, 5, 97)}
+    assert len(digests) == 1, f"registered / literal / partial rules depend on the hash seed: {digests}"
+
+
+def test_the_overlay_part_is_identical_across_hash_seeds():
+    digests = {_digest_under_seed(_CLOSEOUT_PART, seed) for seed in (0, 1, 2, 4)}
+    assert len(digests) == 1, digests

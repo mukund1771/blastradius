@@ -21,6 +21,19 @@ file that does not parse are counted in `stats` (`parse_errors`, `parse_error_ki
 tree into a failure. Output is byte-identical across processes: every ordered collection is built from
 sorted keys.
 
+Components that are registered rather than tagged (`<component :is>` holes, `components:` maps, registry
+arrays): an imported component named inside an `:is` expression, or passed around by the script of a file whose
+template has a hole nothing explains, is rendered by that file. Those RENDERS edges carry `via="registered"`
+(never added where a tag already links the pair) and are counted in `stats.registered_renders`.
+
+A string literal in a `<script>` (or script file) that equals a known i18n key, such as `title: "navigation.rest"`
+that a template later renders with `t(item.title)`, is a static `KeyUse` of that file. `KeyUse` has no field
+to say it came from a literal, so `stats.script_literal_key_uses` counts the pairs that only this rule added
+and `script_literal_key_use_sample` lists them.
+
+`stats.parse_partial` is True only when the index is missing real content (see `adapter.parse_partial_reasons`):
+a file that was undecodable, unreadable, oversize or unnamed, or parse problems on over 2% of the files read.
+
 `index_part` is the same pipeline over a subset of files resolved against a larger path universe; the PR head
 overlay (overlay.py) uses it to re-parse only the files a pull request changed.
 """
@@ -38,9 +51,9 @@ from typing import Any, Literal
 
 from ...models import CodeEdge, CodeFile, CodeIndex, FileClass, KeyUse, RouteDef, TextLiteral
 from ...targets import CodeConfig
-from ..adapter import IndexPart, SourceTree
+from ..adapter import UNDECODABLE_FILENAME, IndexPart, SourceTree, parse_partial_reasons
 from ..fileclass import classify_file, workspace_package
-from ..i18n import KeyScan, flatten_messages, scan_t_calls
+from ..i18n import KeyScan, flatten_messages, scan_t_calls, scrub_surrogates
 from ..jsmodules import (
     CODE_EXTS,
     ImportBinding,
@@ -59,6 +72,7 @@ _IDENT = re.compile(r"[A-Za-z_$][\w$]*")
 _TSX = ("tsx", "jsx")
 _UNLISTED_CAP = 50
 EdgeKind = Literal["IMPORTS", "RENDERS"]
+REGISTERED_VIA = "registered"       # `via` of a RENDERS edge for a component that is registered, not tagged
 # Problem kinds recorded per file (stats.parse_error_kinds); each means the index is incomplete for that file.
 SCRIPT_PARSE_ERROR = "script_parse_error"            # error nodes in the parse (a real syntax error, or valid
                                                      # TS the grammar lacks): imports after it may be lost
@@ -70,6 +84,16 @@ TEMPLATE_LANG_SKIPPED = "template_lang_skipped"      # `<template lang="pug">`: 
 TEMPLATE_SRC_NOT_SCANNED = "template_src_not_scanned"    # `<template src>`: the markup lives in another file
 MULTIPLE_TEMPLATES = "multiple_template_blocks"      # invalid Vue; the blocks are merged
 LOCALE_PARSE_ERROR = "locale_parse_error"            # the locale file is not JSON: no i18n keys
+LOCALE_LONE_SURROGATE = "locale_lone_surrogate"      # a message held half a UTF-16 pair: replaced by U+FFFD
+_KEYWORDS = frozenset({"true", "false", "null", "undefined", "this", "typeof", "void", "new", "in", "of", "as"})
+_QUOTED = re.compile(r"""(['"`])((?:\\.|(?!\1)[^\\\n])*)\1""")
+# a whole identifier that is not a member access, an index or a call: `IconA`, not `platform.ui` or `pick(x)`
+_EXPR_NAME = re.compile(r"(?<![\w$.])[A-Za-z_$][\w$]*(?![\w$])(?!\s*(?:\?\.|\.|\[|\())")
+_COMPONENT_EXTS = (".vue", ".tsx", ".jsx")
+_COMPONENT_NAME = re.compile(r"[A-Za-z][\w-]*")
+# `'navigation.rest'`, `"a.b.c"`: a quoted, space-free, dotted word. The key set decides what it means.
+_KEY_LITERAL = re.compile(r"""(['"`])([^'"`\\\s]+\.[^'"`\\\s]+)\1""")
+_SAMPLE_CAP = 50
 
 
 @dataclass
@@ -86,6 +110,8 @@ class _Facts:
     barrel: bool = False
     blocks: list[Block] = field(default_factory=list)
     script: str = ""
+    value_refs: dict[str, int] = field(default_factory=dict)       # script identifier -> uses outside imports
+    key_literals: set[str] = field(default_factory=set)            # quoted dotted words of the script(s)
     nonliteral_dynamic_imports: int = 0
     issues: list[str] = field(default_factory=list)      # problem kinds, each once, in order of appearance
 
@@ -104,6 +130,7 @@ def _flag(facts: _Facts, kind: str) -> None:
 def _analyse_vue(text: str) -> _Facts:
     facts = _Facts(blocks=split_sfc(text))
     scripts: list[str] = []
+    seen_tags: set[str] = set()         # a file with N template blocks (invalid Vue) must not cost N^2
     templates = 0
     for block in facts.blocks:
         src = block.attrs.get("src")
@@ -111,7 +138,9 @@ def _analyse_vue(text: str) -> _Facts:
             if src:
                 facts.imports.append(ImportBinding(str(src), (), (), "import"))
                 continue
-            parsed = extract_imports(block.content, tsx=block.lang in _TSX)
+            parsed = extract_imports(block.content, tsx=block.lang in _TSX, refs=True)
+            for name, n in parsed.value_refs.items():
+                facts.value_refs[name] = facts.value_refs.get(name, 0) + n
             facts.imports += parsed.imports
             facts.lazy.update(parsed.lazy_bindings)
             facts.nonliteral_dynamic_imports += parsed.dynamic_nonliteral
@@ -119,6 +148,7 @@ def _analyse_vue(text: str) -> _Facts:
                 _flag(facts, SCRIPT_PARSE_ABORTED if parsed.aborted else SCRIPT_PARSE_ERROR)
             clean = without_comments(block.content, parsed)
             scripts.append(clean)
+            facts.key_literals.update(m.group(2) for m in _KEY_LITERAL.finditer(clean))
             _merge_keys(facts.keys, scan_t_calls(clean))
         elif block.tag == "style" and src:
             facts.imports.append(ImportBinding(str(src), (), (), "import"))
@@ -134,7 +164,10 @@ def _analyse_vue(text: str) -> _Facts:
             if templates > 1:
                 _flag(facts, MULTIPLE_TEMPLATES)
             scan = scan_template(block.content, is_native=NATIVE_TAGS)
-            facts.tags += [t for t in scan.tags if t not in facts.tags]
+            for tag in scan.tags:
+                if tag not in seen_tags:
+                    seen_tags.add(tag)
+                    facts.tags.append(tag)
             facts.dynamic_is += scan.dynamic_is
             facts.texts += scan.texts
             facts.attr_texts += scan.attr_texts
@@ -145,9 +178,11 @@ def _analyse_vue(text: str) -> _Facts:
 
 def _analyse_script(text: str, ext: str) -> _Facts:
     parsed = extract_imports(text, tsx=ext in (".tsx", ".jsx"))
+    clean = without_comments(text, parsed)
     facts = _Facts(
         imports=parsed.imports, lazy=parsed.lazy_bindings, nonliteral_dynamic_imports=parsed.dynamic_nonliteral,
-        keys=scan_t_calls(without_comments(text, parsed)), barrel=parsed.reexports > 0 and not parsed.declares_locally)
+        keys=scan_t_calls(clean), barrel=parsed.reexports > 0 and not parsed.declares_locally,
+        key_literals={m.group(2) for m in _KEY_LITERAL.finditer(clean)})
     if parsed.has_error:
         _flag(facts, SCRIPT_PARSE_ABORTED if parsed.aborted else SCRIPT_PARSE_ERROR)
     return facts
@@ -179,13 +214,40 @@ class VueAdapter:
         return _Build(repo_root, cfg).run(snapshot_id, target or cfg.repo, ref or cfg.ref)
 
     def index_part(self, repo_root: Path, cfg: CodeConfig, *, known_paths: Collection[str],
-                   only: Collection[str], dangling: Sequence[CodeEdge] = ()) -> IndexPart:
+                   only: Collection[str], dangling: Sequence[CodeEdge] = (),
+                   known_keys: Collection[str] = ()) -> IndexPart:
         """Facts of the files in `only` (read from `repo_root`), resolved against `known_paths`.
 
         `known_paths` is every indexed file of the snapshot being described; `dangling` are edges of files
-        that were not re-read whose target is gone (see `IndexPart`).
+        that were not re-read whose target is gone (see `IndexPart`); `known_keys` are the i18n keys of the
+        base snapshot, used for the string literals that name a key when the locale file is not among `only`.
         """
-        return _Build(repo_root, cfg, known_paths=known_paths, only=frozenset(only)).part(dangling)
+        return _Build(repo_root, cfg, known_paths=known_paths, only=frozenset(only),
+                      known_keys=frozenset(known_keys)).part(dangling)
+
+
+def _expression_components(expr: str, locals_: dict[str, tuple[str, str, str]],
+                           pascal: dict[str, tuple[str, str, str]]) -> list[tuple[str, str]]:
+    """`(kind, target)` of the imported components an `:is` expression names, in order of appearance.
+
+    An identifier must be spelled as the import (JS is case sensitive), a quoted name is a component name and
+    is matched the way Vue does (PascalCase). Member accesses (`a.b`) name nothing here, and native tag
+    names given as strings are never components of the app.
+    """
+    out: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for m in _QUOTED.finditer(expr):
+        name = m.group(2)
+        hit = pascal.get(pascal_case(name)) if _COMPONENT_NAME.fullmatch(name) and name not in NATIVE_TAGS else None
+        if hit is not None and (hit[0], hit[1]) not in seen:
+            seen.add((hit[0], hit[1]))
+            out.append((hit[0], hit[1]))
+    for m in _EXPR_NAME.finditer(_QUOTED.sub(" ", expr)):
+        hit = locals_.get(m.group(0)) if m.group(0) not in _KEYWORDS else None
+        if hit is not None and (hit[0], hit[1]) not in seen:
+            seen.add((hit[0], hit[1]))
+            out.append((hit[0], hit[1]))
+    return out
 
 
 class _Build:
@@ -197,10 +259,13 @@ class _Build:
     """
 
     def __init__(self, repo_root: Path, cfg: CodeConfig, *, known_paths: Collection[str] | None = None,
-                 only: frozenset[str] | None = None):
+                 only: frozenset[str] | None = None, known_keys: frozenset[str] = frozenset()):
         self.cfg = cfg
         self.tree = SourceTree(repo_root, cfg, INDEXED_EXTS)
         self.only = only
+        self.known_keys = known_keys
+        self.registered: Counter[str] = Counter()
+        self.literal_key_uses: list[tuple[str, str]] = []
         self.universe: list[str] = sorted(known_paths) if known_paths is not None else self.tree.paths
         self.texts: dict[str, str] = {}
         self.sha: dict[str, str] = {}
@@ -240,6 +305,8 @@ class _Build:
     def load(self) -> None:
         for path in self.tree.oversize:
             self._note(path, OVERSIZE_FILE)
+        for name in self.tree.undecodable_names:
+            self._note(name, UNDECODABLE_FILENAME)
         for path in self.tree.paths:
             if self.only is not None and path not in self.only:
                 continue
@@ -327,20 +394,59 @@ class _Build:
         self._components = ComponentResolver(self.universe, entries, dirs)
         return self._components
 
-    def _bindings(self, path: str, resolved: dict[str, Resolved]) -> dict[str, tuple[str, str, str]]:
-        """PascalCase local binding -> (kind, target, how) for imports and lazy component bindings."""
+    def _locals(self, path: str, resolved: dict[str, Resolved]) -> dict[str, tuple[str, str, str]]:
+        """Local binding as written -> (kind, target, how) for imports and lazy component bindings."""
         out: dict[str, tuple[str, str, str]] = {}
         facts = self.facts[path]
         for b in facts.imports:
             r = resolved[b.specifier]
             for local, _imported in b.locals:
                 if r.kind in ("file", "external"):
-                    out[pascal_case(local)] = (r.kind, r.target, "import")
+                    out[local] = (r.kind, r.target, "import")
         for local, spec in facts.lazy.items():
             r = resolved.get(spec)
             if r is not None and r.kind in ("file", "external"):
-                out[pascal_case(local)] = (r.kind, r.target, "lazy_import")
+                out[local] = (r.kind, r.target, "lazy_import")
         return out
+
+    def _bindings(self, path: str, resolved: dict[str, Resolved]) -> dict[str, tuple[str, str, str]]:
+        """PascalCase local binding -> (kind, target, how) for imports and lazy component bindings."""
+        return {pascal_case(local): hit for local, hit in self._locals(path, resolved).items()}
+
+    def _registered(self, path: str, facts: _Facts, resolved: dict[str, Resolved]) -> dict[str, str]:
+        """Targets of the imported components `path` registers rather than tags: {file: how}.
+
+        `expression`: the component is named inside a `<component :is>` expression that is not a bare
+        identifier (`ok ? IconA : IconB`, `'Foo'`). `registry`: the template has an `:is` hole nothing in the
+        expression explains (`item.component`, `lookup(kind)`), and the script passes an imported `.vue`
+        component around as a value (`[A, B]`, `{ component: C }`, `markRaw(D)`). An external package leaf is
+        counted and never edged, like a tag that resolves to one.
+        """
+        if not facts.dynamic_is:
+            return {}
+        locals_ = self._locals(path, resolved)
+        pascal = {pascal_case(name): hit for name, hit in locals_.items()}
+        found: dict[str, str] = {}
+        unexplained = 0
+        for expr in facts.dynamic_is:
+            ident = expr.strip()
+            if _IDENT.fullmatch(ident) and pascal_case(ident) in pascal:
+                continue                                    # a bare bound identifier: the tag rule has it
+            hits = [(kind, target) for kind, target in _expression_components(expr, locals_, pascal)
+                    if kind == "external" or target.endswith(_COMPONENT_EXTS)]
+            unexplained += not hits
+            for kind, target in hits:
+                if kind == "file":
+                    found.setdefault(target, "expression")
+                else:
+                    self.n["registered_components_external"] += 1
+        if unexplained:
+            for local, (kind, target, how) in sorted(locals_.items()):
+                uses = facts.value_refs.get(local, 0) - (1 if how == "lazy_import" else 0)
+                if kind == "file" and target.endswith(_COMPONENT_EXTS) and uses > 0:
+                    found.setdefault(target, "registry")
+        self.n["dynamic_components_unexplained"] += unexplained
+        return found
 
     def resolve_tags(self, imports: dict[str, dict[str, Resolved]]) -> None:
         comp = self._component_resolver()
@@ -367,13 +473,20 @@ class _Build:
                     self.unresolved_reasons[f"tag: {r.reason}"] += 1
                     if len(self.unresolved_tags) < _UNLISTED_CAP:
                         self.unresolved_tags.append({"file": path, "tag": tag, "reason": r.reason})
+            # after the tags, so a pair a tag already links keeps its tag as `via`
+            for target, how in sorted(self._registered(path, facts, imports.get(path, {})).items()):
+                if target == path or ("RENDERS", path, target) in self.edges:
+                    continue
+                self._add_edge("RENDERS", path, target, (), REGISTERED_VIA)
+                self.registered[how] += 1
 
     def redirect(self, dangling: Sequence[CodeEdge]) -> tuple[list[CodeEdge], list[CodeEdge]]:
         """Re-resolve edges whose target is gone from their `via` against this universe: (moved, dropped).
 
         A RENDERS edge is looked up by tag name (components table, then directory rule); an IMPORTS edge
         by its specifier. Both lose the import bindings of the importer, which was not re-read, so a tag that was
-        bound by an explicit import is dropped rather than guessed.
+        bound by an explicit import is dropped rather than guessed; so is a `registered` edge, which is no tag
+        name at all (a component that happens to be called `Registered` must not inherit it).
         """
         comp = self._component_resolver()
         moved: list[CodeEdge] = []
@@ -388,7 +501,7 @@ class _Build:
                         self.externals.add(r.target)
                     elif r.generated_missing:
                         self.generated_nodes.add(r.target)
-            elif edge.via:
+            elif edge.via and edge.via != REGISTERED_VIA:      # "registered" is no tag: it was bound by an import
                 t = comp.resolve(edge.via, importer=edge.src, bindings={})
                 target = t.target if t.kind == "file" and t.how != "self" else None
             if target is None or target in (edge.dst, edge.src):
@@ -410,11 +523,15 @@ class _Build:
                 except (ValueError, AttributeError, RecursionError):   # not JSON/object, or absurdly nested
                     self.extra["i18n_parse_error"] = True
                     self._note(path, LOCALE_PARSE_ERROR)
+                messages, scrubbed = scrub_surrogates(messages)
+                self.extra["i18n_surrogates_replaced"] = scrubbed
+                if scrubbed:
+                    self._note(path, LOCALE_LONE_SURROGATE)
         uses: set[tuple[str, str, bool]] = set()
         static_distinct: set[str] = set()
-        for path, facts in self.facts.items():
-            if self.kind[path] in (FileClass.TEST, FileClass.GENERATED):
-                continue
+        live = [(p, f) for p, f in sorted(self.facts.items())
+                if self.kind[p] not in (FileClass.TEST, FileClass.GENERATED)]
+        for path, facts in live:
             keys = facts.keys
             self.n["key_call_sites"] += len(keys.static) + len(keys.dynamic_prefixes) + keys.unresolved
             self.n["key_calls_unresolved"] += keys.unresolved
@@ -423,6 +540,16 @@ class _Build:
                 static_distinct.add(key)
             for prefix in keys.dynamic_prefixes:
                 uses.add((path, prefix, True))
+        # A literal that equals a known key (`title: "navigation.rest"`, rendered later with `t(item.title)`)
+        # is a use of it. The overlay has not read the locale file when it is unchanged: it passes the base keys.
+        known = messages.keys() if self.locale_loaded else self.known_keys
+        for path, facts in live:
+            if not known:
+                break
+            for literal in sorted(facts.key_literals & known):
+                if (path, literal, False) not in uses:
+                    uses.add((path, literal, False))
+                    self.literal_key_uses.append((path, literal))
         values = Counter(messages.values())
         self.extra.update({
             "i18n_keys": len(messages), "i18n_distinct_values": len(values),
@@ -431,6 +558,11 @@ class _Build:
             "keys_used_in_locale": len(static_distinct & messages.keys()),
             "keys_used_not_in_locale": len(static_distinct - messages.keys()),
             "dynamic_key_uses": sum(1 for _, _, dyn in uses if dyn),
+            # `keys_used_*` above stay what `t(...)` calls name; the literal rule is counted on its own
+            "script_literal_key_uses": len(self.literal_key_uses),
+            "script_literal_keys_distinct": len({k for _, k in self.literal_key_uses}),
+            "script_literal_key_use_sample": [
+                {"file": f, "key": k} for f, k in sorted(self.literal_key_uses)[:_SAMPLE_CAP]],
         })
         self.n["key_uses"] = len(uses)
         return messages, [KeyUse(file=f, key=k, dynamic=d) for f, k, d in sorted(uses)]
@@ -493,10 +625,13 @@ class _Build:
     def _problem_stats(self) -> dict[str, Any]:
         pairs = [(f, k) for f, kinds in sorted(self.issues.items()) for k in sorted(kinds)]
         links = self.tree.symlinks
+        partial = parse_partial_reasons(pairs, len(self.texts))
         return {
             "parse_errors": len(pairs), "parse_error_files": len(self.issues),
             "parse_error_kinds": dict(sorted(Counter(k for _, k in pairs).items())),
             "parse_error_sample": [{"file": f, "kind": k} for f, k in pairs[:_UNLISTED_CAP]],
+            # True only when real content is missing (see `parse_partial_reasons`); `parse_errors` is the count
+            "parse_partial": bool(partial), "parse_partial_reasons": partial,
             "symlinks_skipped": len(links), "symlinks_skipped_sample": links[:_UNLISTED_CAP],
         }
 
@@ -538,6 +673,10 @@ class _Build:
             "tag_resolution_by": dict(sorted(self.tag_how.items())),
             "dynamic_component_count": self.n["dynamic_components"],
             "dynamic_components_resolved": self.n["dynamic_components_resolved"],
+            "dynamic_components_unexplained": self.n["dynamic_components_unexplained"],
+            "registered_renders": sum(self.registered.values()),
+            "registered_renders_by": dict(sorted(self.registered.items())),
+            "registered_components_external": self.n["registered_components_external"],
             "unresolved_tags": self.unresolved_tags,
             "unresolved_imports": self.n["unresolved_imports"], "unresolved_imports_sample": sorted(
                 self.unresolved_imports, key=lambda d: (d["file"], d["specifier"], d["reason"]))[:_UNLISTED_CAP],

@@ -48,7 +48,7 @@ def test_run_link_writes_artifacts_and_reports_what_it_did(tmp_path: Path):
 
     ui, req = out["ui_to_code"], out["req_to_ui"]
     assert ui["links_by_method"]["i18n_key"] > 0 and ui["linked_pct_named"] >= 70
-    assert set(ui["confidence_histogram"]["i18n_key"]) <= {"0.30", "0.45", "0.90"}
+    assert set(ui["confidence_histogram"]["i18n_key"]) <= {"0.15", "0.23", "0.30", "0.45", "0.90"}
     assert ui["unresolved_reasons"]["no_text"] == 159 and "wall_clock_s" in ui
     assert req["status"]["judged"] == 12 and req["confidence_histogram"]["bm25_judge"]
     assert out["llm"]["calls"] == len(client.calls) == ui["llm_pick_calls"] + req["judge_calls"]
@@ -57,6 +57,9 @@ def test_run_link_writes_artifacts_and_reports_what_it_did(tmp_path: Path):
 
     state = json.loads((run.run_dir / "links" / "link_state.json").read_text())
     assert state["bundle_hash"] == "c81a0323d1f5b4f5" and state["target"] == "hoppscotch"
+    # what gaps compares with the current artifacts before it trusts the state (case 48)
+    assert state["screens"] == 25 and len(state["crawl_sha"]) == 16
+    assert state["code_snapshot"] == "63273f8e599e73f0fb38c0739314e8d46b6bc83d"
     assert len(state["unresolved"]) == sum(ui["unresolved_reasons"].values())
     assert {r["status"] for r in state["requirements"].values()} == {"judged", "skipped", "no_candidates"}
 
@@ -160,3 +163,26 @@ def test_link_never_imports_evalkit():
     for path in (REPO / "src" / "blastradius" / "link").glob("*.py"):
         assert not pattern.search(path.read_text()), path
     assert hashlib.sha256(b"x").hexdigest()
+
+
+def test_corrupt_artifacts_are_failures_and_the_stage_goes_on_without_them(tmp_path: Path):
+    """(i) A truncated code index or requirement list used to raise out of `link`."""
+    run = make_run(tmp_path)
+    for rel in ("code/index.json", "spec/requirements.json", "spec/stats.json"):
+        path = run.run_dir / rel
+        path.write_text(path.read_text()[: len(path.read_text()) // 3])
+    out = run_link(run, cfg(), None, None)
+    assert out["ui_to_code"]["status"] == "skipped" and out["req_to_ui"]["status"] == "skipped"
+    named = {f["context"]["artifact"] for f in run.failures.items if f["code"] == "CONFIG_INVALID"
+             and "ignored" in f["message"]}
+    assert named == {"code/index.json", "spec/requirements.json", "spec/stats.json"}
+    assert out["inputs"]["index_invalid"] == 1 and out["inputs"]["requirements_invalid"] == 1
+    assert (run.run_dir / "links" / "links.jsonl").exists()
+
+
+def test_a_requirement_list_of_the_wrong_shape_is_a_failure_not_a_crash(tmp_path: Path):
+    run = make_run(tmp_path)
+    (run.run_dir / "spec" / "requirements.json").write_text('{"not": "a list"}')
+    out = run_link(run, cfg(), None, None)
+    assert out["inputs"]["requirements_invalid"] == 1 and out["inputs"]["requirements"] == 0
+    assert any("not a list" in f["message"] for f in run.failures.items)

@@ -95,7 +95,6 @@ class Hit(Strict):
     element_id: str
     element_role: str = ""
     element_name: str = ""
-    owner_file: str | None = None
     hidden_on_screen: bool = False
     impl_files: list[str] = Field(default_factory=list)       # every file the element is IMPLEMENTED_BY here
     routes: list[Route] = Field(default_factory=list)
