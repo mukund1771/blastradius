@@ -1,0 +1,36 @@
+{
+  "target": "hoppscotch",
+  "started_at": "2026-10-12T07:58:06.791+00:00",
+  "finished_at": "2026-10-12T07:59:20.527+00:00",
+  "screens": 25,
+  "elements": 770,
+  "transitions": 160,
+  "actions_spent": 46,
+  "actions_budget": 45,
+  "wall_clock_s": 73.74,
+  "blocked": 0,
+  "suspect": 1,
+  "disallowed": 0,
+  "stop_reason": "action_budget",
+  "app_version": null,
+  "bundle_hash": "c81a0323d1f5b4f5",
+  "bundle_hash_end": "c81a0323d1f5b4f5",
+  "url_patterns": [
+    "/",
+    "/*",
+    "/graphql",
+    "/realtime/mqtt",
+    "/realtime/socketio",
+    "/realtime/sse",
+    "/realtime/websocket",
+    "/settings"
+  ],
+  "effort_by_url_pattern": {
+    "/": 14,
+    "/*": 8,
+    "/graphql": 8,
+    "/realtime": 1,
+    "/settings": 8,
+    "/realtime/websocket": 7
+  }
+}

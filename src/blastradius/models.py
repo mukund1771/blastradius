@@ -126,6 +126,10 @@ class CrawlSummary(Strict):
     blocked: int = 0
     suspect: int = 0
     disallowed: int = 0
+    egress_blocked: int = 0                  # requests aborted by the allowlist (hosts are in crawl/stats.json)
+    policy_blocked: int = 0                  # actions refused by the safety classes
+    soft_404: int = 0                        # links that rendered the catch-all
+    restores: int = 0                        # state re-establishments (budget burn)
     stop_reason: Literal["frontier_empty", "action_budget", "time_budget", "circuit_breaker", "error"] = "frontier_empty"
     app_version: str | None = None
     bundle_hash: str | None = None           # hash of the main JS bundle name(s) at start; drift detector
@@ -229,6 +233,7 @@ class Link(Strict):
     method: str                       # route | i18n_key | literal_text | testid | llm_pick | bm25_judge | human
     evidence_id: str
     judge: str | None = None
+    screen_ids: list[str] = Field(default_factory=list)   # observations this link was derived on ([] = all)
 
 
 class GapKind(StrEnum):

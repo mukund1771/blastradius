@@ -1,0 +1,44 @@
+{
+  "policy": "heuristic",
+  "beam": 7,
+  "llm": {
+    "calls": 0,
+    "failures": 0
+  },
+  "screen_kinds": {
+    "page": 8,
+    "tab": 10,
+    "modal": 7
+  },
+  "egress_blocked": {
+    "eu-assets.i.posthog.com": 40,
+    "o1408531.ingest.us.sentry.io": 52,
+    "client.crisp.chat": 20,
+    "eu.posthog.com": 24,
+    "jrx67evef2-dsn.algolia.net": 1,
+    "jrx67evef2-1.algolianet.com": 1,
+    "jrx67evef2-3.algolianet.com": 1,
+    "jrx67evef2-2.algolianet.com": 1
+  },
+  "policy_blocked": {
+    "AUTH": 23,
+    "EXTERNAL_LINK": 48,
+    "NETWORK_SIDE_EFFECT": 10,
+    "DESTRUCTIVE": 3,
+    "EXTERNAL_WIDGET": 1
+  },
+  "soft_404": {
+    "mode": "render",
+    "redirect_pattern": null,
+    "urls": []
+  },
+  "robots": "HTTP 200",
+  "counts": {
+    "restores": 15,
+    "suspect": 1,
+    "noop_actions": 9,
+    "unrecoverable": 1
+  },
+  "rate_limited": false,
+  "error": null
+}

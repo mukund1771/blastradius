@@ -18,17 +18,25 @@ Source of truth for how the pieces fit. The *why* is in [DECISIONS.md](DECISIONS
 Every stage writes artifacts into one run directory and cites evidence ids. Nothing is passed between
 stages except the shapes in `models.py`.
 
+## Report model
+
+`report/model.py` defines `Report` (plain data: items per tier, claims with evidence ids, requirements at risk,
+undetermined, snapshot). `reason` produces it; `report.render` formats it; `report.lint` and `reason.verify`
+enforce the language rules in [REPORT_SPEC.md](REPORT_SPEC.md). Nothing in `Report` is HTML or Markdown.
+
 ## Run directory
 
 ```
 data/runs/<run_id>/
   manifest.json  trace.jsonl  ledger.jsonl  failures.jsonl  evidence.jsonl
-  crawl/{captures,screens,transitions}.jsonl  crawl/summary.json  crawl/screens/*.png  crawl/dom/*.html
+  crawl/{captures,screens,transitions}.jsonl  crawl/summary.json  crawl/stats.json  crawl/goal_effort.json
+  crawl/screens/*.png  crawl/dom/*.html  crawl/goals/<n>/...   (bounded goal-directed re-crawls, artifact_subdir)
   spec/{requirements.json,pages.json,stats.json}
   code/index.json
   graph/load.json
   links/{links,gaps,flows}.jsonl
-  reason/<pr>/{impact.json,grade.json,claims.json,report.md,report.html,needs_review.json}
+  reason/<pr>/{impact.json,grade.json,claims.json,report.json,report.md,report.html,needs_review.json}
+  eval/{results.json,eval.md}
 ```
 
 Shared services (all in `src/blastradius/`): `RunContext` (`run.py`), `LLM` (`llm.py`), `Tracer`,
@@ -57,6 +65,18 @@ def strip_secret_headers(headers) -> dict[str, str]             # Cookie / Set-C
 class IngestSource(Protocol): ...           # captures() iterator, optional act()
 class RecordedSession: ...                  # folder of NNN.html / NNN.png / NNN.json
 ```
+
+Contract notes after independent review (wave 1):
+
+- `Breaker`: only BLOCKED counts toward the threshold; SUSPECT and DISALLOWED are neutral (do not reset, do not
+  count), so `[BLOCKED, SUSPECT, BLOCKED]` trips. OK resets.
+- `IngestSource` is `(kind, capabilities: frozenset[str], captures())`; acting sources additionally implement the
+  `ActingSource` sub-protocol (`act(action) -> Capture`). `RecordedSession` returns html/screenshot paths
+  **relative to `session.folder`**.
+- `Capture.id` includes the access verdict, so a BLOCKED re-observation of a state first seen OK is a distinct
+  capture and is never dropped by id-based dedup. `append_capture` returns the evidence id.
+- Robots: `robots_allows(None, ...)` (unreadable) is DISALLOWED; the *caller* maps HTTP statuses to text/None
+  (4xx -> allow-all per RFC 9309, 5xx/network error -> None).
 
 Classifier rules: headers first on **any** status (`cf-mitigated: challenge`; `x-amzn-waf-action` arrives as
 202/405); Cloudflare Block page 403/1020 is a separate rule; generic title/anchor/fingerprint-collapse guards;
@@ -109,7 +129,10 @@ class GraphStore:
     def write_gaps(self, gaps, run_id: str) -> dict
     def write_flows(self, flows, run_id: str) -> dict
     def read(self, template: str, **params) -> list[dict]   # named templates only; read transactions only
-# queries.py: named, parameterised Cypher templates (impact, absence_near, hub_degree, ...). No f-strings.
+# queries.py + queries_*.py: named, parameterised Cypher templates (impact, absence_near, hub_degree, ...).
+# Every module graph/queries_*.py exposing TEMPLATES is merged (name collisions raise). No f-strings.
+# Links carry screen_ids; IMPLEMENTED_BY/REALIZED_BY store them and `impact` counts a screen only when the
+# edge's screen_ids is empty or contains it (per-screen attribution of canonical elements).
 # load.py
 def run_load(run, cfg, store) -> dict
 ```

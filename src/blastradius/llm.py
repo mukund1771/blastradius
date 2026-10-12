@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any, Literal, TypeVar
 
 import anthropic
+import pydantic
 from pydantic import BaseModel
 
 from .config import CACHE_DIR, Settings
@@ -191,6 +192,14 @@ class LLM:
                 return self._api_failure(sp, exc, f"HTTP {exc.status_code}")
             except anthropic.APIConnectionError as exc:
                 return self._api_failure(sp, exc, "network error")
+            except (pydantic.ValidationError, ValueError) as exc:
+                # messages.parse validates inside the SDK before we can read stop_reason: a truncated or
+                # malformed JSON body surfaces here, not as stop_reason == "max_tokens".
+                truncated = "EOF while parsing" in str(exc) or "unexpected end" in str(exc).lower()
+                code = FailureCode.LLM_TRUNCATED if truncated else FailureCode.LLM_SCHEMA_VIOLATION
+                self.run.failures.record(code, f"{purpose}: {type(exc).__name__}")
+                sp.fail(code, type(exc).__name__)
+                raise (LLMTruncated if truncated else LLMSchemaViolation)(f"{purpose}: {type(exc).__name__}") from exc
 
             usage = _usage_dict(resp.usage)
             rec_cost = self.run.ledger.record(span_id=sp.span_id, stage=None, purpose=purpose, model=model,

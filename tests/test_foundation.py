@@ -205,3 +205,40 @@ def test_long_hidden_comment_is_still_stripped():
 def test_unterminated_comment_swallows_the_rest():
     out = untrusted("keep <!-- never closed, then secret instructions", "pr#1")
     assert "secret instructions" not in out and out.count("keep") == 1
+
+
+def test_llm_maps_sdk_side_validation_errors(tmp_path: Path):
+    """messages.parse validates inside the SDK; a truncated/invalid body must become a recorded LLM failure."""
+    import pydantic
+
+    from blastradius.llm import LLMSchemaViolation, LLMTruncated
+
+    class _Raising(_FakeMessages):
+        def __init__(self, exc):
+            super().__init__(None)
+            self.exc = exc
+
+        def parse(self, **kw):
+            raise self.exc
+
+    def client_raising(exc):
+        c = _FakeClient(None)
+        c.messages = _Raising(exc)
+        return c
+
+    try:
+        Out.model_validate_json('{"answer": "cut off')
+    except pydantic.ValidationError as truncated_exc:
+        run, llm = _llm(tmp_path / "a", client_raising(truncated_exc))
+        llm._models["cheap"] = "claude-haiku-4-5"
+        with pytest.raises(LLMTruncated):
+            llm.structured(purpose="t", tier="cheap", system="s", user="u", schema=Out)
+        assert any(f["code"] == "LLM_TRUNCATED" for f in run.failures.items)
+    try:
+        Out.model_validate_json('{"wrong": 1}')
+    except pydantic.ValidationError as bad_exc:
+        run, llm = _llm(tmp_path / "b", client_raising(bad_exc))
+        llm._models["cheap"] = "claude-haiku-4-5"
+        with pytest.raises(LLMSchemaViolation):
+            llm.structured(purpose="t", tier="cheap", system="s", user="u", schema=Out)
+        assert any(f["code"] == "LLM_SCHEMA_VIOLATION" for f in run.failures.items)

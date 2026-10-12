@@ -43,6 +43,7 @@ class CrawlConfig(_Cfg):
         "delete", "remove", "clear", "reset", "sign out", "log out", "logout", "revoke", "deactivate", "purchase", "pay"])
     auth_words: list[str] = Field(default_factory=lambda: ["login", "log in", "sign in", "sign up", "register"])
     anchor: AnchorConfig = Field(default_factory=AnchorConfig)
+    version_regex: str | None = None             # group 1 = the deployed app version string, searched in the shell/bundle
 
 
 class SpecConfig(_Cfg):
