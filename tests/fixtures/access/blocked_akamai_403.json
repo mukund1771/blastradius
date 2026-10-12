@@ -1,0 +1,20 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "Akamai 'Access Denied' edge error: HTTP 403, server AkamaiGHost, a 'Reference #' id. Real pages HTML-escape the punctuation (&#32;&#35;), reproduced here from recall.",
+  "method": "GET",
+  "url": "https://www.example-retail.com/shop/",
+  "status": 403,
+  "headers": {
+    "content-type": "text/html",
+    "server": "AkamaiGHost",
+    "mime-version": "1.0",
+    "expires": "Mon, 12 Oct 2026 07:20:12 GMT",
+    "content-length": "321"
+  },
+  "body": "<HTML><HEAD>\n<TITLE>Access Denied</TITLE>\n</HEAD><BODY>\n<H1>Access Denied</H1>\n \nYou don't have permission to access \"http&#58;&#47;&#47;www&#46;example&#45;retail&#46;com&#47;shop&#47;\" on this server.<P>\nReference&#32;&#35;18&#46;2f4b1c02&#46;1760254412&#46;7a3d9e11\n</BODY>\n</HTML>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "akamai",
+    "signal": "body:access-denied+reference"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "Headers follow the measured nopCommerce response (cf-mitigated: challenge); the body is written from the documented interstitial markers (title, challenge-platform path).",
+  "method": "GET",
+  "url": "https://shop.example.com/",
+  "status": 403,
+  "headers": {
+    "date": "Mon, 12 Oct 2026 07:14:17 GMT",
+    "content-type": "text/html; charset=UTF-8",
+    "server": "cloudflare",
+    "cf-ray": "a4944e88eff17eda-MAA",
+    "cf-mitigated": "challenge",
+    "cache-control": "private, max-age=0, no-store"
+  },
+  "body": "<!DOCTYPE html><html lang=\"en-US\"><head><title>Just a moment...</title>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"><meta name=\"robots\" content=\"noindex,nofollow\">\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><meta http-equiv=\"refresh\" content=\"390\">\n<style>*{box-sizing:border-box;margin:0;padding:0}html{line-height:1.15}body{font-family:system-ui,sans-serif}</style>\n</head><body class=\"no-js\"><div class=\"main-wrapper\" role=\"main\"><div class=\"main-content\">\n<noscript><div class=\"h2\"><span id=\"challenge-error-text\">Enable JavaScript and cookies to continue</span></div></noscript>\n</div></div><script>(function(){window._cf_chl_opt={cvId:'3',cZone:'shop.example.com',cType:'managed',\ncRay:'a4944e88eff17eda',cH:'x',cUPMDTk:\"/?__cf_chl_tk=abc\",cFPWv:'g'};var a=document.createElement('script');\na.src='/cdn-cgi/challenge-platform/h/g/orchestrate/chl_page/v1?ray=a4944e88eff17eda';\ndocument.getElementsByTagName('head')[0].appendChild(a);}());</script></body></html>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "cloudflare",
+    "signal": "header:cf-mitigated=challenge"
+  }
+}

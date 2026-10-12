@@ -9,3 +9,4 @@ data/runs/*
 .pytest_cache/
 .ruff_cache/
 .cursor/
+data/cache/

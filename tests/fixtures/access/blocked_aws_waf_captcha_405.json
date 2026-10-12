@@ -1,0 +1,19 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "AWS WAF CAPTCHA action: HTTP 405 with x-amzn-waf-action: captcha (case 67). Header and status follow AWS WAF documentation; body is illustrative.",
+  "method": "GET",
+  "url": "https://www.example-store.com/s?k=headphones",
+  "status": 405,
+  "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "server": "CloudFront",
+    "x-amzn-waf-action": "captcha",
+    "x-amz-cf-id": "Bk3sJ0eYw9uLq2TdR7vPzH4mXnA8cFgVoIyKtEaWbN1xMQ=="
+  },
+  "body": "<html lang=\"en\"><head><title></title></head><body><div id=\"captcha-container\"></div>\n<script type=\"text/javascript\">window.awsWafCookieDomainList = [];\nwindow.gokuProps = {\"key\":\"AQIDAHjcYu\\/3GEx\",\"iv\":\"CgAAHRpSLwAAAA==\",\"context\":\"qO1h3cjV\"};</script>\n<script src=\"https://1c4f2b0a9e3d.edge.sdk.awswaf.com/1c4f2b0a9e3d/f2c1d9a7b6e8/captcha.js\"></script>\n<noscript><h1>JavaScript is disabled</h1>In order to continue, we need to verify that you're not a robot.\nThis requires JavaScript. Enable JavaScript and then reload the page.</noscript></body></html>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "aws_waf",
+    "signal": "header:x-amzn-waf-action=captcha"
+  }
+}

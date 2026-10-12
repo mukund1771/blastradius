@@ -1,0 +1,17 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "HUMAN / PerimeterX block page: HTTP 403, 'Press & Hold' widget text, collector host.",
+  "method": "GET",
+  "url": "https://www.example-tickets.com/event/7",
+  "status": 403,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "set-cookie": "_pxhd=REDACTED; Path=/"
+  },
+  "body": "<html lang=\"en\"><head><title>Access to this page has been denied</title><meta charset=\"utf-8\"></head><body><div class=\"px-captcha-container\"><h1>Please verify you are a human</h1><div id=\"px-captcha\"></div><p>Press &amp; Hold to confirm you are a human (and not a bot).</p></div><script>window._pxAppId='PXAbC123xy';window._pxHostUrl='https://collector-pxabc123xy.perimeterx.net';</script><script src=\"https://captcha.px-cdn.net/PXAbC123xy/captcha.js?a=c&m=0\"></script></body></html>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "perimeterx",
+    "signal": "body:press-and-hold"
+  }
+}

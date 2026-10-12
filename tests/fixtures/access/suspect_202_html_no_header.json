@@ -1,0 +1,16 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "HTTP 202 HTML where the app is expected, with the WAF header stripped by a proxy: looks like success, so the soft guard must catch it (case 67).",
+  "method": "GET",
+  "url": "https://www.example-store.com/",
+  "status": 202,
+  "headers": {
+    "content-type": "text/html; charset=UTF-8"
+  },
+  "body": "<html><head><title></title></head><body><div id=\"challenge-container\"></div></body></html>",
+  "expected": {
+    "verdict": "SUSPECT",
+    "vendor": null,
+    "signal": "status:202"
+  }
+}

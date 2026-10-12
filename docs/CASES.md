@@ -1,6 +1,6 @@
 # Cases register: what we might have missed
 
-76 cases from an adversarial read of the plan (66 from the red-team pass, 10 added by verifiers and critics).
+77 cases from an adversarial read of the plan (66 from the red-team pass, 11 added by verifiers, critics and a follow-up target check).
 This is an **appendix, not a TODO list**: about 31 items were tagged "handle now" and would cost more than 4h, so
 each case has exactly one build tier. At the end of the build every tier is converted to a final status with a
 code or test pointer:
@@ -140,3 +140,4 @@ Stages: `crawl` · `access` · `spec` · `code` · `pr` · `graph` · `reason` �
 | 65 | Observability | One `run_id`; JSONL spans per stage and LLM call; failure taxonomy; `trace tree <run_id>` | P0 |
 | 66 | Environment: Docker daemon off, no `ANTHROPIC_API_KEY`; system `urllib` fails TLS verification | `doctor` surfaces both; use `httpx`/certifi | DOC |
 | 74 | Home Assistant: cold load of `#/lovelace/home` renders empty for 16s+ (3/3) | Seed `#/lovelace/0` and assert a minimum element count before capture (target not built; recorded) | DEFER |
+| 77 | Authenticated crawl on a real account can mutate the owner's project (flags, destinations, invites, events) and captures real data (PostHog) | Not built. When added: a read-only action class, a dedicated test project, a human-made `storage_state`, redaction of captured DOM | DEFER |

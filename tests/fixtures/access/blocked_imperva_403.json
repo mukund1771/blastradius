@@ -1,0 +1,19 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "Imperva (Incapsula) block page: HTTP 403, iframe fallback text carrying the incident id.",
+  "method": "GET",
+  "url": "https://www.example-bank.com/login",
+  "status": 403,
+  "headers": {
+    "content-type": "text/html",
+    "x-iinfo": "11-33445566-0 0NNN RT(1760254500123 0) q(0 -1 -1 -1) r(0 -1)",
+    "x-cdn": "Imperva",
+    "set-cookie": "visid_incap_123456=REDACTED; path=/"
+  },
+  "body": "<html style=\"height:100%\"><head><META NAME=\"ROBOTS\" CONTENT=\"NOINDEX, NOFOLLOW\"><meta name=\"format-detection\" content=\"telephone=no\"></head><body style=\"margin:0px;height:100%\"><iframe id=\"main-iframe\" src=\"/_Incapsula_Resource?CWUDNSAI=24&incident_id=1234000123450000567-1\" frameborder=0 width=\"100%\" height=\"100%\">Request unsuccessful. Incapsula incident ID: 1234000123450000567-123456789012345678</iframe></body></html>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "imperva",
+    "signal": "body:incapsula-incident-id"
+  }
+}

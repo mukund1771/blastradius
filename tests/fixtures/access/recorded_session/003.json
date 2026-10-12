@@ -1,0 +1,15 @@
+{
+  "provenance": "measured",
+  "url": "https://demo.usememos.com/",
+  "final_url": "https://demo.usememos.com/",
+  "status": 200,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "cf-cache-status": "DYNAMIC",
+    "server": "cloudflare",
+    "cf-ray": "a4944e231f9e9818-MRS"
+  },
+  "parent_id": null,
+  "action": "goto",
+  "captured_at": "2026-10-12T07:14:01+00:00"
+}

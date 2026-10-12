@@ -1,0 +1,152 @@
+[Test fixture. Excerpt (3 pages, the changelog and workspaces pages trimmed) of https://docs.hoppscotch.io/llms-full.txt, MIT licence, fetched 2026-10-12. Text before the first `# title` + `Source:` pair is ignored by the splitter.]
+
+
+# Changelog
+Source: https://docs.hoppscotch.io/documentation/changelog
+
+Latest Hoppscotch releases, including new features, bug fixes, and performance improvements across the web, desktop, and CLI clients.
+
+For a full list of releases, visit the [GitHub Releases page](https://github.com/hoppscotch/hoppscotch/releases).
+
+## 2026.5.0
+
+*Released: May 22 – June 2, 2026*
+
+### New features
+
+* **OpenAPI 3.1 collection export** — You can now export [collections](/documentation/features/collections) as OpenAPI 3.1 specs, making it easier to share APIs with external tools.
+* **Collection-level pre-request and test scripts** — Define [pre-request and test scripts](/documentation/features/scripts) at the collection level so every request inside inherits the same setup and assertions.
+* **Configurable proxy URL** — Self-hosted admins can now set the proxy URL from environment variables or directly in the [admin dashboard](/documentation/self-host/enterprise-edition/admin-dashboard).
+* **Zoom level control on desktop** — The [desktop client](/documentation/clients/desktop/overview) now includes a zoom level setting so you can scale the UI to your preference.
+* **Mongolian translation** — Hoppscotch is now available in Mongolian. See the full list of [supported languages](/documentation/i18n).
+
+### Updates
+
+* **Improved syncing engine** — The sync system has been refactored to reduce duplication across clients, improving reliability across web and desktop [workspaces](/documentation/features/workspaces).
+* **Desktop keyboard layout handling** — Keyboard layout detection has been reworked for more predictable [shortcut behavior](/documentation/features/shortcuts) across platforms.
+* **Security hardening** — Additional security patches have been applied across the dependency chain in this release.
+
+### Bug fixes
+
+* **Published docs access control** — Public documentation links now revalidate the publisher's access before serving live data from team [collections](/documentation/features/collections), preventing data exposure when a member is removed after publishing.
+* **Secret variables stay local** — Values of secret [environment variables](/documentation/features/environments) no longer leak to the backend during sync.
+* **OpenAPI re-import preserves structure** — Re-importing an OpenAPI spec now keeps your existing folder tree intact. See [importing collections](/documentation/features/importer).
+* **Proxy settings load before requests** — Requests now wait for proxy settings to be ready before firing, avoiding misrouted calls on first load.
+* **Script imports preserved** — Pre-request and test [scripts](/documentation/features/scripts) now retain their imports correctly, including on WebKit-based browsers.
+* **Desktop fixes** — Resolved type mismatches and shell import issues in the desktop app for a smoother startup.
+* **Backend validation fixes** — Corrected validation on REST user request updates and class validator decorator usages.
+
+## 2026.3.0 & 2026.3.1
+
+*Released: March 27 – April 10, 2026*
+
+### New features
+
+* **Cloud for organizations on desktop** — The desktop app now supports cloud-connected organizations, so you can access your org workspaces directly from the [desktop client](/documentation/clients/desktop/overview).
+* **User workspace memberships in admin dashboard** — Admins can now view which workspaces a user belongs to from the [admin dashboard](/documentation/self-host/enterprise-edition/admin-dashboard), making it easier to manage team access.
+* **Optional SMTP authentication and TLS settings** — Self-hosted deployments can now configure `MAILER_SMTP_IGNORE_TLS` and run SMTP without authentication, giving you more flexibility when setting up [email for your instance](/documentation/self-host/enterprise-edition/prerequisites).
+
+### Updates
+
+* **Keyboard shortcuts on non-English layouts** — Shortcuts now work correctly regardless of your keyboard layout, including numpad support for tab switching. See [keyboard shortcuts](/documentation/features/shortcuts) for the full list.
+* **Clipboard shortcuts on Linux (desktop)** — The desktop app on Linux now includes a native Edit menu, restoring copy, paste, and other clipboard shortcuts.
+* **OAuth2 code challenge method** — Your PKCE code challenge method selection now persists correctly when using [OAuth2 authorization](/documentation/features/authorization).
+* **OpenAPI import improvements** — Importing OpenAPI specs now uses the operation title as a fallback name, and response examples are populated correctly. Learn more about [importing collections](/documentation/features/importer).
+
+### Bug fixes
+
+* Newly created folders now appear immediately in the save-as dialog when organizing [collections](/documentation/features/collections).
+* Fixed an issue where request history entries could lose fields when restored.
+* Team collections now load the full folder tree when importing a workspace.
+* File attachments are now handled correctly when generating HAR exports.
+* Tooltips on icon-only buttons inside popovers are restored.
+* Fixed an infinite retry loop that could occur when authentication tokens expired permanently.
+* Resolved several security hardening fixes across the platform.
+
+
+# Cookies
+Source: https://docs.hoppscotch.io/documentation/features/cookies
+
+Use the Hoppscotch Cookie Manager to add, edit, and remove cookies for specific domains. Send cookies with API requests in the Desktop App.
+
+<Info>Cookies support is only available in the [Hoppscotch Desktop App](/documentation/clients/desktop/overview).</Info>
+
+Hoppscotch Cookie Manager enables you to add, edit, and remove cookies for a domain. You can also send a cookie with a request.
+
+To open the Cookie Manager, click on the "**Cookies**" button in the bottom bar.
+
+### Adding a domain
+
+The Cookie Manager allows you to specify a domain and add the cookies associated with that domain. You can remove all the domains using the "**Clear All**" button.
+
+1. Add domain URL in the input field.
+2. Click on the "**Add**" button.
+3. Click on the "**Save**" button.
+
+Once you've specified a domain, you can add a cookie by clicking the **+** icon and entering a cookie string.
+
+### Removing a domain
+
+You can remove a domain by clicking on the "**Delete**" icon from the Cookie Manager.
+
+### Adding a cookie
+
+You can add a cookie by clicking on the "**+**" icon from the Cookie Manager.
+
+1. Click on the "**+**" icon.
+2. Enter the cookie string in the input field.
+3. Click on the "**Save**" button.
+
+### Editing a cookie
+
+You can edit a cookie by clicking on the "**Edit**" icon from the Cookie Manager.
+
+1. Click on the "**Edit**" icon.
+2. Edit the cookie string in the input field.
+3. Click on the "**Save**" button.
+
+### Removing a cookie
+
+You can remove a cookie by clicking on the "**Delete**" icon from the Cookie Manager.
+
+### Sending a cookie with requests
+
+When you send a request to a domain for which you've specified a cookie, Hoppscotch will automatically include it as part of the request.
+
+
+# Workspaces
+Source: https://docs.hoppscotch.io/documentation/features/workspaces
+
+Organize your requests, collections, and environments into different workspaces. You can also invite other users to your workspace to collaborate.
+
+Once you are logged into Hoppscotch, you can toggle between multiple workspaces to organize your workflow.
+
+You can choose between your workspace titled "**Personal Workspace**" or create a workspace for your teams so that you can collaborate.
+
+<Note>Currently, organizing requests across multiple shared workspaces is limited to RESTful protocol. GraphQL and Realtime APIs are available only in the personal workspace and are not supported for collaboration in shared workspaces.</Note>
+
+## Create a workspace
+
+To create a workspace, click on the **"+"** icon on the top right corner of the workspace switcher. Alternatively, you can also click on the "**Create new workspace**" button on the "[Profile](https://hoppscotch.io/profile)" page under the "**Workspaces**" section.
+
+Creating a workspace makes you the owner of the workspace. You can invite other users to the workspace and assign them roles.
+
+## Invite users to a workspace
+
+To invite users to a workspace, click on the "**Invite**" button and enter the email address of the user you want to invite. You can invite multiple users at once by adding the email addresses in the input field.
+
+## Switch between workspaces
+
+To switch between workspaces, click on the workspace switcher in the top right corner of the app and select the workspace you want to switch to.
+
+## Edit a workspace
+
+<Warning>You can only edit a workspace if you are the owner of the workspace.</Warning>
+
+### Rename a workspace
+
+To rename a workspace, click on the workspace settings button on the top right corner of the app. Then click on the workspace name and enter the new name.
+
+### Remove a user from a workspace
+
+To remove a user from a workspace, click on the workspace settings button on the top right corner of the app. Then click on the "**Delete**" button on the user you want to remove from the workspace.

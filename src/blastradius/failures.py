@@ -29,6 +29,10 @@ class FailureCode(StrEnum):
     # spec
     QUOTE_NOT_IN_SOURCE = "QUOTE_NOT_IN_SOURCE"
     SPEC_STALE = "SPEC_STALE"
+    SPEC_FETCH_FAILED = "SPEC_FETCH_FAILED"
+    # code
+    CODE_CHECKOUT_FAILED = "CODE_CHECKOUT_FAILED"
+    CODE_PARSE_PARTIAL = "CODE_PARSE_PARTIAL"
     # graph
     GRAPH_CONN_FAILED = "GRAPH_CONN_FAILED"
     GRAPH_WRITE_FAILED = "GRAPH_WRITE_FAILED"
@@ -59,6 +63,9 @@ META: dict[FailureCode, tuple[str, bool, str]] = {
     FailureCode.LLM_OFFLINE_MISS: ("llm", False, "Offline mode and no cached response for this request."),
     FailureCode.QUOTE_NOT_IN_SOURCE: ("spec", False, "A requirement's quote is not a substring of the source; it was dropped."),
     FailureCode.SPEC_STALE: ("spec", False, "The spec's newest version predates the app version; absences may be spec drift."),
+    FailureCode.SPEC_FETCH_FAILED: ("spec", True, "The spec could not be fetched or contained no pages (transport error, HTTP error, empty document)."),
+    FailureCode.CODE_CHECKOUT_FAILED: ("code", True, "Could not fetch or check out the repository ref (network, auth, or ref not found)."),
+    FailureCode.CODE_PARSE_PARTIAL: ("code", False, "Some source files could not be parsed; the index is incomplete and says how many."),
     FailureCode.GRAPH_CONN_FAILED: ("graph", True, "Could not connect to Neo4j. Is Docker running? Run `blastradius doctor`."),
     FailureCode.GRAPH_WRITE_FAILED: ("graph", True, "A graph write failed."),
     FailureCode.PR_PATH_MISSING_AT_HEAD: ("reason", False, "A changed path does not exist in the indexed snapshot (stale base, rename, or new file)."),

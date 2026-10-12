@@ -1,0 +1,21 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "Bot-management cookies and informational headers on an ordinary 200 page: _abck, bm_sz, datadome, __cf_bm, _px3, visid_incap_*, aws-waf-token, plus server AkamaiGHost and x-datadome-* headers. Presence is never a block (D13).",
+  "method": "GET",
+  "url": "https://www.example-retail.com/",
+  "status": 200,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "server": "AkamaiGHost",
+    "cf-ray": "a4944e90aa11bb22-BOM",
+    "x-datadome": "protected",
+    "x-datadome-cid": "AHrlqAAAAAMA",
+    "x-datadome-response": "200",
+    "set-cookie": "_abck=REDACTED; bm_sz=REDACTED; datadome=REDACTED; __cf_bm=REDACTED; _px3=REDACTED; visid_incap_123456=REDACTED; incap_ses_1_2_3=REDACTED; aws-waf-token=REDACTED"
+  },
+  "body": "<!doctype html><html><head><title>Example Retail: Home</title></head><body><div id=\"app\"></div></body></html>",
+  "expected": {
+    "verdict": "OK",
+    "vendor": null
+  }
+}

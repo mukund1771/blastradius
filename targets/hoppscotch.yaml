@@ -47,6 +47,9 @@ spec:
   include_pages:
     - "documentation/features/"
     - "getting-started/(rest|graphql|realtime)/"
+    - "documentation/protocols/"
+    - "documentation/getting-started/(introduction|quick-start)"
+    - "documentation/clients/web/"
   exclude_pages:
     - "self-host"
     - "privacy"
@@ -71,6 +74,17 @@ code:
     - packages/hoppscotch-common/src/layouts/default.vue
   hub_packages:
     - "@hoppscotch/data"
+  # Verified against packages/hoppscotch-common/tsconfig.json, packages/hoppscotch-selfhost-web/tsconfig.json
+  # and selfhost-web's vite.config.ts resolve.alias (2026-10-12).
   alias:
     "~/": packages/hoppscotch-common/src/
+    "@composables/": packages/hoppscotch-common/src/composables/
+    "@components/": packages/hoppscotch-common/src/components/
+    "@helpers/": packages/hoppscotch-common/src/helpers/
+    "@modules/": packages/hoppscotch-common/src/modules/
+    "@workers/": packages/hoppscotch-common/src/workers/
+    "@services/": packages/hoppscotch-common/src/services/
+    "@platform/": packages/hoppscotch-common/src/platform/
+    "@functional/": packages/hoppscotch-common/src/helpers/functional/
+    "@hoppscotch/common/": packages/hoppscotch-common/src/
     "@app/": packages/hoppscotch-selfhost-web/src/

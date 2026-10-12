@@ -1,0 +1,15 @@
+{
+  "provenance": "synthesized from documented markers",
+  "url": "https://hoppscotch.io/graphql",
+  "final_url": "https://hoppscotch.io/graphql",
+  "status": 403,
+  "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "server": "cloudflare",
+    "cf-ray": "a4944e88eff17eda-MAA"
+  },
+  "title": "Just a moment...",
+  "parent_id": "recorded:001",
+  "action": "goto /graphql",
+  "captured_at": "2026-10-12T07:14:05+00:00"
+}

@@ -1,0 +1,19 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "A Cloudflare Block page (error 1020): HTTP 403, NO cf-mitigated header (case 68). Written from the documented page markers (title 'Attention Required', error code 1020).",
+  "method": "GET",
+  "url": "https://shop.example.com/cart",
+  "status": 403,
+  "headers": {
+    "content-type": "text/html; charset=UTF-8",
+    "server": "cloudflare",
+    "cf-ray": "a4944e91cc33dd44-BOM",
+    "cache-control": "private, max-age=0, no-store"
+  },
+  "body": "<!DOCTYPE html>\n<html class=\"no-js\" lang=\"en-US\"><head><title>Attention Required! | Cloudflare</title>\n<meta charset=\"UTF-8\" /><meta name=\"robots\" content=\"noindex, nofollow\" /></head>\n<body><div id=\"cf-wrapper\"><div id=\"cf-error-details\" class=\"cf-error-details-wrapper\">\n<div class=\"cf-wrapper cf-header cf-error-overview\"><h1 data-translate=\"block_headline\">Sorry, you have been blocked</h1>\n<h2 class=\"cf-subheadline\"><span data-translate=\"unable_to_access\">You are unable to access</span> shop.example.com</h2></div>\n<div class=\"cf-section cf-highlight\"><div class=\"cf-wrapper\"><div class=\"cf-screenshot-container\">\n<span class=\"cf-code-label\">Error code <span>1020</span></span></div>\n<h2 data-translate=\"blocked_why_headline\">Why have I been blocked?</h2>\n<p data-translate=\"blocked_why_detail\">This website is using a security service to protect itself from online attacks.</p>\n</div></div><div class=\"cf-error-footer cf-wrapper w-240 lg:w-full py-10 sm:py-4 sm:px-8 mx-auto text-center\">\n<p class=\"text-13\"><span class=\"cf-footer-item sm:block sm:mb-1\">Cloudflare Ray ID: <strong class=\"font-semibold\">a4944e88eff17eda</strong></span>\n<span class=\"cf-footer-separator sm:hidden\">&bull;</span>\n<span class=\"cf-footer-item hidden sm:block sm:mb-1\">Performance &amp; security by <a rel=\"noopener noreferrer\" href=\"https://www.cloudflare.com/5xx-error-landing\" target=\"_blank\">Cloudflare</a></span></p>\n</div></div></div></body></html>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "cloudflare",
+    "signal": "body:cloudflare-block-page"
+  }
+}

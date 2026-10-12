@@ -1,0 +1,26 @@
+{
+  "home": {
+    "title": "Welcome to Acme",
+    "cta": "Get started",
+    "unused": "Never referenced"
+  },
+  "request": {
+    "url": "Enter URL",
+    "send": "Send"
+  },
+  "state": {
+    "open": "Open",
+    "closed": "Closed"
+  },
+  "tab": {
+    "rest": "REST",
+    "graphql": "GraphQL"
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "shared": {
+    "copy": "Copy",
+    "url": "Copy"
+  }
+}

@@ -68,6 +68,8 @@ class CodeConfig(_Cfg):
     global_files: list[str] = Field(default_factory=list)   # layout/global style: widest radius
     hub_packages: list[str] = Field(default_factory=list)   # e.g. @hoppscotch/data
     alias: dict[str, str] = Field(default_factory=dict)     # import alias -> repo path prefix
+    generated_files: list[str] = Field(default_factory=list)   # codegen outputs (imported, often gitignored)
+    components_dirs: list[str] = Field(default_factory=list)   # auto-import component roots (namespace fallback)
 
 
 class TargetConfig(_Cfg):

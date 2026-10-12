@@ -15,7 +15,7 @@ Things marked *verifier-reported* were not independently checked on this machine
 | 2 | WAF-protected apps, "Amazon-class", another set of sites | Detect, quarantine, degrade; never defeat. Sylius v2 slice as second target | D11-D15 |
 | 3 | Small observability + trace | JSONL tracer, evidence + cost ledger, failure enum, `doctor` | D16, D27 |
 | 4 | LLM judge + CRAG / graph RAG used in the reasoning phase | CRAG-inspired grader at stage 7b, demote-only residue judge; GraphRAG communities cut | D17-D22 |
-| 5 | Log approaches, think about missed cases | This file, CASES.md (76 cases), RECON.md | D31 |
+| 5 | Log approaches, think about missed cases | This file, CASES.md (77 cases), RECON.md | D31 |
 | 6 | Time | ~8h, finish by end of day, hard stop on features ~6:45 | D31 |
 
 ## 2. Decisions
@@ -28,7 +28,7 @@ Things marked *verifier-reported* were not independently checked on this machine
 | D02 | **Claude via API.** Model ids live in `config.py`; `doctor` retrieves them | Hard-pinned ids: Haiku 4.5 retirement "not sooner than 2026-10-15" and `claude-haiku-5-5` current (*verifier-reported*) | decided (user) |
 | D03 | **Neo4j Community in Docker** | Aura (account); Kuzu (no py3.14 wheel, verified); networkx (kept as an eval-only mirror) | decided (user) |
 | D04 | **Playwright + own explorer** | browser-use (opaque trajectory, not a graph artifact); Stagehand; record-replay (seeds only, P1) | decided |
-| D05 | **Target: Hoppscotch** | Memos (guest surface ~6 routes, editor behind SSO); Saleor storefront (no consumer PRD, repo in flux); Home Assistant (shadow DOM, 3-4h) | decided |
+| D05 | **Target: Hoppscotch** | Memos (guest surface ~6 routes, editor behind SSO); Saleor storefront (no consumer PRD, repo in flux); Home Assistant (shadow DOM, 3-4h); PostHog (login-gated, see D34) | decided |
 | D06 | **Demo PRs #6645 (primary), #6641, #6658**, all open, fork heads | Merged #6447: already in main, post-hoc only, cannot be predictive | decided |
 
 ### Architecture
@@ -54,6 +54,13 @@ Things marked *verifier-reported* were not independently checked on this machine
 | D15 | **Second target = Sylius v2 slice to a stated bar**, `target` namespace, `CodeAdapter` protocol | Recon-only (user wants a real slice); Home Assistant; Memos; full depth (breaks Hoppscotch depth) | decided (user) |
 | D32 | **Headers first on any status**: AWS challenge arrives as `202`, CAPTCHA as `405`; Cloudflare Block (403/1020) has no `cf-mitigated` | Status-code fallback `{403,429,503}`: misses the 202 (looks like success) | decided |
 | D33 | **Vendor rows beyond Cloudflare + AWS labelled "synthesized from documented markers"** | Presenting Akamai/DataDome/Imperva/PerimeterX rows as verified (secondary-sourced; DataDome `x-datadome-*` are internal API headers) | decided |
+
+### Considered after the fact (user-raised)
+
+| ID | Decision | Alternatives (why not) | Status |
+|---|---|---|---|
+| D34 | **Stay on Hoppscotch; PostHog logged as a P2 "code + PR half only" second target** (repo, docs, source maps, `commit_sha`; no live crawl). User asked "why not PostHog?" and the same five-point checklist was run | Switch to PostHog: guests reach only login/signup, signup is risk-gated and account creation is off-limits for the agent, so the crawl needs a human-made `storage_state` on a real account that an authenticated crawl could mutate; ~9k `.tsx`, 98 products and hundreds of feature flags would eat the budget; docs are an index with ~15-25 guest-observable requirements; open guest-observable PRs: 0 in sample (feasibility 3/10, researcher + verifier agree) | decided (user) |
+| D35 | **The testid rung reads configurable attributes** (`data-testid` and `data-attr`), not a fixed one. Costs one config field; PostHog shows `data-attr` in 2,576 files and in the prod DOM, Hoppscotch shows ~0 | Hard-code `data-testid` (the Hoppscotch rung would stay empty and the abstraction would be wrong for the next target) | decided (P1 with the Sylius slice) |
 
 ### Reasoning phase (user-raised)
 

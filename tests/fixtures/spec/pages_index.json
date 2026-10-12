@@ -1,0 +1,522 @@
+[
+ {
+  "title": "Changelog",
+  "url": "https://docs.hoppscotch.io/documentation/changelog",
+  "chars": 8426
+ },
+ {
+  "title": "Hoppscotch CLI",
+  "url": "https://docs.hoppscotch.io/documentation/clients/cli/overview",
+  "chars": 13412
+ },
+ {
+  "title": "Hoppscotch CLI Troubleshooting",
+  "url": "https://docs.hoppscotch.io/documentation/clients/cli/troubleshooting",
+  "chars": 3221
+ },
+ {
+  "title": "Hoppscotch Desktop App",
+  "url": "https://docs.hoppscotch.io/documentation/clients/desktop/overview",
+  "chars": 2763
+ },
+ {
+  "title": "Connect to Hoppscotch",
+  "url": "https://docs.hoppscotch.io/documentation/clients/desktop/setup",
+  "chars": 3412
+ },
+ {
+  "title": "Hoppscotch MCP Server",
+  "url": "https://docs.hoppscotch.io/documentation/clients/mcp-server/overview",
+  "chars": 23499
+ },
+ {
+  "title": "Hoppscotch MCP Server Tools",
+  "url": "https://docs.hoppscotch.io/documentation/clients/mcp-server/tools",
+  "chars": 18623
+ },
+ {
+  "title": "Hoppscotch MCP Server Troubleshooting",
+  "url": "https://docs.hoppscotch.io/documentation/clients/mcp-server/troubleshooting",
+  "chars": 20353
+ },
+ {
+  "title": "Hoppscotch Web App",
+  "url": "https://docs.hoppscotch.io/documentation/clients/web/overview",
+  "chars": 370
+ },
+ {
+  "title": "Hoppscotch Progressive Web App",
+  "url": "https://docs.hoppscotch.io/documentation/clients/web/pwa",
+  "chars": 1184
+ },
+ {
+  "title": "Hoppscotch community",
+  "url": "https://docs.hoppscotch.io/documentation/community",
+  "chars": 953
+ },
+ {
+  "title": "Contributors",
+  "url": "https://docs.hoppscotch.io/documentation/contributors",
+  "chars": 567
+ },
+ {
+  "title": "Develop",
+  "url": "https://docs.hoppscotch.io/documentation/develop",
+  "chars": 6261
+ },
+ {
+  "title": "AI Features",
+  "url": "https://docs.hoppscotch.io/documentation/features/ai-features",
+  "chars": 4286
+ },
+ {
+  "title": "Authorization",
+  "url": "https://docs.hoppscotch.io/documentation/features/authorization",
+  "chars": 11353
+ },
+ {
+  "title": "Client Certificate",
+  "url": "https://docs.hoppscotch.io/documentation/features/client-certificate",
+  "chars": 2173
+ },
+ {
+  "title": "Collections",
+  "url": "https://docs.hoppscotch.io/documentation/features/collections",
+  "chars": 3203
+ },
+ {
+  "title": "Context Menu",
+  "url": "https://docs.hoppscotch.io/documentation/features/context-menu",
+  "chars": 1775
+ },
+ {
+  "title": "Cookies",
+  "url": "https://docs.hoppscotch.io/documentation/features/cookies",
+  "chars": 1705
+ },
+ {
+  "title": "Customization",
+  "url": "https://docs.hoppscotch.io/documentation/features/customization",
+  "chars": 906
+ },
+ {
+  "title": "API Documentation",
+  "url": "https://docs.hoppscotch.io/documentation/features/documentation",
+  "chars": 7903
+ },
+ {
+  "title": "Environments",
+  "url": "https://docs.hoppscotch.io/documentation/features/environments",
+  "chars": 4651
+ },
+ {
+  "title": "GraphQL API Testing",
+  "url": "https://docs.hoppscotch.io/documentation/features/graphql-api-testing",
+  "chars": 1316
+ },
+ {
+  "title": "History",
+  "url": "https://docs.hoppscotch.io/documentation/features/history",
+  "chars": 1460
+ },
+ {
+  "title": "Importer",
+  "url": "https://docs.hoppscotch.io/documentation/features/importer",
+  "chars": 6187
+ },
+ {
+  "title": "Inspections",
+  "url": "https://docs.hoppscotch.io/documentation/features/inspections",
+  "chars": 792
+ },
+ {
+  "title": "Interceptor",
+  "url": "https://docs.hoppscotch.io/documentation/features/interceptor",
+  "chars": 13151
+ },
+ {
+  "title": "API Mocking",
+  "url": "https://docs.hoppscotch.io/documentation/features/mock",
+  "chars": 6644
+ },
+ {
+  "title": "Personal Access Token",
+  "url": "https://docs.hoppscotch.io/documentation/features/pat",
+  "chars": 2302
+ },
+ {
+  "title": "Realtime API Testing",
+  "url": "https://docs.hoppscotch.io/documentation/features/realtime-api-testing",
+  "chars": 840
+ },
+ {
+  "title": "RESTful API Testing",
+  "url": "https://docs.hoppscotch.io/documentation/features/rest-api-testing",
+  "chars": 1262
+ },
+ {
+  "title": "Runner",
+  "url": "https://docs.hoppscotch.io/documentation/features/runner",
+  "chars": 2309
+ },
+ {
+  "title": "Scripts",
+  "url": "https://docs.hoppscotch.io/documentation/features/scripts",
+  "chars": 40009
+ },
+ {
+  "title": "Shortcuts",
+  "url": "https://docs.hoppscotch.io/documentation/features/shortcuts",
+  "chars": 1699
+ },
+ {
+  "title": "Code Snippets",
+  "url": "https://docs.hoppscotch.io/documentation/features/snippets",
+  "chars": 1074
+ },
+ {
+  "title": "Spotlight",
+  "url": "https://docs.hoppscotch.io/documentation/features/spotlight",
+  "chars": 1766
+ },
+ {
+  "title": "Variables",
+  "url": "https://docs.hoppscotch.io/documentation/features/variables",
+  "chars": 6474
+ },
+ {
+  "title": "Widgets",
+  "url": "https://docs.hoppscotch.io/documentation/features/widgets",
+  "chars": 2434
+ },
+ {
+  "title": "Workspaces",
+  "url": "https://docs.hoppscotch.io/documentation/features/workspaces",
+  "chars": 3533
+ },
+ {
+  "title": "Hoppscotch Clients",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/clients",
+  "chars": 1645
+ },
+ {
+  "title": "Running a simple query",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/graphql/creating-a-query",
+  "chars": 2245
+ },
+ {
+  "title": "Using variables in a GraphQL query",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/graphql/using-variables",
+  "chars": 1355
+ },
+ {
+  "title": "Introduction to Hoppscotch",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/introduction",
+  "chars": 1575
+ },
+ {
+  "title": "Quick start",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/quick-start",
+  "chars": 2353
+ },
+ {
+  "title": "MQTT",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/realtime/mqtt",
+  "chars": 1356
+ },
+ {
+  "title": "Socket.IO",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/realtime/socket-io",
+  "chars": 944
+ },
+ {
+  "title": "Server-Sent Events",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/realtime/sse",
+  "chars": 786
+ },
+ {
+  "title": "Websocket",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/realtime/websocket",
+  "chars": 701
+ },
+ {
+  "title": "Using auth tokens",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/auth-tokens",
+  "chars": 2094
+ },
+ {
+  "title": "Creating a request",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/creating-a-request",
+  "chars": 2130
+ },
+ {
+  "title": "Environment variables",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/environment-variables",
+  "chars": 1335
+ },
+ {
+  "title": "Organizing requests",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/organizing-requests",
+  "chars": 958
+ },
+ {
+  "title": "Pre-request scripts",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/pre-request-scripts",
+  "chars": 3141
+ },
+ {
+  "title": "Request headers",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/request-headers",
+  "chars": 2068
+ },
+ {
+  "title": "Request parameters",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/request-parameters",
+  "chars": 1885
+ },
+ {
+  "title": "Response handling",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/response-handling",
+  "chars": 6448
+ },
+ {
+  "title": "Tests",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/tests",
+  "chars": 3492
+ },
+ {
+  "title": "Uploading data",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/rest/uploading-data",
+  "chars": 2691
+ },
+ {
+  "title": "Setup Hoppscotch",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/setup",
+  "chars": 1672
+ },
+ {
+  "title": "Troubleshooting",
+  "url": "https://docs.hoppscotch.io/documentation/getting-started/troubleshooting",
+  "chars": 2231
+ },
+ {
+  "title": "i18n",
+  "url": "https://docs.hoppscotch.io/documentation/i18n",
+  "chars": 2754
+ },
+ {
+  "title": "GraphQL",
+  "url": "https://docs.hoppscotch.io/documentation/protocols/graphql",
+  "chars": 3781
+ },
+ {
+  "title": "Realtime",
+  "url": "https://docs.hoppscotch.io/documentation/protocols/realtime",
+  "chars": 3498
+ },
+ {
+  "title": "RESTful",
+  "url": "https://docs.hoppscotch.io/documentation/protocols/rest",
+  "chars": 4109
+ },
+ {
+  "title": "Community Edition admin dashboard",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/community-edition/admin-dashboard",
+  "chars": 10385
+ },
+ {
+  "title": "Deploy and upgrade Community Edition",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/community-edition/deploy-and-upgrade",
+  "chars": 2713
+ },
+ {
+  "title": "Getting started with Community Edition",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/community-edition/getting-started",
+  "chars": 1249
+ },
+ {
+  "title": "Install and build Community Edition",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/community-edition/install-and-build",
+  "chars": 11506
+ },
+ {
+  "title": "Community Edition prerequisites",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/community-edition/prerequisites",
+  "chars": 6777
+ },
+ {
+  "title": "Set up and access Community Edition",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/community-edition/setup-and-access",
+  "chars": 1390
+ },
+ {
+  "title": "Community Edition telemetry",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/community-edition/telemetry",
+  "chars": 1522
+ },
+ {
+  "title": "Activity logs",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/activity-logs",
+  "chars": 3216
+ },
+ {
+  "title": "Enterprise Edition admin dashboard",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/admin-dashboard",
+  "chars": 16393
+ },
+ {
+  "title": "AI Assistant",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/ai-assistant",
+  "chars": 6861
+ },
+ {
+  "title": "Deploy and upgrade Enterprise Edition",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/deploy-and-upgrade",
+  "chars": 2795
+ },
+ {
+  "title": "Getting started with Enterprise Edition",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/getting-started",
+  "chars": 1323
+ },
+ {
+  "title": "Install and build Enterprise Edition",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/install-and-build",
+  "chars": 16021
+ },
+ {
+  "title": "Observability",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/observability",
+  "chars": 9768
+ },
+ {
+  "title": "Enterprise Edition prerequisites",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/prerequisites",
+  "chars": 9745
+ },
+ {
+  "title": "Set up and access Enterprise Edition",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/setup-and-access",
+  "chars": 1387
+ },
+ {
+  "title": "Enterprise Edition telemetry",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/telemetry",
+  "chars": 2318
+ },
+ {
+  "title": "User groups",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/user-groups",
+  "chars": 2685
+ },
+ {
+  "title": "SCIM Integration for User and Group Provisioning",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/enterprise-edition/user-provisioning",
+  "chars": 5003
+ },
+ {
+  "title": "Getting started with self-hosting",
+  "url": "https://docs.hoppscotch.io/documentation/self-host/getting-started",
+  "chars": 4005
+ },
+ {
+  "title": "Index",
+  "url": "https://docs.hoppscotch.io/guides/articles",
+  "chars": 1896
+ },
+ {
+  "title": "Audit Logs in Hoppscotch",
+  "url": "https://docs.hoppscotch.io/guides/articles/audit-logs",
+  "chars": 7461
+ },
+ {
+  "title": "Improving your API workflow",
+  "url": "https://docs.hoppscotch.io/guides/articles/improving-your-api-workflow",
+  "chars": 1977
+ },
+ {
+  "title": "Managing your Enterprise License Key",
+  "url": "https://docs.hoppscotch.io/guides/articles/manage-an-enterprise-license-key",
+  "chars": 2269
+ },
+ {
+  "title": "RESTful API testing with Hoppscotch",
+  "url": "https://docs.hoppscotch.io/guides/articles/restful-api-testing-with-hoppscotch",
+  "chars": 4441
+ },
+ {
+  "title": "Self-Host Hoppscotch on your own servers",
+  "url": "https://docs.hoppscotch.io/guides/articles/self-host-hoppscotch-on-your-own-servers",
+  "chars": 12310
+ },
+ {
+  "title": "Set Up OpenTelemetry Stack with Docker",
+  "url": "https://docs.hoppscotch.io/guides/articles/set-up-opentelemetry-stack-with-docker",
+  "chars": 5470
+ },
+ {
+  "title": "Understanding the GraphQL Schema on Hoppscotch",
+  "url": "https://docs.hoppscotch.io/guides/articles/understanding-graphql",
+  "chars": 2037
+ },
+ {
+  "title": "Uplifting web experience with Hoppscotch Widgets",
+  "url": "https://docs.hoppscotch.io/guides/articles/uplifting-web-experience-with-hoppscotch-widgets",
+  "chars": 3057
+ },
+ {
+  "title": "Introduction to guides",
+  "url": "https://docs.hoppscotch.io/guides/getting-started/introduction",
+  "chars": 848
+ },
+ {
+  "title": "Code of conduct",
+  "url": "https://docs.hoppscotch.io/support/code-of-conduct",
+  "chars": 5620
+ },
+ {
+  "title": "Contact",
+  "url": "https://docs.hoppscotch.io/support/getting-started/contact",
+  "chars": 1607
+ },
+ {
+  "title": "Frequently Asked Questions",
+  "url": "https://docs.hoppscotch.io/support/getting-started/faq",
+  "chars": 4116
+ },
+ {
+  "title": "Introduction to support",
+  "url": "https://docs.hoppscotch.io/support/getting-started/introduction",
+  "chars": 707
+ },
+ {
+  "title": "License",
+  "url": "https://docs.hoppscotch.io/support/license",
+  "chars": 1198
+ },
+ {
+  "title": "Privacy policy",
+  "url": "https://docs.hoppscotch.io/support/privacy",
+  "chars": 21436
+ },
+ {
+  "title": "Security policy",
+  "url": "https://docs.hoppscotch.io/support/security-policy",
+  "chars": 19368
+ },
+ {
+  "title": "Community support",
+  "url": "https://docs.hoppscotch.io/support/solutions/community",
+  "chars": 1114
+ },
+ {
+  "title": "Hoppscotch Experts",
+  "url": "https://docs.hoppscotch.io/support/solutions/experts",
+  "chars": 777
+ },
+ {
+  "title": "Terms and conditions",
+  "url": "https://docs.hoppscotch.io/support/terms",
+  "chars": 3621
+ }
+]

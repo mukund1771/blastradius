@@ -1,0 +1,15 @@
+{
+  "provenance": "measured",
+  "url": "https://hoppscotch.io/",
+  "final_url": "https://hoppscotch.io/",
+  "status": 200,
+  "headers": {
+    "content-type": "text/html; charset=utf-8",
+    "server": "Vercel",
+    "x-vercel-cache": "HIT",
+    "x-vercel-id": "bom1::trszg-1791789239303-25cba7d751f5"
+  },
+  "parent_id": null,
+  "action": "goto",
+  "captured_at": "2026-10-12T07:13:59+00:00"
+}

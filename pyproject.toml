@@ -32,6 +32,8 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["slow: integration tests that use the real cached repo clone or the network"]
 addopts = "-q"
 
 [tool.ruff]

@@ -138,6 +138,26 @@ legitimate deployment is a customer's own app, where allowlisting is available.
 | **Spree** | Vercel, Next.js 16, next-intl; 3.7 MB `llms-full.txt` mostly developer/admin docs (the Saleor problem again); robots disallows cart, checkout, `?sort/?filter/?page` | Runner-up |
 | Rejected | Bagisto (launch + OTP sandbox), Vendure (redirects to `/admin`, storefront archived), Medusa starter (archived), Shopware (no response, 2,635 merges/6 mo), PrestaShop (launcher), Magento (no public demo), Immich (login page only), Cal.com (`/auth/login`, 1.1 GB), Grafana (4,613 TS files), Excalidraw (canvas), Penpot (ClojureScript), OSM (Rails) | |
 
+### PostHog (evaluated at the user's request after the target was chosen; 1 researcher + 1 verifier)
+
+| Fact | Value | Label |
+|---|---|---|
+| Guest surface | `us`/`eu`/`app.posthog.com` 302 to `/login`; `/login` and `/signup` 200 (~240 KB JS shell + JSON app context); `/demo` 302s to login. More scenes are `allowUnauthenticated` (Authorize, VerifyEmail, TwoFactorReset, ...) but all are token/link-driven. **No free-roam guest product** | V |
+| Build pinning | `commit_sha` is embedded in the unauthenticated HTML (`34a467e986`, 2 commits behind master); continuous deploy, sub-hour lag | V |
+| Source maps | Production maps public with `sourcesContent`, byte-match git; map-vs-JS mtime gap means pairing is unverified; 2,330 lazy chunks | V |
+| DOM -> code | `data-attr` in 2,576 `.tsx` files vs `data-testid` in 61; survives minification into the prod DOM: a **strong deterministic rung** Hoppscotch lacks | V |
+| Stack | React 18.3, Kea logics, TS, Tailwind 4; `frontend/src` 3,551 `.tsx` + 2,362 `.ts`; `products/*/frontend` ~5,532 `.tsx` (79 of 98 products; the root tree call timed out, so this total is not re-verified); ~1,300 `*Logic.ts`; no i18n | M |
+| Monorepo | Python `posthog/` 5,216 files, `ee/` 854 (separate licence), Rust 1,485, plugin server 1,791 TS; repo 7.8 GB | M |
+| Spec | `posthog.com/llms.txt` 440 KB, index only; `llms-full.txt` 404; ~1,100 product docs, 2,355 API links; guest-observable requirement yield ~15-25 (estimate) | M |
+| PRs | ~3,500 created/week, 1,877 open; heads are in-repo branches (7 of 150 newest open are forks); staleness 11-67 commits; **open guest-observable PRs: 0 in the sample**; merged login-surface PRs ~2/week | V (open), M (merged) |
+| Terms | No automated-access clause found; closest is "circumvent authentication or security mechanisms"; applies to contracted customers. Signup uses Cloudflare Turnstile (risk-triggered, via WorkOS Radar); **account creation is off-limits for the agent** | M |
+| Mutation risk | An authenticated crawl on a real project can toggle flags, edit destinations, send invites, pollute events; needs a human-made Playwright `storage_state` | read |
+| Self-host | Hobby deploy: 4 vCPU, 16 GB RAM, 30 GB+ disk | read |
+| Not re-verified | The 7-10h cost estimate and the 3/10 score (judgement) | U |
+
+Net: strong code-side evidence, but the live-crawl premise fails without a human-supplied authenticated session.
+See D34 and D35 in DECISIONS.md.
+
 ## 5. Reasoning-phase measurements (Hoppscotch `main`, in-memory tarball parse) [V unless noted]
 
 | Measure | Value |

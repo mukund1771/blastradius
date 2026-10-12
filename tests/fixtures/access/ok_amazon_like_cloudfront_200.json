@@ -1,0 +1,21 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "An Amazon-shaped CloudFront 200 with real product-page content. Header names follow the recon's single measured HEAD of www.amazon.in (x-amz-cf-id, via CloudFront); the body is written for the test. Amazon is not crawled (D14).",
+  "method": "GET",
+  "url": "https://www.example-store.com/dp/B0EXAMPLE",
+  "status": 200,
+  "headers": {
+    "content-type": "text/html;charset=UTF-8",
+    "server": "Server",
+    "via": "1.1 0e7a1b2c3d4e5f60.cloudfront.net (CloudFront)",
+    "x-amz-cf-id": "mP0aQ2vRkT7yH4sJbN8wLzXeC1dUgFiOtYqA3nBhVx9KoE==",
+    "x-amz-cf-pop": "BLR50",
+    "x-cache": "Miss from cloudfront",
+    "set-cookie": "session-id=REDACTED; Domain=.example-store.com"
+  },
+  "body": "<!doctype html><html lang=\"en-in\"><head><meta charset=\"utf-8\">\n<title>Amazon.in: Wireless Over-Ear Headphones with Mic, 40h Battery</title></head><body>\n<header><a href=\"/\" id=\"nav-logo\">Amazon.in</a><form action=\"/s\" method=\"get\" role=\"search\">\n<input type=\"text\" name=\"field-keywords\" placeholder=\"Search Amazon.in\"><button type=\"submit\">Go</button></form>\n<nav><a href=\"/gp/cart/view.html\">Cart</a><a href=\"/gp/css/homepage.html\">Your Account</a><a href=\"/gp/help/customer/display.html\">Help</a></nav></header>\n<main><h1>Wireless Over-Ear Headphones with Mic, 40h Battery</h1>\n<div id=\"priceblock\"><span class=\"a-price\">Rs. 2,499.00</span></div><button id=\"add-to-cart-button\">Add to Cart</button>\n<ul><li>Bluetooth 5.3 with multipoint pairing</li><li>Active noise cancellation</li><li>Folds flat; carry case included</li></ul>\n<section id=\"reviews\"><h2>Customer reviews</h2><p>4.3 out of 5 stars from 18,204 ratings</p></section></main>\n<footer><a href=\"/gp/help/customer/display.html?nodeId=508088\">Conditions of Use</a> <a href=\"/privacy\">Privacy Notice</a></footer>\n</body></html>\n",
+  "expected": {
+    "verdict": "OK",
+    "vendor": null
+  }
+}

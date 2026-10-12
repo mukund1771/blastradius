@@ -1,0 +1,7 @@
+{
+  "provenance": "measured",
+  "provenance_note": "GET https://hoppscotch.io/robots.txt on 2026-10-12; body verbatim.",
+  "url": "https://hoppscotch.io/robots.txt",
+  "status": 200,
+  "body": "User-agent: *\nAllow: /\n\nSitemap: https://hoppscotch.io/sitemap.xml"
+}

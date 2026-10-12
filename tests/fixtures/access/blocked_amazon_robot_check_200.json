@@ -1,0 +1,19 @@
+{
+  "provenance": "synthesized from documented markers",
+  "provenance_note": "Amazon robot check: an ordinary HTTP 200 page. Recalled markers (title 'Robot Check', 'Type the characters you see in this image', form to /errors/validateCaptcha).",
+  "method": "GET",
+  "url": "https://www.example-store.com/dp/B0EXAMPLE",
+  "status": 200,
+  "headers": {
+    "content-type": "text/html;charset=UTF-8",
+    "server": "Server",
+    "x-amz-cf-id": "mP0aQ2vRkT7yH4sJbN8wLzXeC1dUgFiOtYqA3nBhVx9KoE==",
+    "via": "1.1 0e7a1b2c3d4e5f60.cloudfront.net (CloudFront)"
+  },
+  "body": "<!doctype html><html lang=\"en-us\"><head><meta charset=\"utf-8\"><title dir=\"ltr\">Robot Check</title>\n<meta name=\"viewport\" content=\"width=device-width\"></head><body><div class=\"a-container\"><div class=\"a-row a-spacing-double-large\">\n<div class=\"a-box\"><div class=\"a-box-inner\"><h4>Enter the characters you see below</h4>\n<p class=\"a-last\">Sorry, we just need to make sure you're not a robot. For best results, please make sure your browser is accepting cookies.</p>\n<div class=\"a-row a-text-center\"><img src=\"https://images-na.ssl-images-amazon.com/captcha/abcd/Captcha_xyz.jpg\">\n<form method=\"get\" action=\"/errors/validateCaptcha\" name=\"\"><input type=hidden name=\"amzn\" value=\"xYz\" />\n<div class=\"a-row a-spacing-base\"><label>Type the characters you see in this image:</label>\n<input id=\"captchacharacters\" name=\"field-keywords\" type=\"text\" autocomplete=\"off\" placeholder=\"Type characters\">\n<button type=\"submit\" class=\"a-button-text\">Continue shopping</button></div></form></div></div></div></div></div></body></html>\n",
+  "expected": {
+    "verdict": "BLOCKED",
+    "vendor": "amazon",
+    "signal": "body:robot-check"
+  }
+}

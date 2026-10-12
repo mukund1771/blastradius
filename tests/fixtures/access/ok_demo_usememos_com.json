@@ -1,0 +1,34 @@
+{
+  "provenance": "measured",
+  "provenance_note": "GET https://demo.usememos.com/ on 2026-10-12; verbatim. A Cloudflare-fronted page that serves real content and embeds /cdn-cgi/challenge-platform/scripts/jsd/main.js (the JS-detections beacon): that path alone must never be a block.",
+  "method": "GET",
+  "url": "https://demo.usememos.com/",
+  "status": 200,
+  "headers": {
+    "date": "Mon, 12 Oct 2026 07:14:01 GMT",
+    "content-type": "text/html; charset=utf-8",
+    "transfer-encoding": "chunked",
+    "connection": "keep-alive",
+    "x-render-origin-server": "Render",
+    "cache-control": "no-cache, no-store, must-revalidate",
+    "cf-cache-status": "DYNAMIC",
+    "expires": "0",
+    "pragma": "no-cache",
+    "rndr-id": "57e1d002-e51a-4ccb",
+    "server": "cloudflare",
+    "vary": "Origin, Accept-Encoding",
+    "report-to": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Ni4k9XlWUCbEgZs6ls7zMLLYud7isvlJior9KP35l5Uz6qWZFgdXOEMjKDuqzuraOX%2FV%2BOj5B57mBCsJH3cqEjlVTPLb2BAcq4IQyffE0PQ1Sw2gm1VlW5ugu9WNU6svehQOixwBir5F2qBX0L5t7Q%3D%3D\"}]}",
+    "nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+    "strict-transport-security": "max-age=0",
+    "speculation-rules": "\"/cdn-cgi/speculation\"",
+    "content-encoding": "gzip",
+    "cf-ray": "a4944e231f9e9818-MRS",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "body": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\" />\n    <meta http-equiv=\"Pragma\" content=\"no-cache\" />\n    <meta http-equiv=\"Expires\" content=\"0\" />\n    <link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\" />\n    <link rel=\"icon\" type=\"image/webp\" href=\"/logo.webp\" />\n    <link rel=\"manifest\" href=\"/site.webmanifest\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, user-scalable=no\" />\n    <meta name=\"theme-color\" media=\"(prefers-color-scheme: light)\" content=\"#faf9f5\" />\n    <meta name=\"theme-color\" media=\"(prefers-color-scheme: dark)\" content=\"#1d1f23\" />\n    <meta name=\"mobile-web-app-capable\" content=\"yes\" />\n    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\" />\n    <meta name=\"apple-mobile-web-app-status-bar-style\" content=\"default\" />\n    <!-- memos.metadata.head -->\n    <title>Memos</title>\n    <script type=\"a07d33ccfb2dc8a936ec8963-module\" crossorigin src=\"/assets/index-CvM9YfLp.js\"></script>\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/rolldown-runtime-zSbnoVup.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/preload-helper-DzyYoeor.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/utils-vendor-Dm-DezCy.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/jsx-runtime-DxKf3yUy.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/i18n-curiEDLp.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/utils-C1SsKtx7.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/dist-KWvyOCFx.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/button-BvV83VN4.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/react-dom-De4ljgjk.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/useOpenInteractionType-CMFnhwK9.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/x-cckGG6LE.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/dialog-BylDdGlt.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/Separator-B1aOUpwn.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/timestamp-DkWLIMY1.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/connect-CGdVz-On.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/AuthContext-D-OifSg3.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/format-bmaVpZJO.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/error-D6svQdGr.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/UserAvatar-dQAvVUlo.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/dist-DSRFmU1K.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/heart-C-asC9Rq.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/sun-C4fSy8e6.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/CustomIcon-ABOjZsdf.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/constants-B5GNG9J2.js\">\n    <link rel=\"modulepreload\" crossorigin href=\"/assets/NotFound-BpFsi73E.js\">\n    <link rel=\"stylesheet\" crossorigin href=\"/assets/index-BQ9fkL8F.css\">\n  </head>\n  <body class=\"text-base w-full min-h-svh\">\n    <div id=\"root\" class=\"relative w-full min-h-full\"></div>\n    <!-- memos.metadata.body -->\n  <script src=\"/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js\" data-cf-settings=\"a07d33ccfb2dc8a936ec8963-|49\" defer></script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML=\"window.__CF$cv$params={r:'a4944e231f9e9818',t:'MTc5MTc4OTI0MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);\";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>\n</html>\n",
+  "body_bytes": 4377,
+  "expected": {
+    "verdict": "OK",
+    "vendor": null
+  }
+}
