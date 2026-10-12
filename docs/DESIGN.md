@@ -309,7 +309,8 @@ If the system ran 100 times on the same input, which runs were correct?
    publishes maps*; the fallback for others is a hand-labelled gold set, which was not built.
 4. **An offline judge, kept honest.** Evidence-only, binary items, quote string-checked, k = 3 majority; 20
    deterministic seeded corruptions give an *upper bound* on the true-negative rate. Reported with Wilson 95%
-   intervals; the same-vendor-family caveat is stated. Not run for this submission (it spends model calls). No TNR.
+   intervals; the same-vendor-family caveat is stated (a gateway to put the judge on another family was tried and is not
+   integrated, D42). Not run for this submission (it spends model calls). No TNR.
 5. **Stability.** Re-run stages 4-7 N = 5 times with the cache bypassed: affected-set Jaccard and per-item
    agreement; items under 60% agreement are demoted. Not run for this submission. N = 100 is discussed as cost
    arithmetic only.
@@ -345,6 +346,7 @@ screens, and the table listed more).
 | Annotated screenshots, human write-back, LLM flow naming | Lowest value per hour | |
 | Mobile viewport, non-English locales, SSR targets | Documented limitation: CSR only, one viewport, `en` | |
 | TraceImport, Web Bot Auth, PPR, OTLP export | Designed with evidence, not built | RECON.md, DECISIONS.md |
+| LLM gateway (Bifrost) and a judge from another model family | Tried as a gateway so the agents and the LLM-as-judge are not tied to one provider; not integrated: all calls use `llm.LLM` against the Anthropic API, so the judge is same-family and its numbers carry that caveat | D42; `llm.py` is the seam |
 
 **Why Hoppscotch** (and not Memos, Saleor, Home Assistant, PostHog): the whole product is usable without login, it
 has a real procedural spec (a 520 KB `llms-full.txt`), 2,198 i18n keys, a committed auto-import table, published

@@ -449,6 +449,47 @@ def test_requirements_that_nothing_realises_are_cannot_verify_or_may_close_a_gap
     assert any("We cannot tell whether the screens that should show this requirement still do" in t for t in texts)
 
 
+def test_a_requirement_tied_to_a_whole_screen_is_at_risk_only_when_it_relates_to_the_change(tmp_path: Path):
+    """Regression (found on the live #6645 report): every requirement the judge tied to the Home page as a whole was
+    "at risk" because one control on that page changed, so an environment-editing PR listed history, collections and
+    code-generation requirements as Likely. A screen-level link must share a word with what the PR changes."""
+    from blastradius.models import Link, Requirement
+
+    w = World(tmp_path)
+    try:
+        def req(rid: str, text: str, section: str) -> Requirement:
+            return Requirement(id=rid, target=w.target, text=text, quote=f"quote of {rid}", source_url="https://d/x",
+                               section=section, edition="cloud-web", ui_observable="yes", spec_sha="s1")
+
+        reqs = [req("req_scrrelated01", "User can switch the active environment from the home page", "Environments"),
+                req("req_scrunrelat001", "User can generate client code snippets for a request in several languages",
+                    "Code generation"),
+                req("req_elemindir001", "User can create a folder inside a collection", "Collections"),
+                req("req_elemindir002", "User can rename an environment from the sidebar", "Environments")]
+        w.store.write_requirements(reqs, w.run.run_id)
+        spec_path = w.run.path("spec", "requirements.json")
+        existing = json.loads(spec_path.read_text(encoding="utf-8"))
+        existing.extend(r.model_dump(mode="json") for r in reqs)
+        spec_path.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
+        ev = w.run.evidence.add("link.bm25_judge", "scr", "requirement realised by the home page as a whole")
+        w.store.write_links([Link(kind="REALIZED_BY", src=r.id, dst="scr_eeb51c7c9803", confidence=0.56,
+                                  method="bm25_judge", evidence_id=ev) for r in reqs[:2]], w.run.run_id)
+        # element-level links to the Collections tab, which collections/index.vue implements: a parent of changed
+        # code, one hop from the change, not a control the PR edits
+        w.store.write_links([Link(kind="REALIZED_BY", src=r.id, dst="el_6c08185436a7", confidence=0.8,
+                                  method="bm25_judge", evidence_id=ev) for r in reqs[2:]], w.run.run_id)
+        _, report = run_pr(w, 6645)
+        by = {r.requirement_id: r for r in report.requirements}
+        assert "req_scrrelated01" in by and by["req_scrrelated01"].status == "at_risk"
+        assert "req_scrunrelat001" not in by                                    # the page changed; this feature did not
+        assert "req_elemindir001" not in by                                     # reached only through shared code
+        assert "req_elemindir002" in by and by["req_elemindir002"].band.value != "confirmed"   # ...unless it relates
+        assert any("only through a whole screen or through code it shares" in line for line in report.not_checked)
+        assert by["req_envedit0001"].status == "at_risk"                        # a control-level link is unaffected
+    finally:
+        w.close()
+
+
 # --------------------------------------------------------------------------------- model use and cache
 def test_the_judge_runs_inside_the_pipeline_on_ambiguous_subgraphs_only(world: World, tmp_path: Path):
     seen = {"judge": 0, "narrate": 0}

@@ -1,6 +1,6 @@
 # Blast radius: PR #6641 "Feature/add compare button"
 
-**Risk: MEDIUM.** Touches GraphQL page. 11 screens, 0 user flows, 7 requirements.
+**Risk: MEDIUM.** Touches GraphQL page. 11 screens, 0 user flows, 5 requirements.
 
 Confidence: 1 item confirmed, 0 probable and 10 possible. 5 things could not be determined and are listed below with the same weight as the findings.
 
@@ -39,13 +39,6 @@ Connected through: 2 pieces of shared code (gql response meta, http response met
 | **SSE page** | This screen might be affected by this PR; worth a quick look. It uses 2 pieces of shared code (gql response meta, http response meta), which this PR edits (its behaviour changed). Controls built from code that uses it: “Documentation” and “Interceptor”. [^8] | Possible |
 | **WebSocket page** | This screen might be affected by this PR; worth a quick look. It uses 3 pieces of shared code (gql response, gql response meta, http response meta), which this PR edits (its behaviour changed). Controls built from code that uses it: “Documentation”, “Interceptor” and “Wrap lines”. [^9] | Possible |
 | **Not-found page** | This screen might be affected by this PR; worth a quick look. It uses 2 pieces of shared code (gql response meta, http response meta), which this PR edits (its behaviour changed). Controls built from code that uses it: “Interceptor”. [^10] | Possible |
-
-### Interceptor > Proxy
-
-Connected through: 2 pieces of shared code (gql response meta, http response meta).
-
-| Screen | What may be affected | How sure |
-|---|---|---|
 | **Settings page** | This screen might be affected by this PR; worth a quick look. It uses 2 pieces of shared code (gql response meta, http response meta), which this PR edits (its behaviour changed). Controls built from code that uses it: “Interceptor”. [^11] | Possible |
 
 ## Requirements at risk
@@ -55,19 +48,17 @@ Connected through: 2 pieces of shared code (gql response meta, http response met
 | User can download and copy returned GraphQL responses. [^12] Spec says: “You can download and copy the returned responses for further use.” | GraphQL API Testing > Response | At risk | Likely |
 | User can view responses and logs in the response section once the connection is established. [^13] Spec says: “Once the connection is established, you can view the responses and logs in the response section.” | Realtime API Testing > Response | At risk | Likely |
 | User can view headers and bodies of persisted responses by selecting each request when enabled. [^14] Spec says: “Persisted Responses: If enabled, view headers and bodies by selecting each request; otherwise, this section remains hidden.” | Runner > Runner Results | At risk | Likely |
-| User can build, test, and share APIs directly in the browser using the Hoppscotch Web App. [^15] Spec says: “Access the Hoppscotch Web App to build, test, and share APIs directly in your browser.” | Hoppscotch Web App | At risk | Possible |
-| User can replace the default Proxy URL with their own proxy middleware or use Proxyscotch. [^16] Spec says: “You can replace the default Proxy URL with your own proxy middleware if you wish or use Proxyscotch, which acts as a remote proxy server for routing API requests.” | Interceptor > Proxy | At risk | Possible |
-| User can run Tests on the responses received. [^17] Spec says: “Hoppscotch also provides the capability to run Tests on the responses you receive.” | RESTful API Testing > Request | At risk | Possible |
-| User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses. [^18] Spec says: “Write pre-request scripts and post-request tests in Hoppscotch using JavaScript to add dynamic behavior, set variables, and validate responses.” | Scripts | At risk | Possible |
+| User can run Tests on the responses received. [^15] Spec says: “Hoppscotch also provides the capability to run Tests on the responses you receive.” | RESTful API Testing > Request | At risk | Possible |
+| User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses. [^16] Spec says: “Write pre-request scripts and post-request tests in Hoppscotch using JavaScript to add dynamic behavior, set variables, and validate responses.” | Scripts | At risk | Possible |
 
 ## What we could not determine, and who should look
 
 | Item | Why we could not tell | What a person should check |
 |---|---|---|
 | **New in this PR; not observable in the live app yet** | This PR adds “Compare API Responses”, “diff”, “gql response compare modal” and “response history”. The live app does not show that yet. | After this PR is deployed, open the screen that should contain “Compare API Responses”, “diff”, “gql response compare modal” and “response history”. |
-| **the whole PR** | The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown. [^19] | Rebase the PR on main and run the report again before relying on the file lists; 2 file(s) were edited on both sides. |
-| **the http response compare modal component** | This PR adds the file and other code in the PR uses it, but none of that code reaches a screen we observed. [^20] | Find where http response compare modal appears in the product and try it by hand; this change is not tied to any screen we observed. |
-| **4 items: the shared gql response code, the shared gql response meta code, the shared http response code and 1 more** | The only links we found to screens are weak. [^21] | Decide which screens that rely on gql response need a re-test; the list shown is not exhaustive. |
+| **the whole PR** | The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown. [^17] | Rebase the PR on main and run the report again before relying on the file lists; 2 file(s) were edited on both sides. |
+| **the http response compare modal component** | This PR adds the file and other code in the PR uses it, but none of that code reaches a screen we observed. [^18] | Find where http response compare modal appears in the product and try it by hand; this change is not tied to any screen we observed. |
+| **4 items: the shared gql response code, the shared gql response meta code, the shared http response code and 1 more** | The only links we found to screens are weak. [^19] | Decide which screens that rely on gql response need a re-test; the list shown is not exhaustive. |
 | **3 items: controls linked to the gql response code, controls linked to the http response code and controls linked to the http response meta code** | Two independent checks disagreed about 1 control(s); they were left as found. | Look at these controls by hand: More. |
 
 ### What this report did not look at
@@ -79,6 +70,7 @@ Connected through: 2 pieces of shared code (gql response meta, http response met
 - Cloud web edition only: desktop and self-hosted behaviour was not assessed.
 - Set aside as not user-facing: 1 build config file(s), 1 generated file(s).
 - 2 more lower-priority item(s) could not be determined (see the appendix data).
+- 2 requirement(s) reach this PR only through a whole screen or through code it shares, and do not mention anything it changes; they are not listed.
 - The crawl stopped at its action budget, so some screens were not observed.
 - The product documentation may be older than the app, so some requirements may be out of date.
 - Some source files could not be read completely.
@@ -129,7 +121,7 @@ Everything above cites the numbered entries below. File paths, ids and commit ha
     - Evidence `ev_bd3f3ca0b8c4` (pr.file): modified packages/hoppscotch-common/src/components/gql/ResponseMeta.vue (+19 -1) class component kind BODY. Reference `hoppscotch/hoppscotch#6641:packages/hoppscotch-common/src/components/gql/ResponseMeta.vue`.
     - Evidence `ev_c755b8c1f9f7` (reason.control): button "Documentation" in 7 file(s). Reference `hoppscotch/hoppscotch#6641:button:Documentation:7`.
     - Files: `packages/hoppscotch-common/src/components/gql/Response.vue`, `packages/hoppscotch-common/src/components/gql/ResponseMeta.vue`, `packages/hoppscotch-common/src/components/http/ResponseMeta.vue`.
-    - Requirements: `req_21b7a82f89ef`, `req_741ef7e034a6`, `req_fc55fe49f1fe`.
+    - Requirements: `req_21b7a82f89ef`, `req_741ef7e034a6`.
 
 [^3]: **Directly changed.** Menu popup on the Home page: This screen might be affected by this PR; worth a quick look. Controls involved: “Documentation” and “Status”. Possible (0.50).
 
@@ -218,7 +210,6 @@ Everything above cites the numbered entries below. File paths, ids and commit ha
     - Evidence `ev_bd3f3ca0b8c4` (pr.file): modified packages/hoppscotch-common/src/components/gql/ResponseMeta.vue (+19 -1) class component kind BODY. Reference `hoppscotch/hoppscotch#6641:packages/hoppscotch-common/src/components/gql/ResponseMeta.vue`.
     - Evidence `ev_bede94d519f7` (reason.impact): indirect impact on Settings page: 1 control(s), confidence 0.36, via 2 pieces of shared code (gql response meta, http response meta). Reference `hoppscotch/hoppscotch#6641:indirect:/settings|`.
     - Files: `packages/hoppscotch-common/src/components/app/KernelInterceptor.vue`, `packages/hoppscotch-common/src/components/gql/ResponseMeta.vue`, `packages/hoppscotch-common/src/components/http/ResponseMeta.vue`.
-    - Requirements: `req_a950431ae60f`.
 
 [^12]: **Requirements at risk.** GraphQL API Testing > Response: User can download and copy returned GraphQL responses. Likely.
 
@@ -250,27 +241,7 @@ Everything above cites the numbered entries below. File paths, ids and commit ha
     - Evidence `ev_d5cb1ab3d941` (reason.requirement): requirement req_9046a70ced66 is at_risk at likely. Reference `hoppscotch/hoppscotch#6641:req_9046a70ced66:at_risk`.
     - Requirements: `req_9046a70ced66`.
 
-[^15]: **Requirements at risk.** Hoppscotch Web App: User can build, test, and share APIs directly in the browser using the Hoppscotch Web App. Possible.
-
-    - Claim `clm_f0631144ae8c`: “User can build, test, and share APIs directly in the browser using the Hoppscotch Web App.”: This requirement rests on a screen that might be affected by this PR; worth a quick look.
-    - Evidence `ev_15ec35500a20` (reason.requirement): requirement req_fc55fe49f1fe is at_risk at possible. Reference `hoppscotch/hoppscotch#6641:req_fc55fe49f1fe:at_risk`.
-    - Evidence `ev_2c0b875ae5e9` (link.i18n_key): button "Documentation" equals the English value of i18n key app.documentation; packages/hoppscotch-common/src/components/app/ShortcutsPrompt.vue uses it and is rendered under packages/hoppscotch-common/src/pages/realtime/mqtt.vue (route /realtime/mqtt); one of 2 files with this text on the page. Reference `el_2a66734f996b`.
-    - Evidence `ev_2fe4e6baf7c2` (code.render): packages/hoppscotch-common/src/components/http/ResponseMeta.vue renders packages/hoppscotch-common/src/components/app/KernelInterceptor.vue via AppKernelInterceptor. Reference `packages/hoppscotch-common/src/components/http/ResponseMeta.vue->packages/hoppscotch-common/src/components/app/KernelInterceptor.vue`.
-    - Evidence `ev_3b4e4303fb0e` (link.i18n_key): button "Documentation" equals the English value of i18n key app.documentation; packages/hoppscotch-common/src/components/gql/Authorization.vue uses it and is rendered under packages/hoppscotch-common/src/pages/index.vue (route /); one of 11 files with this text on the page. Reference `el_e900729ba1f7`.
-    - Evidence `ev_49f7a0354dd9` (link.i18n_key): button "Interceptor" equals the English value of i18n key settings.kernel_interceptor; packages/hoppscotch-common/src/components/app/KernelInterceptor.vue uses it and is rendered under packages/hoppscotch-common/src/layouts/default.vue (route /realtime/sse); one of 2 files with this text on the page. Reference `el_eea5126aeeef`.
-    - Requirements: `req_fc55fe49f1fe`.
-
-[^16]: **Requirements at risk.** Interceptor > Proxy: User can replace the default Proxy URL with their own proxy middleware or use Proxyscotch. Possible.
-
-    - Claim `clm_9782b628a9e1`: “User can replace the default Proxy URL with their own proxy middleware or use Proxyscotch.”: This requirement rests on a screen that might be affected by this PR; worth a quick look.
-    - Evidence `ev_2fe4e6baf7c2` (code.render): packages/hoppscotch-common/src/components/http/ResponseMeta.vue renders packages/hoppscotch-common/src/components/app/KernelInterceptor.vue via AppKernelInterceptor. Reference `packages/hoppscotch-common/src/components/http/ResponseMeta.vue->packages/hoppscotch-common/src/components/app/KernelInterceptor.vue`.
-    - Evidence `ev_49f7a0354dd9` (link.i18n_key): button "Interceptor" equals the English value of i18n key settings.kernel_interceptor; packages/hoppscotch-common/src/components/app/KernelInterceptor.vue uses it and is rendered under packages/hoppscotch-common/src/layouts/default.vue (route /realtime/sse); one of 2 files with this text on the page. Reference `el_eea5126aeeef`.
-    - Evidence `ev_70e277d2ecd2` (link.bm25_judge): requirement "User can replace the default Proxy URL with their own proxy middleware or use Proxyscotch." (Interceptor > Proxy) -> screen page screen "Settings • Hoppscotch" with controls: 'Purple', 'Interceptor', 'Use Default Proxy', 'Proxy privacy policy', 'Agent', 'Shortcuts', 'Client Certificates', 'Red'; judged full/full over 2 samples, bm25 rank 6. Reference `req_a950431ae60f`.
-    - Evidence `ev_88549b191f64` (reason.requirement): requirement req_a950431ae60f is at_risk at possible. Reference `hoppscotch/hoppscotch#6641:req_a950431ae60f:at_risk`.
-    - Evidence `ev_e3d40543515d` (code.render): packages/hoppscotch-common/src/components/gql/ResponseMeta.vue renders packages/hoppscotch-common/src/components/app/KernelInterceptor.vue via AppKernelInterceptor. Reference `packages/hoppscotch-common/src/components/gql/ResponseMeta.vue->packages/hoppscotch-common/src/components/app/KernelInterceptor.vue`.
-    - Requirements: `req_a950431ae60f`.
-
-[^17]: **Requirements at risk.** RESTful API Testing > Request: User can run Tests on the responses received. Possible.
+[^15]: **Requirements at risk.** RESTful API Testing > Request: User can run Tests on the responses received. Possible.
 
     - Claim `clm_f26df0892570`: “User can run Tests on the responses received.”: This requirement rests on a screen that might be affected by this PR; worth a quick look.
     - Evidence `ev_032a0b42d885` (link.i18n_key): button "More" equals the English value of i18n key action.more; packages/hoppscotch-common/src/components/share/Request.vue uses it and is rendered under packages/hoppscotch-common/src/pages/index.vue (route /); one of 15 files with this text on the page. Reference `el_fd78f3c071c7`.
@@ -280,7 +251,7 @@ Everything above cites the numbered entries below. File paths, ids and commit ha
     - Evidence `ev_43f23ff9d7f3` (reason.requirement): requirement req_741ef7e034a6 is at_risk at possible. Reference `hoppscotch/hoppscotch#6641:req_741ef7e034a6:at_risk`.
     - Requirements: `req_741ef7e034a6`.
 
-[^18]: **Requirements at risk.** Scripts: User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses. Possible.
+[^16]: **Requirements at risk.** Scripts: User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses. Possible.
 
     - Claim `clm_75a6959f86a1`: “User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses.”: This requirement rests on a screen that might be affected by this PR; worth a quick look.
     - Evidence `ev_032a0b42d885` (link.i18n_key): button "More" equals the English value of i18n key action.more; packages/hoppscotch-common/src/components/share/Request.vue uses it and is rendered under packages/hoppscotch-common/src/pages/index.vue (route /); one of 15 files with this text on the page. Reference `el_fd78f3c071c7`.
@@ -290,18 +261,18 @@ Everything above cites the numbered entries below. File paths, ids and commit ha
     - Evidence `ev_fc9e1d578995` (reason.requirement): requirement req_21b7a82f89ef is at_risk at possible. Reference `hoppscotch/hoppscotch#6641:req_21b7a82f89ef:at_risk`.
     - Requirements: `req_21b7a82f89ef`.
 
-[^19]: **What we could not determine, and who should look.** the whole PR: The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown.
+[^17]: **What we could not determine, and who should look.** the whole PR: The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown.
 
     - Reason code `STALE_BASE`.
     - Evidence `ev_c39f73cfc7eb` (pr.meta): PR #6641 head 5eea64fd209a base ac145e7f7581 (fork NavuluriBalaji/hoppscotch): 13 of 13 files. Reference `hoppscotch/hoppscotch#6641@5eea64fd209addde0d770831b7234817eb339699`.
 
-[^20]: **What we could not determine, and who should look.** the http response compare modal component: This PR adds the file and other code in the PR uses it, but none of that code reaches a screen we observed.
+[^18]: **What we could not determine, and who should look.** the http response compare modal component: This PR adds the file and other code in the PR uses it, but none of that code reaches a screen we observed.
 
     - Reason code `UNMAPPED_CHANGE`.
     - Evidence `ev_aacdd73d2b8d` (pr.file): added packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue (+407 -0) class component kind ADDITIVE_API. Reference `hoppscotch/hoppscotch#6641:packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue`.
     - Evidence `ev_fdf104a1044e` (reason.probe): packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue is imported by 1 file(s) (1 in the PR); 0 of them draw a screen. Reference `packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue`.
 
-[^21]: **What we could not determine, and who should look.** 4 items: the shared gql response code, the shared gql response meta code, the shared http response code and 1 more: The only links we found to screens are weak.
+[^19]: **What we could not determine, and who should look.** 4 items: the shared gql response code, the shared gql response meta code, the shared http response code and 1 more: The only links we found to screens are weak.
 
     - Reason code `NEEDS_HUMAN`.
     - Evidence `ev_12495e5d4267` (pr.file): modified packages/hoppscotch-common/src/components/http/ResponseMeta.vue (+13 -1) class component kind BODY. Reference `hoppscotch/hoppscotch#6641:packages/hoppscotch-common/src/components/http/ResponseMeta.vue`.

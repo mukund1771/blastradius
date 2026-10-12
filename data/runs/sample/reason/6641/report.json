@@ -111,18 +111,6 @@
     {
       "band": "possible",
       "evidence_ids": [
-        "ev_2fe4e6baf7c2",
-        "ev_49f7a0354dd9",
-        "ev_70e277d2ecd2",
-        "ev_88549b191f64",
-        "ev_e3d40543515d"
-      ],
-      "id": "clm_9782b628a9e1",
-      "text": "“User can replace the default Proxy URL with their own proxy middleware or use Proxyscotch.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
-    },
-    {
-      "band": "possible",
-      "evidence_ids": [
         "ev_6fdfc69ee9fe",
         "ev_87ac88ee6fc0",
         "ev_9057bd560b3e",
@@ -161,18 +149,6 @@
       ],
       "id": "clm_ef5adfa9c2de",
       "text": "GraphQL Collections dialog on the GraphQL page: This screen might be affected by this PR; worth a quick look. Controls involved: “Export as JSON”."
-    },
-    {
-      "band": "possible",
-      "evidence_ids": [
-        "ev_15ec35500a20",
-        "ev_2c0b875ae5e9",
-        "ev_2fe4e6baf7c2",
-        "ev_3b4e4303fb0e",
-        "ev_49f7a0354dd9"
-      ],
-      "id": "clm_f0631144ae8c",
-      "text": "“User can build, test, and share APIs directly in the browser using the Hoppscotch Web App.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
     },
     {
       "band": "possible",
@@ -265,8 +241,7 @@
       "label": "Home page",
       "requirement_ids": [
         "req_21b7a82f89ef",
-        "req_741ef7e034a6",
-        "req_fc55fe49f1fe"
+        "req_741ef7e034a6"
       ],
       "screen": "Home page",
       "section": null,
@@ -342,7 +317,7 @@
     }
   ],
   "global_changes": [],
-  "headline": "Blast radius: PR #6641 “Feature/add compare button”\nRisk: MEDIUM. Touches GraphQL page. 11 screens, 0 user flows, 7 requirements.",
+  "headline": "Blast radius: PR #6641 “Feature/add compare button”\nRisk: MEDIUM. Touches GraphQL page. 11 screens, 0 user flows, 5 requirements.",
   "indirect": [
     {
       "band": "possible",
@@ -474,32 +449,6 @@
         "ev_12495e5d4267",
         "ev_595f7a65fe61",
         "ev_bd3f3ca0b8c4",
-        "ev_bede94d519f7"
-      ],
-      "files": [
-        "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
-        "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
-        "packages/hoppscotch-common/src/components/http/ResponseMeta.vue"
-      ],
-      "flows": [],
-      "id": "itm_1d9bafcad782",
-      "label": "Settings page",
-      "requirement_ids": [
-        "req_a950431ae60f"
-      ],
-      "screen": "Settings page",
-      "section": "Interceptor > Proxy",
-      "tier": "indirect",
-      "via": "2 pieces of shared code (gql response meta, http response meta)",
-      "what_changed": "This screen might be affected by this PR; worth a quick look. It uses 2 pieces of shared code (gql response meta, http response meta), which this PR edits (its behaviour changed). Controls built from code that uses it: “Interceptor”."
-    },
-    {
-      "band": "possible",
-      "confidence": 0.36,
-      "evidence_ids": [
-        "ev_12495e5d4267",
-        "ev_595f7a65fe61",
-        "ev_bd3f3ca0b8c4",
         "ev_ccbc3a813ae6"
       ],
       "files": [
@@ -516,6 +465,30 @@
       "tier": "indirect",
       "via": "2 pieces of shared code (gql response meta, http response meta)",
       "what_changed": "This screen might be affected by this PR; worth a quick look. It uses 2 pieces of shared code (gql response meta, http response meta), which this PR edits (its behaviour changed). Controls built from code that uses it: “Interceptor”."
+    },
+    {
+      "band": "possible",
+      "confidence": 0.36,
+      "evidence_ids": [
+        "ev_12495e5d4267",
+        "ev_595f7a65fe61",
+        "ev_bd3f3ca0b8c4",
+        "ev_bede94d519f7"
+      ],
+      "files": [
+        "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+        "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+        "packages/hoppscotch-common/src/components/http/ResponseMeta.vue"
+      ],
+      "flows": [],
+      "id": "itm_1d9bafcad782",
+      "label": "Settings page",
+      "requirement_ids": [],
+      "screen": "Settings page",
+      "section": null,
+      "tier": "indirect",
+      "via": "2 pieces of shared code (gql response meta, http response meta)",
+      "what_changed": "This screen might be affected by this PR; worth a quick look. It uses 2 pieces of shared code (gql response meta, http response meta), which this PR edits (its behaviour changed). Controls built from code that uses it: “Interceptor”."
     }
   ],
   "not_checked": [
@@ -526,6 +499,7 @@
     "Cloud web edition only: desktop and self-hosted behaviour was not assessed.",
     "Set aside as not user-facing: 1 build config file(s), 1 generated file(s).",
     "2 more lower-priority item(s) could not be determined (see the appendix data).",
+    "2 requirement(s) reach this PR only through a whole screen or through code it shares, and do not mention anything it changes; they are not listed.",
     "The crawl stopped at its action budget, so some screens were not observed.",
     "The product documentation may be older than the app, so some requirements may be out of date.",
     "Some source files could not be read completely."
@@ -573,34 +547,6 @@
       "requirement_id": "req_9046a70ced66",
       "section": "Runner > Runner Results",
       "statement": "User can view headers and bodies of persisted responses by selecting each request when enabled.",
-      "status": "at_risk"
-    },
-    {
-      "band": "possible",
-      "evidence_ids": [
-        "ev_2c0b875ae5e9",
-        "ev_2fe4e6baf7c2",
-        "ev_3b4e4303fb0e",
-        "ev_49f7a0354dd9"
-      ],
-      "quote": "Access the Hoppscotch Web App to build, test, and share APIs directly in your browser.",
-      "requirement_id": "req_fc55fe49f1fe",
-      "section": "Hoppscotch Web App",
-      "statement": "User can build, test, and share APIs directly in the browser using the Hoppscotch Web App.",
-      "status": "at_risk"
-    },
-    {
-      "band": "possible",
-      "evidence_ids": [
-        "ev_2fe4e6baf7c2",
-        "ev_49f7a0354dd9",
-        "ev_70e277d2ecd2",
-        "ev_e3d40543515d"
-      ],
-      "quote": "You can replace the default Proxy URL with your own proxy middleware if you wish or use Proxyscotch, which acts as a remote proxy server for routing API requests.",
-      "requirement_id": "req_a950431ae60f",
-      "section": "Interceptor > Proxy",
-      "statement": "User can replace the default Proxy URL with their own proxy middleware or use Proxyscotch.",
       "status": "at_risk"
     },
     {

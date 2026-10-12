@@ -452,12 +452,26 @@ def spec_requirement_ids(run: RunContext) -> set[str]:
     return {str(r["id"]) for r in rows if isinstance(r, dict) and r.get("id")}
 
 
+def _related_to_change(text: str, section: str | None, context: set[str]) -> bool:
+    """A requirement shares a distinctive word, or two words, with what the PR changes."""
+    shared = (set(tokens(text)) | set(tokens(section or ""))) & context
+    return len(shared) >= 2 or any(len(t) >= _DISTINCTIVE for t in shared)
+
+
 def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval, seeds: dict[str, SeedInfo],
                        bundle_hash: str | None, locale_texts: list[str], diff_texts: list[str],
-                       context: set[str]) -> tuple[list[RequirementRisk], dict[str, float], int]:
+                       context: set[str]) -> tuple[list[RequirementRisk], dict[str, float], int, int]:
     """Requirements at risk, losing their only realization, unverifiable, or possibly closed by this PR, the
-    confidence each statement rests on (absences have none, so they carry the floor of their band), and how many
-    absences were left out as unrelated.
+    confidence each statement rests on (absences have none, so they carry the floor of their band), how many
+    absences were left out as unrelated, and how many requirements reached only
+    through shared code or a whole screen, and unrelated to the change, were left out.
+
+    A requirement realised by a control that a changed file implements itself (hop 0) is at risk. One reached only
+    through shared code (a parent that renders a changed component, an importer of a changed service) or tied to a
+    whole screen says only that the feature lives near the change: the Sidebar renders the environments editor, so
+    "Collections", "History" and "Mock Servers" sit one hop from it, and the Home page hosts them all. Those count
+    only when the requirement shares a word with what the PR changes (`context`); otherwise they are left out and
+    counted, so every requirement of a large page is not "at risk" whenever one control on it changes.
 
     An absence is reported only when it shares a word with what the PR changes (`context`: control names of the
     directly changed screens, the changed files' names, the strings the PR adds, the sections of at-risk
@@ -466,26 +480,35 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
     risks: dict[str, RequirementRisk] = {}
     confs: dict[str, float] = {}
     unrelated = 0
+    weak_unrelated = 0
     allowed = spec_requirement_ids(run)
     if not allowed:
-        return [], {}, 0
+        return [], {}, 0, 0
 
     # at risk: requirements realised by an affected control, its screen or its flow
-    per_req: dict[str, list[tuple[float, str | None, list[str]]]] = {}
+    Entry = tuple[float, str | None, list[str]]
+    per_req: dict[str, list[Entry]] = {}            # realised by a control the change reaches directly (hop 0)
+    indirect_req: dict[str, list[Entry]] = {}       # realised by a control reached only through shared code
+    coarse: dict[str, list[Entry]] = {}             # realised by a whole screen
     for hit in retr.hits:
         live = [r for r in hit.routes if r.admitted and band_for(r.confidence) is not Band.UNKNOWN
                 and not (seeds.get(r.seed) and seeds[r.seed].is_global_only)]
         if not live:
             continue
-        best = max(r.confidence for r in live)
+        best_route = max(live, key=lambda r: (r.confidence, -r.hops))
+        best = best_route.confidence
         ev = sorted({e for r in live for e in r.evidence_ids})
         for q in hit.requirements:
             rid = str(q["id"])
             if rid not in allowed:
                 continue
             link = float(q.get("confidence") or 0.0)
-            per_req.setdefault(rid, []).append((round(best * link, 4), q.get("evidence_id"), ev))
-    ids = sorted(per_req)
+            if q.get("via") == "screen":
+                bucket = coarse
+            else:
+                bucket = per_req if best_route.hops == 0 else indirect_req
+            bucket.setdefault(rid, []).append((round(best * link, 4), q.get("evidence_id"), ev))
+    ids = sorted(set(per_req) | set(indirect_req) | set(coarse))
     info = {r["requirement_id"]: r for r in store.read("requirements_by_id", requirement_ids=ids)} if ids else {}
     removed = {s.path for s in seeds.values() if s.status == "removed"}
     lost = _lost_requirements(store, retr, removed, ids) if removed else set()
@@ -493,11 +516,16 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
         row = info.get(rid)
         if row is None or not row.get("quote"):
             continue
-        conf = combine(c for c, _, _ in per_req[rid])
+        direct_entries = per_req.get(rid, [])
+        entries = [*direct_entries, *indirect_req.get(rid, []), *coarse.get(rid, [])]
+        conf = combine(c for c, _, _ in entries)
         band = band_for(conf)
         if band is Band.UNKNOWN:
             continue
-        evidence = sorted({e for _, link_ev, route_ev in per_req[rid] for e in [link_ev, *route_ev]
+        if not direct_entries and not _related_to_change(row["text"], row.get("section"), context):
+            weak_unrelated += 1           # near the change, but nothing says why this feature would be affected
+            continue
+        evidence = sorted({e for _, link_ev, route_ev in entries for e in [link_ev, *route_ev]
                            if e and run.evidence.exists(e)})[:4]
         status = "loses_only_realization" if rid in lost else "at_risk"
         risks[rid] = RequirementRisk(requirement_id=rid, statement=row["text"], quote=row["quote"],
@@ -520,8 +548,7 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
                 continue
             req_tokens = set(tokens(row["text"]))
             closes = any(len(req_tokens & words) >= 2 for words in strings)
-            shared = (req_tokens | set(tokens(row["section"] or ""))) & context
-            related = len(shared) >= 2 or any(len(t) >= _DISTINCTIVE for t in shared)
+            related = _related_to_change(row["text"], row["section"], context)
             if not closes and not related:         # "add", "user", "request": every page has them
                 unrelated += 1
                 continue
@@ -535,7 +562,7 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
             confs[rid] = _BAND_FLOOR[band]
     order = {"loses_only_realization": 0, "at_risk": 1, "may_close_gap": 2, "cannot_verify": 3}
     ordered = sorted(risks.values(), key=lambda r: (order[r.status], -_band_rank(r.band), r.section, r.requirement_id))
-    return ordered, confs, unrelated
+    return ordered, confs, unrelated, weak_unrelated
 
 
 def _change_words(retr: Retrieval, direct: list[ReportItem], controls: dict[str, list[tuple[str, str]]],
@@ -679,7 +706,8 @@ def pr_level_reviews(pr: PRData, retr: Retrieval, run_codes: dict[str, int]) -> 
 
 
 def not_checked_lines(pr: PRData, retr: Retrieval, run_codes: dict[str, int], overflow: int,
-                      more_undetermined: int, *, stored_data: bool = False, unrelated_absences: int = 0) -> list[str]:
+                      more_undetermined: int, *, stored_data: bool = False, unrelated_absences: int = 0,
+                      screen_level_requirements: int = 0) -> list[str]:
     out = list(BASE_NOT_CHECKED)
     if stored_data:
         out.append("Other programs that read this saved data (a command-line tool, the backend, the desktop app) "
@@ -703,6 +731,9 @@ def not_checked_lines(pr: PRData, retr: Retrieval, run_codes: dict[str, int], ov
     if unrelated_absences:
         out.append(f"{unrelated_absences} requirement(s) with no matching screen sit on pages this PR touches but "
                    "do not mention anything it changes; they are not listed.")
+    if screen_level_requirements:
+        out.append(f"{screen_level_requirements} requirement(s) reach this PR only through a whole screen or through "
+                   "code it shares, and do not mention anything it changes; they are not listed.")
     if run_codes.get("BUDGET_EXHAUSTED"):
         out.append("The crawl stopped at its action budget, so some screens were not observed.")
     if run_codes.get("SPEC_STALE"):
@@ -781,8 +812,8 @@ def assemble(run: RunContext, cfg: TargetConfig, store: Any, pr: PRData, retr: R
     run_codes = run_failure_counts(run)
     bundle = summary.get("bundle_hash")
     context = _change_words(retr, direct, b.controls, locale_added)
-    reqs, req_conf, unrelated = build_requirements(run, store, pr, retr, seeds, bundle, locale_added,
-                                                   _patch_texts(pr), context)
+    reqs, req_conf, unrelated, screen_level = build_requirements(run, store, pr, retr, seeds, bundle, locale_added,
+                                                                 _patch_texts(pr), context)
     known = {r.requirement_id: r for r in reqs}
     for it in (*direct, *indirect):
         it.requirement_ids = sorted(r for r in it.requirement_ids if r in known)
@@ -832,7 +863,7 @@ def assemble(run: RunContext, cfg: TargetConfig, store: Any, pr: PRData, retr: R
         confidence_line="", direct=direct, indirect=shown, global_changes=g_items, stored_data=s_items,
         requirements=reqs, undetermined=undetermined,
         not_checked=not_checked_lines(pr, retr, run_codes, len(overflow), more, stored_data=bool(s_items),
-                                      unrelated_absences=unrelated),
+                                      unrelated_absences=unrelated, screen_level_requirements=screen_level),
         snapshot=_snapshot(run, cfg, pr, indexed_commit, summary), claims=sorted(claims, key=lambda c: c.id))
     report.risk_level = derive_risk(report)
     counts = _counts(report, retr, overflow, direct, shown)
