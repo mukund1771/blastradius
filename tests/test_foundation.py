@@ -253,3 +253,10 @@ def test_make_client_sends_workspace_header_only_when_configured(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_WORKSPACE_ID", "wrkspc_test123")
     headers = {k.lower(): v for k, v in make_client().default_headers.items()}
     assert headers["anthropic-workspace-id"] == "wrkspc_test123"
+
+
+def test_redactor_catches_prefixed_secret_names_but_not_ordinary_ui_text():
+    assert "abc12345xyz9" not in redact_text("https://x/cb?access_token=abc12345xyz9&q=1")
+    assert "abc12345xyz9" not in redact_text("refresh_token: abc12345xyz9")
+    assert redact_text("Token: how to use") == "Token: how to use"
+    assert redact_text("Reset password: step 1 of 3") == "Reset password: step 1 of 3"

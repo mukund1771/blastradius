@@ -80,7 +80,8 @@ class UIElementObs(Strict):
     selector: str = ""
     visible: bool = True
     ordinal: int = 0                         # nth element with the same (role, name) on the screen
-    owner_hint: str | None = None            # owning component/scope id when the page exposes one (drift detector, canonical key)
+    owner_hint: str | None = None            # the 'data-v-<8hex>' scoped-style attribute NAME of the element or its nearest
+                                             # ancestor that has one (drift detector, canonical key); not part of the id
 
 
 class ScreenState(Strict):
@@ -108,8 +109,8 @@ class Transition(Strict):
     element_id: str | None = None
     action: Literal["click", "type", "press", "goto", "hover", "select"] = "click"
     label: str = ""
-    observed: bool = True
-    blocked: bool = False                    # attempted but refused (policy/WAF)
+    observed: bool = True                    # inferred links are observed=False, blocked=False, reason 'inferred: ...'
+    blocked: bool = False                    # attempted but refused (policy/WAF); refused inferred edges: observed=False, blocked=True
     reason: str = ""
 
 

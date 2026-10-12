@@ -22,7 +22,8 @@ _PATTERNS: list[tuple[re.Pattern[str], str]] = [
         # generic `name: value` only when the value looks like a secret (>= 8 chars with a digit), so ordinary
         # UI text such as "Token: how to use" or "Reset password: step 1" is left alone
         re.compile(
-            r"(?i)\b(api[_-]?key|token|secret|password|passwd|authorization|cookie|set-cookie)\b(\s*[:=]\s*)"
+            r"(?i)(?<![\w-])((?:[a-z0-9]{1,16}[_-]){0,3}(?:api[_-]?key|token|secret|password|passwd|authorization|"
+            r"cookie|set-cookie|sessionid))\b(\s*[:=]\s*)"
             r"(?=[^\s'\",;]*\d)[^\s'\",;]{8,}"
         ),
         r"\1\2[REDACTED]",

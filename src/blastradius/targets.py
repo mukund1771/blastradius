@@ -40,7 +40,8 @@ class CrawlConfig(_Cfg):
     dismiss_selectors: list[str] = Field(default_factory=list)   # deterministic close buttons
     deny_url_patterns: list[str] = Field(default_factory=list)   # regexes never navigated to (/admin, /orgs)
     destructive_words: list[str] = Field(default_factory=lambda: [
-        "delete", "remove", "clear", "reset", "sign out", "log out", "logout", "revoke", "deactivate", "purchase", "pay"])
+        "delete", "remove", "clear", "reset", "sign out", "log out", "logout", "revoke", "deactivate", "purchase", "pay",
+        "discard", "leave", "wipe", "erase", "empty", "disconnect", "unlink", "terminate", "uninstall"])
     auth_words: list[str] = Field(default_factory=lambda: ["login", "log in", "sign in", "sign up", "register"])
     anchor: AnchorConfig = Field(default_factory=AnchorConfig)
     version_regex: str | None = None             # group 1 = the deployed app version string, searched in the shell/bundle
