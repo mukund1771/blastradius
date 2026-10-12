@@ -1,0 +1,74 @@
+{
+ "built_from": "GET /repos/hoppscotch/hoppscotch/tarball/main (single request via gh)",
+ "main_sha": "63273f8e599e73f0fb38c0739314e8d46b6bc83d",
+ "parser": {
+  "i18n": "locales/en.json flattened; key uses by regex t('...')/$t('...')",
+  "imports": "regex over <script> and .ts (import/export-from/side-effect/dynamic), ~/ and @app/ aliases, @hoppscotch/data -> packages/hoppscotch-data/src/index.ts, bare specifiers become external package names",
+  "renders": "tags in <template> mapped through the committed components.d.ts table",
+  "routes": "file-based pages of hoppscotch-common and hoppscotch-selfhost-web (_x = :x, _ = catch-all)"
+ },
+ "prs": {
+  "6641": {
+   "base": "main",
+   "files": [
+    "packages/hoppscotch-common/locales/en.json",
+    "packages/hoppscotch-common/src/components.d.ts",
+    "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "packages/hoppscotch-common/src/components/http/Response.vue",
+    "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "packages/hoppscotch-common/src/helpers/diff.ts",
+    "packages/hoppscotch-common/src/newstore/responseHistory.ts",
+    "packages/hoppscotch-selfhost-web/vite.config.ts"
+   ],
+   "head_sha": "5eea64fd209addde0d770831b7234817eb339699",
+   "title": "Feature/add compare button"
+  },
+  "6645": {
+   "base": "main",
+   "files": [
+    "packages/hoppscotch-common/locales/en.json",
+    "packages/hoppscotch-common/src/components.d.ts",
+    "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "packages/hoppscotch-common/src/components/environments/index.vue",
+    "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "packages/hoppscotch-common/src/services/__tests__/current-environment-value.service.spec.ts",
+    "packages/hoppscotch-common/src/services/__tests__/secret-environment.service.spec.ts",
+    "packages/hoppscotch-common/src/services/current-environment-value.service.ts",
+    "packages/hoppscotch-common/src/services/secret-environment.service.ts"
+   ],
+   "head_sha": "64ba4ff75eff7bef868b010947f50e9b6b326540",
+   "title": "feat(common): edit environment values from quick peek and the sidebar"
+  },
+  "6658": {
+   "base": "main",
+   "files": [
+    "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "packages/hoppscotch-common/src/components/collections/index.vue",
+    "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+    "packages/hoppscotch-common/src/helpers/backend/helpers.ts",
+    "packages/hoppscotch-common/src/helpers/collection/collection.ts",
+    "packages/hoppscotch-common/src/helpers/import-export/import/import-sources/UrlSource.ts",
+    "packages/hoppscotch-common/src/lib/sync/collections/import.ts",
+    "packages/hoppscotch-common/src/lib/sync/collections/index.ts",
+    "packages/hoppscotch-data/src/collection/index.ts",
+    "packages/hoppscotch-data/src/collection/v/13.ts"
+   ],
+   "head_sha": "735a6a0806f90e013339ea76d08d0b6cb2d9c62c",
+   "title": "feat: refresh collections imported from URL"
+  }
+ },
+ "repo": "hoppscotch/hoppscotch",
+ "what": "Hoppscotch main as a CodeIndex built by an independent regex scratch parser (not the product VueAdapter), plus the changed-file lists of the three demo PRs. Test fixture for the graph module only."
+}

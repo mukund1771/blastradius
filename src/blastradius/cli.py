@@ -142,8 +142,8 @@ def load(target: str = TargetOpt, run: Optional[str] = RunOpt) -> None:
     """Load crawl, spec and code artifacts into Neo4j."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.graph.load:run_load")
-    with ctx.stage("load"):
-        out = fn(ctx, cfg, _store(ctx))
+    with ctx.stage("load"), _store(ctx) as store:
+        out = fn(ctx, cfg, store)
     console.print(out)
 
 
@@ -152,8 +152,8 @@ def link(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = O
     """Link UI to code and requirements to UI; write evidence-bearing edges."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.link.link:run_link")
-    with ctx.stage("link"):
-        out = fn(ctx, cfg, _store(ctx), _llm(ctx, offline))
+    with ctx.stage("link"), _store(ctx) as store:
+        out = fn(ctx, cfg, store, _llm(ctx, offline))
     console.print(out)
 
 
@@ -163,8 +163,8 @@ def gaps(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = O
     """Materialise Gap nodes (absence with recorded search effort)."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.link.gaps:run_gaps")
-    with ctx.stage("gaps"):
-        out = fn(ctx, cfg, _store(ctx), _llm(ctx, offline), recrawl=recrawl)
+    with ctx.stage("gaps"), _store(ctx) as store:
+        out = fn(ctx, cfg, store, _llm(ctx, offline), recrawl=recrawl)
     console.print(out)
 
 
@@ -173,8 +173,8 @@ def flows(target: str = TargetOpt, run: Optional[str] = RunOpt) -> None:
     """Mine user flows from the transition graph."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.link.flows:run_flows")
-    with ctx.stage("flows"):
-        out = fn(ctx, cfg, _store(ctx))
+    with ctx.stage("flows"), _store(ctx) as store:
+        out = fn(ctx, cfg, store)
     console.print(f"{len(out)} flows")
 
 
@@ -184,8 +184,8 @@ def pr(number: int = typer.Argument(..., help="PR number in the target's repo"),
     """Blast-radius report for a pull request."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.reason.pipeline:run_pr")
-    with ctx.stage("pr", pr=number):
-        out = fn(ctx, cfg, number, _store(ctx), _llm(ctx, offline))
+    with ctx.stage("pr", pr=number), _store(ctx) as store:
+        out = fn(ctx, cfg, number, store, _llm(ctx, offline))
     console.print(out)
 
 
@@ -195,8 +195,8 @@ def eval_cmd(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool
     """Run the evaluation suite and print honest numbers."""
     ctx, cfg = _ctx(target, run)
     fn = _resolve("blastradius.evalkit.run:run_eval")
-    with ctx.stage("eval"):
-        out = fn(ctx, cfg, _store(ctx), _llm(ctx, offline), which or None)
+    with ctx.stage("eval"), _store(ctx) as store:
+        out = fn(ctx, cfg, store, _llm(ctx, offline), which or None)
     console.print(out)
 
 

@@ -1,6 +1,6 @@
 services:
   neo4j:
-    image: neo4j:5-community
+    image: neo4j:5.26-community  # impact/hub_degree templates need >= 5.23 (CALL (vars) scope clause)
     container_name: blastradius-neo4j
     restart: unless-stopped
     ports:

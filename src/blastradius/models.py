@@ -80,6 +80,7 @@ class UIElementObs(Strict):
     selector: str = ""
     visible: bool = True
     ordinal: int = 0                         # nth element with the same (role, name) on the screen
+    owner_hint: str | None = None            # owning component/scope id when the page exposes one (drift detector, canonical key)
 
 
 class ScreenState(Strict):

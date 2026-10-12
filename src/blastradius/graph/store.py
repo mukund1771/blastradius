@@ -1,0 +1,774 @@
+"""GraphStore: the only code that talks to Neo4j (D03, D08, D28; cases 46, 47, 48, 51, 57).
+
+What this module guarantees:
+  * Writes are idempotent MERGEs keyed by (target, id) / (target, path), batched with UNWIND. Re-writing
+    identical input creates nothing (counters prove it) and `SET n += props` never drops a property that
+    another stage wrote (owner_file, links), so a rerun cannot lose data (case 47).
+  * Every node and relationship carries `run_id` (last writer) and `first_run_id` (never overwritten), so
+    two runs are diffable and `prune_stale` can remove what a run no longer asserts.
+  * Gap nodes are keyed by (target, id, bundle_hash) and never reused across bundles (case 48).
+  * Reads go through named templates only (queries.py) inside a read transaction; the server rejects a
+    write there. All Cypher in this file is a module constant: values reach Neo4j only as parameters.
+  * Unresolvable references are skipped and counted in the returned dict, never silently invented.
+"""
+
+from __future__ import annotations
+
+import time
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Self
+from urllib.parse import urlsplit
+
+import neo4j
+from neo4j import GraphDatabase, unit_of_work
+from neo4j.exceptions import AuthError, DriverError, Neo4jError, ServiceUnavailable, SessionExpired
+
+from ..config import Settings
+from ..failures import META, FailureCode
+from ..ids import canonical_json
+from ..models import CodeEdge, CodeIndex, Flow, Gap, Link, Requirement, ScreenState, Transition
+from ..redact import redact_text
+from ..run import RunContext
+from ..trace import Tracer, now_iso
+from . import queries, writes
+from .canonical import canonicalise, match_route
+
+SCHEMA_PATH = Path(__file__).with_name("schema.cypher")
+CHUNK_SIZE = 500
+READ_TIMEOUT_S = 30.0
+
+LABELS = (
+    "Requirement",
+    "Screen",
+    "UIElement",
+    "Flow",
+    "CodeFile",
+    "I18nKey",
+    "Route",
+    "PullRequest",
+    "Gap",
+    "Run",
+)
+REL_TYPES = (
+    "APPEARS_ON",
+    "LEADS_TO",
+    "STEP",
+    "STARTS_AT",
+    "ENDS_AT",
+    "REALIZED_BY",
+    "IMPLEMENTED_BY",
+    "SERVED_BY",
+    "HANDLED_BY",
+    "IMPORTS",
+    "RENDERS",
+    "USES_KEY",
+    "HAS_GAP",
+    "SEARCHED",
+)
+LAYERS = ("code", "crawl", "spec", "links")
+
+
+class GraphError(RuntimeError):
+    code: FailureCode = FailureCode.GRAPH_WRITE_FAILED
+
+
+class GraphConnectionError(GraphError):
+    code = FailureCode.GRAPH_CONN_FAILED
+
+
+# ---------------------------------------------------------------------------------------------- helpers
+@dataclass
+class _Tally:
+    nodes_created: int = 0
+    relationships_created: int = 0
+    nodes_deleted: int = 0
+    relationships_deleted: int = 0
+
+    def add(self, counters: Any) -> None:
+        self.nodes_created += counters.nodes_created
+        self.relationships_created += counters.relationships_created
+        self.nodes_deleted += counters.nodes_deleted
+        self.relationships_deleted += counters.relationships_deleted
+
+    def as_dict(self) -> dict[str, int]:
+        return {"nodes_created": self.nodes_created, "relationships_created": self.relationships_created}
+
+
+def _safe_uri(uri: str) -> str:
+    parts = urlsplit(uri)
+    host = parts.hostname or uri
+    return f"{parts.scheme}://{host}" + (f":{parts.port}" if parts.port else "")
+
+
+def _one_target(items: Sequence[Any], explicit: str | None, fallback: str | None, what: str) -> str:
+    targets = {i.target for i in items if hasattr(i, "target")}
+    if len(targets) > 1:
+        raise ValueError(f"{what}: rows belong to several targets {sorted(targets)}")
+    target = explicit or (targets.pop() if targets else None) or fallback
+    if not target:
+        raise ValueError(f"{what}: cannot determine the target; pass target=...")
+    return target
+
+
+def _total(rows: Iterable[Mapping[str, Any]], key: str) -> int:
+    return sum(int(r[key]) for r in rows)
+
+
+def _is_package(path: str) -> bool:
+    return "." not in path.rsplit("/", 1)[-1]
+
+
+def _merge_edges(edges: Iterable[CodeEdge]) -> dict[str, list[dict[str, Any]]]:
+    """One row per (kind, src, dst): symbols are unioned and the first `via` kept, so no MERGE loses a row."""
+    slots: dict[str, dict[tuple[str, str], dict[str, Any]]] = {"IMPORTS": {}, "RENDERS": {}}
+    for e in edges:
+        slot = slots[e.kind].setdefault(
+            (e.src, e.dst), {"src": e.src, "dst": e.dst, "symbols": [], "via": None}
+        )
+        slot["symbols"].extend(s for s in e.symbols if s not in slot["symbols"])
+        slot["via"] = slot["via"] or e.via
+    return {kind: list(by_pair.values()) for kind, by_pair in slots.items()}
+
+
+# ------------------------------------------------------------------------------------------------ store
+class GraphStore:
+    def __init__(
+        self,
+        driver: neo4j.Driver,
+        *,
+        run: RunContext | None = None,
+        target: str | None = None,
+        database: str | None = None,
+        chunk_size: int = CHUNK_SIZE,
+        read_timeout_s: float = READ_TIMEOUT_S,
+    ):
+        self.driver = driver
+        self.run = run
+        self.target = target or (run.target if run else None)
+        self.database = database
+        self.chunk_size = max(1, chunk_size)
+        self.read_timeout_s = read_timeout_s
+        self._tracer = run.tracer if run else Tracer.null()
+
+    # ---- construction ------------------------------------------------------------------------
+    @classmethod
+    def from_settings(
+        cls,
+        settings: Settings,
+        run: RunContext | None = None,
+        *,
+        attempts: int = 3,
+        backoff_s: float = 0.5,
+        chunk_size: int = CHUNK_SIZE,
+        target: str | None = None,
+        database: str | None = None,
+    ) -> GraphStore:
+        """Connect with bounded retries. A bad password is not retried. Failure raises
+        GraphConnectionError (FailureCode.GRAPH_CONN_FAILED) and is recorded on the run."""
+        last: Exception | None = None
+        for attempt in range(max(1, attempts)):
+            driver = None
+            try:
+                driver = GraphDatabase.driver(
+                    settings.neo4j_uri,
+                    auth=(settings.neo4j_user, settings.neo4j_password),
+                    connection_timeout=5.0,
+                    notifications_disabled_classifications=["UNRECOGNIZED"],
+                )
+                driver.verify_connectivity()
+                return cls(driver, run=run, target=target, database=database, chunk_size=chunk_size)
+            except AuthError as exc:
+                last = exc
+                if driver is not None:
+                    driver.close()
+                break
+            except (DriverError, Neo4jError, OSError, ValueError) as exc:
+                last = exc
+                if driver is not None:
+                    driver.close()
+                if attempt + 1 < attempts:
+                    time.sleep(backoff_s * (2**attempt))
+        uri = _safe_uri(settings.neo4j_uri)
+        detail = f"{type(last).__name__}: {redact_text(str(last))[:160]}"
+        message = f"cannot connect to Neo4j at {uri} ({detail}). {META[FailureCode.GRAPH_CONN_FAILED][2]}"
+        if run is not None:
+            run.failures.record(FailureCode.GRAPH_CONN_FAILED, message, uri=uri, attempts=attempts)
+        raise GraphConnectionError(message) from last
+
+    def close(self) -> None:
+        self.driver.close()
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        self.close()
+
+    # ---- plumbing ----------------------------------------------------------------------------
+    def _target(self, explicit: str | None) -> str:
+        target = explicit or self.target
+        if not target:
+            raise ValueError("no target: pass target=... or build the store with a RunContext")
+        return target
+
+    def _error(self, exc: Exception, what: str) -> GraphError:
+        """Map a driver error to our closed vocabulary and record it on the run."""
+        connection = isinstance(exc, (ServiceUnavailable, SessionExpired))
+        code = FailureCode.GRAPH_CONN_FAILED if connection else FailureCode.GRAPH_WRITE_FAILED
+        message = f"{what}: {type(exc).__name__}: {redact_text(str(exc))[:200]}"
+        if self.run is not None:
+            self.run.failures.record(code, message)
+        return (GraphConnectionError if connection else GraphError)(message)
+
+    def _write(self, work: Callable[[neo4j.ManagedTransaction], Any], what: str) -> Any:
+        try:
+            with self.driver.session(
+                database=self.database, default_access_mode=neo4j.WRITE_ACCESS
+            ) as session:
+                return session.execute_write(work)
+        except (DriverError, Neo4jError) as exc:
+            raise self._error(exc, what) from exc
+
+    def _run_rows(
+        self, cypher: str, rows: Sequence[Mapping[str, Any]], tally: _Tally, what: str, **params: Any
+    ) -> list[dict[str, Any]]:
+        """Run one statement over `rows` in chunks; return the concatenated result rows."""
+        out: list[dict[str, Any]] = []
+        for start in range(0, len(rows), self.chunk_size):
+            chunk = list(rows[start : start + self.chunk_size])
+
+            def work(tx: neo4j.ManagedTransaction, chunk: list = chunk) -> tuple[list[dict[str, Any]], Any]:
+                result = tx.run(cypher, rows=chunk, **params)
+                return result.data(), result.consume().counters
+
+            data, counters = self._write(work, what)
+            tally.add(counters)
+            out.extend(data)
+        return out
+
+    def _run_once(self, cypher: str, tally: _Tally, what: str, **params: Any) -> list[dict[str, Any]]:
+        def work(tx: neo4j.ManagedTransaction) -> tuple[list[dict[str, Any]], Any]:
+            result = tx.run(cypher, **params)
+            return result.data(), result.consume().counters
+
+        data, counters = self._write(work, what)
+        tally.add(counters)
+        return data
+
+    def _stamp_run(self, target: str, run_id: str, layer: str, props: Mapping[str, Any]) -> None:
+        self._run_once(
+            writes.RUN,
+            _Tally(),
+            "run node",
+            target=target,
+            run_id=run_id,
+            layer=layer,
+            now=now_iso(),
+            props={k: v for k, v in props.items() if v is not None},
+        )
+
+    def _aliases(self, target: str) -> dict[str, str]:
+        """Crawl-time observation id -> canonical UIElement id, from the graph."""
+        out: dict[str, str] = {}
+        for row in self.read("element_aliases", target=target):
+            for obs_id in row["obs_ids"]:
+                out[obs_id] = row["id"]
+        return out
+
+    # ---- schema and lifecycle ----------------------------------------------------------------
+    def ensure_schema(self) -> int:
+        """Apply schema.cypher. Idempotent. Returns the number of statements executed."""
+        lines = [ln for ln in SCHEMA_PATH.read_text().splitlines() if not ln.strip().startswith("//")]
+        statements = [s.strip() for s in "\n".join(lines).split(";") if s.strip()]
+        with self._tracer.span("graph_write", "ensure_schema", statements=len(statements)):
+            for statement in statements:
+                try:
+                    self._run_once(statement, _Tally(), "ensure_schema")
+                except GraphError as exc:
+                    if "AlreadyExists" not in str(exc):  # two processes applying the schema concurrently
+                        raise
+        return len(statements)
+
+    def clear_target(self, target: str) -> int:
+        """Delete every node (and relationship) of one target, in batches. Other targets are untouched."""
+        total = 0
+        with self._tracer.span("graph_write", "clear_target", target=target) as sp:
+            while True:
+                tally = _Tally()
+                self._run_once(
+                    writes.DELETE_BATCH, tally, "clear_target", target=target, batch=self.chunk_size * 10
+                )
+                total += tally.nodes_deleted
+                if tally.nodes_deleted == 0:
+                    break
+            sp.set(nodes_deleted=total)
+        return total
+
+    def counts(self, target: str | None = None) -> dict[str, int]:
+        """Node counts keyed by label (CamelCase) and relationship counts keyed by type (UPPER_CASE)."""
+        target = self._target(target)
+        out = {name: 0 for name in (*LABELS, *REL_TYPES)}
+        for row in self.read("counts_by_label", target=target):
+            out[row["label"]] = row["n"]
+        for row in self.read("counts_by_rel", target=target):
+            out[row["type"]] = row["n"]
+        return out
+
+    # ---- reads -------------------------------------------------------------------------------
+    def read(self, template: str, **params: Any) -> list[dict[str, Any]]:
+        """Run a named template from queries.TEMPLATES in a read transaction. `target` defaults to the
+        store's target. Unknown templates and unknown or invalid parameters raise before any I/O."""
+        tpl = queries.get(template)
+        if "target" in tpl.params and "target" not in params and self.target:
+            params["target"] = self.target
+        bound = tpl.bind(params)
+
+        @unit_of_work(timeout=self.read_timeout_s)
+        def work(tx: neo4j.ManagedTransaction) -> list[dict[str, Any]]:
+            return tx.run(tpl.cypher, bound).data()
+
+        with self._tracer.span("cypher_query", template, target=bound.get("target")) as sp:
+            try:
+                with self.driver.session(database=self.database, default_access_mode=neo4j.READ_ACCESS) as s:
+                    rows = s.execute_read(work)
+            except (DriverError, Neo4jError) as exc:
+                raise self._error(exc, f"read {template}") from exc
+            sp.set(rows=len(rows))
+        return rows
+
+    # ---- writes: code ------------------------------------------------------------------------
+    def write_code(self, index: CodeIndex, run_id: str) -> dict[str, Any]:
+        """CodeFile, IMPORTS/RENDERS, Route + HANDLED_BY, I18nKey + USES_KEY for one code snapshot.
+
+        Edge or key-use endpoints that are not in `index.files` become stub CodeFile nodes (stub=true,
+        kind `external` for a bare package name) so hub edges to packages such as @hoppscotch/data are not
+        lost. Literals are not loaded (not in the plan's schema; the linker reads code/index.json).
+        """
+        target, tally = index.target, _Tally()
+        with self._tracer.span(
+            "graph_write", "write_code", target=target, files=len(index.files), edges=len(index.edges)
+        ) as sp:
+            file_rows = {
+                f.path: {
+                    "path": f.path,
+                    "props": {
+                        "kind": f.kind.value,
+                        "loc": f.loc,
+                        "sha": f.sha,
+                        "package": f.package,
+                        "stub": None,
+                    },
+                }
+                for f in index.files
+            }
+            merged = _merge_edges(index.edges)
+            uses: dict[tuple[str, str], dict[str, Any]] = {}
+            for u in index.key_uses:
+                slot = uses.setdefault(
+                    (u.file, u.key), {"file": u.file, "key": u.key, "dynamic": False, "uses": 0}
+                )
+                slot["dynamic"] = slot["dynamic"] or u.dynamic
+                slot["uses"] += 1
+            routes: dict[str, dict[str, Any]] = {}
+            for r in index.routes:
+                slot = routes.setdefault(
+                    r.pattern, {"pattern": r.pattern, "file": r.file, "layout": r.layout, "files": []}
+                )
+                slot["layout"] = slot["layout"] or r.layout
+                if r.file not in slot["files"]:
+                    slot["files"].append(r.file)
+            referenced = (
+                {e["src"] for rows in merged.values() for e in rows}
+                | {e["dst"] for rows in merged.values() for e in rows}
+                | {k[0] for k in uses}
+                | {r["file"] for r in routes.values()}
+            )
+            stubs = sorted(p for p in referenced if p not in file_rows)
+            for path in stubs:
+                file_rows[path] = {
+                    "path": path,
+                    "props": {
+                        "kind": "external" if _is_package(path) else "source_other",
+                        "loc": 0,
+                        "sha": None,
+                        "package": None,
+                        "stub": True,
+                    },
+                }
+            keys = dict(index.i18n)
+            missing_keys = sorted({k[1] for k in uses} - set(keys))
+            key_rows = [{"key": k, "en": v} for k, v in keys.items()] + [
+                {"key": k, "en": None} for k in missing_keys
+            ]
+            common = {"target": target, "run_id": run_id, "snapshot_id": index.snapshot_id}
+            self._run_rows(writes.CODE_FILE, list(file_rows.values()), tally, "write_code files", **common)
+            self._run_rows(writes.IMPORTS, merged["IMPORTS"], tally, "write_code imports", **common)
+            self._run_rows(writes.RENDERS, merged["RENDERS"], tally, "write_code renders", **common)
+            self._run_rows(writes.ROUTE, list(routes.values()), tally, "write_code routes", **common)
+            handled = [{"pattern": r["pattern"], "file": f} for r in routes.values() for f in r["files"]]
+            self._run_rows(writes.HANDLED_BY, handled, tally, "write_code handled_by", **common)
+            self._run_rows(writes.I18N_KEY, key_rows, tally, "write_code i18n", **common)
+            self._run_rows(writes.USES_KEY, list(uses.values()), tally, "write_code uses_key", **common)
+            self._stamp_run(
+                target,
+                run_id,
+                "code",
+                {
+                    "snapshot_id": index.snapshot_id,
+                    "repo": index.repo,
+                    "ref": index.ref,
+                    "adapter": index.adapter,
+                    "code_stats": canonical_json(index.stats),
+                },
+            )
+            sp.set(**tally.as_dict())
+        return {
+            "files": len(index.files),
+            "stub_files": len(stubs),
+            "imports": len(merged["IMPORTS"]),
+            "renders": len(merged["RENDERS"]),
+            "routes": len(routes),
+            "i18n_keys": len(key_rows),
+            "key_uses": len(uses),
+            "i18n_keys_without_value": len(missing_keys),
+            **tally.as_dict(),
+        }
+
+    # ---- writes: crawl -----------------------------------------------------------------------
+    def write_crawl(
+        self,
+        screens: Sequence[ScreenState],
+        transitions: Sequence[Transition],
+        run_id: str,
+        bundle_hash: str | None,
+        *,
+        target: str | None = None,
+        snapshot_id: str | None = None,
+        bundle_hash_end: str | None = None,
+    ) -> dict[str, Any]:
+        """Screens, canonical UIElements (case 46) with APPEARS_ON, and LEADS_TO for transitions.
+
+        A transition whose element_id resolves (through the observation-id alias) becomes
+        (UIElement)-[:LEADS_TO]->(Screen); one with no element, or an unresolvable one, becomes
+        (Screen)-[:LEADS_TO]->(Screen) from `from_screen`. `from_screen` is kept on the edge.
+        """
+        target = _one_target(screens, target, self.target, "write_crawl")
+        snapshot_id = snapshot_id or bundle_hash or ""
+        tally = _Tally()
+        with self._tracer.span(
+            "graph_write", "write_crawl", target=target, screens=len(screens), transitions=len(transitions)
+        ) as sp:
+            canon = canonicalise(screens, target)
+            screen_rows = [
+                {
+                    "id": s.id,
+                    "props": {
+                        "url": s.url,
+                        "url_pattern": s.url_pattern,
+                        "title": s.title,
+                        "kind": s.kind,
+                        "fingerprint": s.fingerprint,
+                        "dialog_title": s.dialog_title,
+                        "active_tabs": list(s.active_tabs),
+                        "screenshot": s.screenshot,
+                        "dom_path": s.dom_path,
+                        "capture_id": s.capture_id,
+                        "first_seen_action": s.first_seen_action,
+                        "depth": s.depth,
+                    },
+                }
+                for s in sorted(screens, key=lambda s: s.id)
+            ]
+            common = {
+                "target": target,
+                "run_id": run_id,
+                "bundle_hash": bundle_hash,
+                "snapshot_id": snapshot_id,
+            }
+            self._run_rows(writes.SCREEN, screen_rows, tally, "write_crawl screens", **common)
+            self._run_rows(writes.ELEMENT, canon.elements, tally, "write_crawl elements", **common)
+            appears = self._run_rows(
+                writes.APPEARS_ON, canon.appearances, tally, "write_crawl appears_on", **common
+            )
+            alias = {**self._aliases(target), **canon.alias}
+            by_element: list[dict[str, Any]] = []
+            by_screen: list[dict[str, Any]] = []
+            unresolved_elements = 0
+            for t in sorted(transitions, key=lambda t: t.id):
+                row = {
+                    "tid": t.id,
+                    "dst": t.to_screen,
+                    "from_screen": t.from_screen,
+                    "action": t.action,
+                    "observed": t.observed,
+                    "blocked": t.blocked,
+                    "label": t.label,
+                    "reason": t.reason,
+                }
+                element = alias.get(t.element_id) if t.element_id else None
+                if element is not None:
+                    by_element.append({**row, "src": element})
+                    continue
+                unresolved_elements += 1 if t.element_id else 0
+                by_screen.append({**row, "src": t.from_screen})
+            via_element = self._run_rows(
+                writes.LEADS_TO_ELEMENT, by_element, tally, "write_crawl leads_to", **common
+            )
+            via_screen = self._run_rows(
+                writes.LEADS_TO_SCREEN, by_screen, tally, "write_crawl leads_to", **common
+            )
+            matched = _total(via_element, "matched") + _total(via_screen, "matched")
+            self._stamp_run(
+                target,
+                run_id,
+                "crawl",
+                {
+                    "bundle_hash": bundle_hash,
+                    "bundle_hash_end": bundle_hash_end,
+                    "crawl_snapshot_id": snapshot_id,
+                },
+            )
+            sp.set(**tally.as_dict())
+        return {
+            "screens": len(screens),
+            "observations": canon.observations,
+            "elements": len(canon.elements),
+            "appearances": len(canon.appearances),
+            "appearances_matched": _total(appears, "matched"),
+            "transitions": len(transitions),
+            "transitions_element_level": len(by_element),
+            "transitions_screen_level": len(by_screen),
+            "transitions_element_unresolved": unresolved_elements,
+            "transitions_skipped": len(transitions) - matched,
+            **tally.as_dict(),
+        }
+
+    def link_routes(self, run_id: str, *, target: str | None = None) -> dict[str, Any]:
+        """(Screen)-[:SERVED_BY]->(Route): match each Screen's url_pattern to a Route pattern (exact, then
+        parameterised, then catch-all). Computed from what is in the graph, so it is independent of which
+        artifact was loaded last. Replaces SERVED_BY edges written by an earlier run."""
+        target = self._target(target)
+        tally = _Tally()
+        with self._tracer.span("graph_write", "link_routes", target=target):
+            screens = self.read("screen_url_patterns", target=target)
+            patterns = [r["pattern"] for r in self.read("route_patterns", target=target)]
+            rows = []
+            for s in screens:
+                hit = match_route(s["url_pattern"] or "", patterns)
+                if hit is not None:
+                    rows.append({"screen": s["id"], "pattern": hit[0], "how": hit[1]})
+            self._run_rows(writes.SERVED_BY, rows, tally, "link_routes", target=target, run_id=run_id)
+            self._run_once(writes.SERVED_BY_STALE, tally, "link_routes prune", target=target, run_id=run_id)
+        return {
+            "screens": len(screens),
+            "served": len(rows),
+            "unserved": len(screens) - len(rows),
+            **tally.as_dict(),
+        }
+
+    # ---- writes: spec ------------------------------------------------------------------------
+    def write_requirements(
+        self, reqs: Sequence[Requirement], run_id: str, *, target: str | None = None
+    ) -> dict[str, Any]:
+        target = _one_target(reqs, target, self.target, "write_requirements")
+        tally = _Tally()
+        with self._tracer.span("graph_write", "write_requirements", target=target, rows=len(reqs)) as sp:
+            rows = [
+                {
+                    "id": r.id,
+                    "props": {
+                        "text": r.text,
+                        "quote": r.quote,
+                        "source_url": r.source_url,
+                        "section": r.section,
+                        "doc_version": r.doc_version,
+                        "edition": r.edition,
+                        "polarity": r.polarity,
+                        "ui_observable": r.ui_observable,
+                        "requires_login": r.requires_login,
+                        "source_kind": r.source_kind,
+                        "tags": list(r.tags),
+                        "spec_sha": r.spec_sha,
+                    },
+                }
+                for r in sorted(reqs, key=lambda r: r.id)
+            ]
+            self._run_rows(
+                writes.REQUIREMENT, rows, tally, "write_requirements", target=target, run_id=run_id
+            )
+            self._stamp_run(target, run_id, "spec", {"spec_shas": sorted({r.spec_sha for r in reqs})})
+            sp.set(**tally.as_dict())
+        return {"requirements": len(reqs), **tally.as_dict()}
+
+    # ---- writes: links, gaps, flows (wave 2) -------------------------------------------------
+    def write_links(self, links: Sequence[Link], run_id: str, *, target: str | None = None) -> dict[str, Any]:
+        """REALIZED_BY (Requirement -> UIElement|Screen|Flow) and IMPLEMENTED_BY (UIElement -> CodeFile),
+        one relationship per (src, dst, method). UIElement ids may be crawl observation ids. After
+        IMPLEMENTED_BY writes, `owner_file` is set to the element's highest-confidence file."""
+        target, tally = self._target(target), _Tally()
+        with self._tracer.span("graph_write", "write_links", target=target, rows=len(links)) as sp:
+            alias = self._aliases(target)
+            impl, real = [], []
+            for link in links:
+                row = {
+                    "src": link.src,
+                    "dst": link.dst,
+                    "method": link.method,
+                    "confidence": link.confidence,
+                    "evidence_id": link.evidence_id,
+                    "judge": link.judge,
+                }
+                if link.kind == "IMPLEMENTED_BY":
+                    impl.append({**row, "src": alias.get(link.src, link.src)})
+                else:
+                    real.append({**row, "dst": alias.get(link.dst, link.dst)})
+            impl_res = self._run_rows(
+                writes.IMPLEMENTED_BY, impl, tally, "write_links implemented_by", target=target, run_id=run_id
+            )
+            real_res = self._run_rows(
+                writes.REALIZED_BY, real, tally, "write_links realized_by", target=target, run_id=run_id
+            )
+            ids = sorted({r["src"] for r in impl})
+            for start in range(0, len(ids), self.chunk_size):
+                self._run_once(
+                    writes.OWNER_FILE,
+                    tally,
+                    "write_links owner_file",
+                    target=target,
+                    ids=ids[start : start + self.chunk_size],
+                )
+            sp.set(**tally.as_dict())
+        no_src = _total(impl_res, "missing_src") + _total(real_res, "missing_src")
+        no_dst = _total(impl_res, "missing_dst") + _total(real_res, "missing_dst")
+        return {
+            "implemented_by": len(impl) - _total(impl_res, "missing_src") - _total(impl_res, "missing_dst"),
+            "realized_by": len(real) - _total(real_res, "missing_src") - _total(real_res, "missing_dst"),
+            "skipped_missing_src": no_src,
+            "skipped_missing_dst": no_dst,
+            **tally.as_dict(),
+        }
+
+    def write_gaps(self, gaps: Sequence[Gap], run_id: str, *, target: str | None = None) -> dict[str, Any]:
+        """Gap nodes keyed by (id, bundle_hash) with HAS_GAP from the subject and SEARCHED to each screen.
+        A missing bundle_hash is stored as "" (bundle-independent, e.g. NOT_UI_TESTABLE)."""
+        target, tally = self._target(target), _Tally()
+        with self._tracer.span("graph_write", "write_gaps", target=target, rows=len(gaps)) as sp:
+            alias = self._aliases(target)
+            node_rows, subject_rows, searched = [], [], []
+            for g in sorted(gaps, key=lambda g: (g.id, g.bundle_hash or "")):
+                bundle = g.bundle_hash or ""
+                key = {"id": g.id, "bundle_hash": bundle}
+                node_rows.append(
+                    {
+                        **key,
+                        "props": {
+                            "kind": g.kind.value,
+                            "status": g.status,
+                            "subject_id": g.subject_id,
+                            "reason": g.reason,
+                            "confidence": g.confidence,
+                            "actions_spent": g.actions_spent,
+                            "evidence_id": g.evidence_id,
+                            "screens_searched": list(g.screens_searched),
+                        },
+                    }
+                )
+                subject_rows.append({**key, "subject": alias.get(g.subject_id, g.subject_id)})
+                searched.extend({**key, "screen": s} for s in dict.fromkeys(g.screens_searched))
+            self._run_rows(writes.GAP, node_rows, tally, "write_gaps", target=target, run_id=run_id)
+            attached = self._run_rows(
+                writes.HAS_GAP, subject_rows, tally, "write_gaps has_gap", target=target, run_id=run_id
+            )
+            self._run_rows(writes.SEARCHED_RESET, node_rows, tally, "write_gaps reset", target=target)
+            found = self._run_rows(
+                writes.SEARCHED, searched, tally, "write_gaps searched", target=target, run_id=run_id
+            )
+            sp.set(**tally.as_dict())
+        return {
+            "gaps": len(gaps),
+            "subjects_unresolved": _total(attached, "unresolved"),
+            "searched": _total(found, "matched"),
+            "searched_unresolved": len(searched) - _total(found, "matched"),
+            **tally.as_dict(),
+        }
+
+    def write_flows(self, flows: Sequence[Flow], run_id: str, *, target: str | None = None) -> dict[str, Any]:
+        """Flow nodes, (Flow)-[:STEP {order}]->(UIElement), STARTS_AT/ENDS_AT to the first/last Screen.
+        A flow is replaced as a unit: its previous STEP/STARTS_AT/ENDS_AT edges are removed first."""
+        target, tally = self._target(target), _Tally()
+        with self._tracer.span("graph_write", "write_flows", target=target, rows=len(flows)) as sp:
+            alias = self._aliases(target)
+            node_rows, steps, starts, ends = [], [], [], []
+            for f in sorted(flows, key=lambda f: f.id):
+                node_rows.append(
+                    {
+                        "id": f.id,
+                        "props": {
+                            "name": f.name,
+                            "goal": f.goal,
+                            "n_steps": len(f.steps),
+                            "n_screens": len(f.screens),
+                        },
+                    }
+                )
+                steps.extend(
+                    {"flow": f.id, "order": i, "element": alias.get(e, e)} for i, e in enumerate(f.steps)
+                )
+                if f.screens:
+                    starts.append({"flow": f.id, "screen": f.screens[0]})
+                    ends.append({"flow": f.id, "screen": f.screens[-1]})
+            ids = [f.id for f in flows]
+            for start in range(0, len(ids), self.chunk_size):
+                self._run_once(
+                    writes.FLOW_RESET,
+                    tally,
+                    "write_flows reset",
+                    target=target,
+                    ids=ids[start : start + self.chunk_size],
+                )
+            self._run_rows(writes.FLOW, node_rows, tally, "write_flows", target=target, run_id=run_id)
+            step_res = self._run_rows(
+                writes.STEP, steps, tally, "write_flows steps", target=target, run_id=run_id
+            )
+            start_res = self._run_rows(
+                writes.STARTS_AT, starts, tally, "write_flows starts_at", target=target, run_id=run_id
+            )
+            end_res = self._run_rows(
+                writes.ENDS_AT, ends, tally, "write_flows ends_at", target=target, run_id=run_id
+            )
+            sp.set(**tally.as_dict())
+        ends_total = len(starts) + len(ends)
+        return {
+            "flows": len(flows),
+            "steps": len(steps),
+            "steps_unresolved": len(steps) - _total(step_res, "matched"),
+            "screens_unresolved": ends_total - _total(start_res, "matched") - _total(end_res, "matched"),
+            **tally.as_dict(),
+        }
+
+    # ---- reconcile ---------------------------------------------------------------------------
+    def prune_stale(self, run_id: str, layers: Iterable[str], *, target: str | None = None) -> dict[str, int]:
+        """Delete nodes and relationships of the given layers (code, crawl, spec, links) that carry another
+        run's `run_id`, i.e. what this run did not re-assert. Link-stage edges on a deleted node go with
+        it. Nodes without a run_id are never touched. Call after the layer's write succeeded."""
+        target, layers = self._target(target), list(layers)
+        out: dict[str, int] = {}
+        detached = 0
+        with self._tracer.span("graph_write", "prune_stale", target=target, layers=layers) as sp:
+            for layer in layers:
+                if layer not in writes.PRUNE:
+                    raise ValueError(f"unknown layer {layer!r}; expected one of {LAYERS}")
+                for name, cypher in writes.PRUNE[layer]:
+                    tally = _Tally()
+                    self._run_once(cypher, tally, f"prune_stale {name}", target=target, run_id=run_id)
+                    is_node = name in LABELS
+                    out[name] = out.get(name, 0) + (
+                        tally.nodes_deleted if is_node else tally.relationships_deleted
+                    )
+                    if is_node:
+                        detached += tally.relationships_deleted
+            out["detached_relationships"] = detached
+            sp.set(removed=sum(out.values()))
+        return out
