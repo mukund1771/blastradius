@@ -484,7 +484,7 @@ def test_a_requirement_tied_to_a_whole_screen_is_at_risk_only_when_it_relates_to
         assert "req_scrunrelat001" not in by                                    # the page changed; this feature did not
         assert "req_elemindir001" not in by                                     # reached only through shared code
         assert "req_elemindir002" in by and by["req_elemindir002"].band.value != "confirmed"   # ...unless it relates
-        assert any("only through a whole screen or through code it shares" in line for line in report.not_checked)
+        assert any("only through a whole screen, a flow, or code it shares" in line for line in report.not_checked)
         assert by["req_envedit0001"].status == "at_risk"                        # a control-level link is unaffected
     finally:
         w.close()

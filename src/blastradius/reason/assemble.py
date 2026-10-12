@@ -466,12 +466,12 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
     absences were left out as unrelated, and how many requirements reached only
     through shared code or a whole screen, and unrelated to the change, were left out.
 
-    A requirement realised by a control that a changed file implements itself (hop 0) is at risk. One reached only
-    through shared code (a parent that renders a changed component, an importer of a changed service) or tied to a
-    whole screen says only that the feature lives near the change: the Sidebar renders the environments editor, so
-    "Collections", "History" and "Mock Servers" sit one hop from it, and the Home page hosts them all. Those count
-    only when the requirement shares a word with what the PR changes (`context`); otherwise they are left out and
-    counted, so every requirement of a large page is not "at risk" whenever one control on it changes.
+    A requirement realised by a control that a changed file implements itself (any hop-0 route whose direction is
+    self or copy, even when a shared-code route on the same control is more confident) is at risk. One reached only
+    through shared code, or tied to a whole screen or a flow, says only that the feature lives near the change: a
+    flow step or the Sidebar can sit next to the environments editor, so every requirement of that flow or page
+    would otherwise be "at risk". Those count only when the requirement shares a word with what the PR changes
+    (`context`), or when this PR removes every control that realises them. Otherwise they are left out and counted.
 
     An absence is reported only when it shares a word with what the PR changes (`context`: control names of the
     directly changed screens, the changed files' names, the strings the PR adds, the sections of at-risk
@@ -487,26 +487,28 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
 
     # at risk: requirements realised by an affected control, its screen or its flow
     Entry = tuple[float, str | None, list[str]]
-    per_req: dict[str, list[Entry]] = {}            # realised by a control the change reaches directly (hop 0)
+    per_req: dict[str, list[Entry]] = {}            # realised by a control a changed file implements (hop 0)
     indirect_req: dict[str, list[Entry]] = {}       # realised by a control reached only through shared code
-    coarse: dict[str, list[Entry]] = {}             # realised by a whole screen
+    coarse: dict[str, list[Entry]] = {}             # realised by a whole screen or a flow, not by one control
     for hit in retr.hits:
         live = [r for r in hit.routes if r.admitted and band_for(r.confidence) is not Band.UNKNOWN
                 and not (seeds.get(r.seed) and seeds[r.seed].is_global_only)]
         if not live:
             continue
-        best_route = max(live, key=lambda r: (r.confidence, -r.hops))
-        best = best_route.confidence
+        best = max(r.confidence for r in live)
+        # Any hop-0 self/copy route counts, not only the strongest. A shared-code route at 0.45 must not hide
+        # a changed file that implements the same control at 0.30.
+        direct_here = any(r.hops == 0 and r.direction in ("self", "copy") for r in live)
         ev = sorted({e for r in live for e in r.evidence_ids})
         for q in hit.requirements:
             rid = str(q["id"])
             if rid not in allowed:
                 continue
             link = float(q.get("confidence") or 0.0)
-            if q.get("via") == "screen":
+            if q.get("via") in ("screen", "flow"):
                 bucket = coarse
             else:
-                bucket = per_req if best_route.hops == 0 else indirect_req
+                bucket = per_req if direct_here else indirect_req
             bucket.setdefault(rid, []).append((round(best * link, 4), q.get("evidence_id"), ev))
     ids = sorted(set(per_req) | set(indirect_req) | set(coarse))
     info = {r["requirement_id"]: r for r in store.read("requirements_by_id", requirement_ids=ids)} if ids else {}

@@ -15,7 +15,6 @@ the decisions, evidence and edge cases behind it are in [docs/DECISIONS.md](docs
 | Demo PRs | #6645 (environments, primary), #6641 (compare button), #6658 (hub package, ambiguity case) |
 | Second target (adapter proof) | Sylius v2 demo, Twig, Gherkin requirements |
 | Sample output | [docs/sample-report-pr-6645.md](docs/sample-report-pr-6645.md) (HTML beside it). A keyless copy of the run is in [data/runs/sample](data/runs/sample) |
-| Loom script | [docs/LOOM.md](docs/LOOM.md) |
 
 ## Quickstart
 
