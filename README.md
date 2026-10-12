@@ -4,7 +4,7 @@
 source code that built it in a Neo4j graph (Requirements, UI, Code), and, given a real pull request, tells a QA lead
 which screens, flows and requirements are at risk, what it could not determine, and why.
 
-Built as a take-home for Testsigma's AI Engineer role. The design document is [docs/DESIGN.md](docs/DESIGN.md);
+ The design document is [docs/DESIGN.md](docs/DESIGN.md);
 the decisions, evidence and edge cases behind it are in [docs/DECISIONS.md](docs/DECISIONS.md),
 [docs/RECON.md](docs/RECON.md) and [docs/CASES.md](docs/CASES.md).
 
