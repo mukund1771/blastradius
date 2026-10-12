@@ -78,7 +78,8 @@ def test_import_graph_hubs_and_barrels(real):
     idx, _, _ = real
     s = idx.stats
     assert s["imports"] >= 2810                                 # RECON: 2,810 (we also resolve @composables/* etc.)
-    assert s["inferred_alias_imports"] > 300                    # @composables, @helpers ... are not in the yaml
+    # the repo's real tsconfig/vite aliases are in targets/hoppscotch.yaml now, so nothing needs the inference
+    assert s["inferred_alias_imports"] == 0
     assert s["unresolved_imports"] < 30
     assert s["hub_importers"]["@hoppscotch/data"] > 107         # RECON: 107 of 413 main-chunk app files
     assert s["barrel_importers"] > 200                          # RECON: 248
