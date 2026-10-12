@@ -6,6 +6,7 @@ import contextlib
 import json
 import os
 import platform
+import secrets
 import subprocess
 import sys
 from collections.abc import Iterator
@@ -79,7 +80,8 @@ class RunContext:
                runs_dir: Path | None = None) -> "RunContext":
         settings = settings or Settings.load()
         runs_dir = runs_dir or RUNS_DIR
-        run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"-{target}"
+        # second resolution alone would let two runs started together share a directory
+        run_id = run_id or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + f"-{target}-{secrets.token_hex(2)}"
         run_dir = runs_dir / run_id
         run_dir.mkdir(parents=True, exist_ok=True)
         ctx = cls._build(run_id, run_dir, target, settings)

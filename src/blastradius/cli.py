@@ -46,13 +46,28 @@ def _resolve(dotted: str) -> Any:
         raise typer.Exit(2) from exc
 
 
-def _ctx(target: str, run: Optional[str], *, create: bool = False) -> tuple[RunContext, TargetConfig]:
+def _ctx(target: str, run: Optional[str], *, create: bool = False, new: bool = False) -> tuple[RunContext, TargetConfig]:
+    """Resolve the run a stage works in.
+
+    Explicit --run wins (created if absent and create=True). With no --run, a stage attaches to the latest run
+    when it belongs to the same target, so `crawl` then `ingest` then `index` share one run directory; `new`
+    forces a fresh run. Stages that only read (load, link, ...) never create.
+    """
     cfg = TargetConfig.load(target)
-    if create and run is None:
+    if run is not None:
+        if create and not (RUNS_DIR / run / "manifest.json").exists():
+            return RunContext.create(target, run_id=run), cfg
+        return RunContext.attach(run), cfg
+    if not new:
+        try:
+            latest = RunContext.attach("latest")
+            if latest.target == target:
+                return latest, cfg
+        except FileNotFoundError:
+            pass
+    if create or new:
         return RunContext.create(target), cfg
-    if create and run is not None and not (RUNS_DIR / run / "manifest.json").exists():
-        return RunContext.create(target, run_id=run), cfg
-    return RunContext.attach(run or "latest"), cfg
+    raise typer.BadParameter("no run to attach to; run `blastradius crawl` (or ingest/index) first")
 
 
 def _llm(ctx: RunContext, offline: bool) -> Any:
@@ -106,9 +121,10 @@ def crawl(target: str = TargetOpt, run: Optional[str] = RunOpt, offline: bool = 
           source: str = typer.Option("live", help="live | recorded"),
           recorded_dir: Optional[str] = typer.Option(None, help="folder of html/png captures (source=recorded)"),
           max_actions: Optional[int] = typer.Option(None),
+          new: bool = typer.Option(False, "--new", help="start a fresh run even if a latest run exists"),
           goal: list[str] = typer.Option([], "--goal", help="requirement text to search for (repeatable)")) -> None:
     """Explore the live app and capture screens, elements and transitions."""
-    ctx, cfg = _ctx(target, run, create=True)
+    ctx, cfg = _ctx(target, run, create=True, new=new)
     fn = _resolve("blastradius.crawl.explorer:run_crawl")
     with ctx.stage("crawl"):
         summary = fn(ctx, cfg, _llm(ctx, offline), goals=goal or None, source=source, recorded_dir=recorded_dir,
