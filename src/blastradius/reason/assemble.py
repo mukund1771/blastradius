@@ -50,6 +50,8 @@ from .thresholds import Thresholds
 from .words import humanize_path, join_names, quoted, screen_label, sentence
 
 _DISTINCTIVE = 7       # a single shared word counts as "related" only when it is this long ("environment")
+_LONG_WORD = 9         # an absence needs two shared words, or one this long that is in the PR title
+_CANNOT_VERIFY_CAP = 5  # "cannot verify" rows shown; the rest are counted in the not-checked section
 _BAND_FLOOR = {Band.CONFIRMED: 0.8, Band.LIKELY: 0.5, Band.POSSIBLE: 0.25, Band.UNKNOWN: 0.0}
 _VERB = {
     Band.CONFIRMED: "is changed by this PR",
@@ -452,6 +454,24 @@ def spec_requirement_ids(run: RunContext) -> set[str]:
     return {str(r["id"]) for r in rows if isinstance(r, dict) and r.get("id")}
 
 
+def spec_generic_words(run: RunContext) -> set[str]:
+    """Stems that appear in at least a tenth of this run's requirements ("request", "collection", "select"). They
+    link every requirement to every change, so sharing one says nothing. Empty for a spec too small to judge."""
+    path = run.run_dir / "spec" / "requirements.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    rows = data if isinstance(data, list) else data.get("requirements", []) if isinstance(data, dict) else []
+    rows = [r for r in rows if isinstance(r, dict)]
+    if len(rows) < 30:
+        return set()
+    df: Counter[str] = Counter()
+    for r in rows:
+        df.update(set(tokens(str(r.get("text") or ""))) | set(tokens(str(r.get("section") or ""))))
+    return {t for t, c in df.items() if c * 10 >= len(rows)}
+
+
 def _related_to_change(text: str, section: str | None, context: set[str]) -> bool:
     """A requirement shares a distinctive word, or two words, with what the PR changes."""
     shared = (set(tokens(text)) | set(tokens(section or ""))) & context
@@ -543,7 +563,19 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
     if paths:
         rows = store.read("absence_near", changed=paths, hops=2, bundle_hash=bundle_hash)
         strings = [set(tokens(text)) for text in [*locale_texts, *diff_texts]]
-        context = context | {t for r in risks.values() for t in tokens(r.section)}
+        # Absences are near every change: their searched screens are the whole crawl, so closeness says nothing.
+        # What links one to this PR is wording: the PR's title, its changed file names, the text it adds. Control
+        # names of the page and the sections of other requirements are not used here ("select", "new", "type",
+        # "request" appear in every page and would list unrelated rows, measured on #6645). Words that occur in a
+        # tenth of the spec do not count toward the two-word rule either.
+        title_words = set(tokens(pr.title))
+        generic = spec_generic_words(run)
+        narrow = set(title_words)
+        for seed in seeds.values():
+            narrow |= set(tokens(humanize_path(seed.display_path)))
+        for text in locale_texts:
+            narrow |= set(tokens(text))
+        verify: list[tuple[int, str, dict[str, Any], dict[str, Any], str]] = []
         for row in rows:
             rid = row["requirement_id"]
             if rid not in allowed or rid in risks:
@@ -553,21 +585,36 @@ def build_requirements(run: RunContext, store: Any, pr: PRData, retr: Retrieval,
                 continue
             req_tokens = set(tokens(row["text"]))
             closes = any(len(req_tokens & words) >= 2 for words in strings)
-            related = _related_to_change(row["text"], row["section"], context)
-            if not closes and not related:         # "add", "user", "request": every page has them
+            shared = sorted((req_tokens | set(tokens(row["section"] or ""))) & narrow)
+            specific = [t for t in shared if len(t) >= 4 and t not in generic]
+            related = len(specific) >= 2 or any(t in title_words and len(t) >= _LONG_WORD for t in shared)
+            if not closes and not related:
                 unrelated += 1
                 continue
-            ev = run.evidence.add("reason.absence", f"{pr.repo}#{pr.number}:{rid}",
-                                  f"requirement has no realising control; its searched screens sit under "
-                                  f"{len(row['seeds'])} changed file(s)")
-            band = Band.POSSIBLE if closes else Band.UNKNOWN
-            risks[rid] = RequirementRisk(
-                requirement_id=rid, statement=row["text"], quote=q[0]["quote"], section=row["section"] or "",
-                status="may_close_gap" if closes else "cannot_verify", band=band, evidence_ids=[ev])
-            confs[rid] = _BAND_FLOOR[band]
+            if closes:
+                _add_absence(run, pr, risks, confs, rid, row, q[0], shared, closes=True)
+            else:
+                verify.append((-len(shared), rid, row, q[0], ", ".join(shared[:8])))
+        verify.sort(key=lambda v: (v[0], v[1]))
+        for _, rid, row, q0, words in verify[:_CANNOT_VERIFY_CAP]:
+            _add_absence(run, pr, risks, confs, rid, row, q0, words.split(", "), closes=False)
+        unrelated += max(0, len(verify) - _CANNOT_VERIFY_CAP)
     order = {"loses_only_realization": 0, "at_risk": 1, "may_close_gap": 2, "cannot_verify": 3}
     ordered = sorted(risks.values(), key=lambda r: (order[r.status], -_band_rank(r.band), r.section, r.requirement_id))
     return ordered, confs, unrelated, weak_unrelated
+
+
+def _add_absence(run: RunContext, pr: PRData, risks: dict[str, RequirementRisk], confs: dict[str, float],
+                 rid: str, row: dict[str, Any], q: dict[str, Any], shared: list[str], *, closes: bool) -> None:
+    ev = run.evidence.add("reason.absence", f"{pr.repo}#{pr.number}:{rid}",
+                          f"requirement has no realising control; its searched screens sit under "
+                          f"{len(row['seeds'])} changed file(s); words it shares with the change: "
+                          f"{', '.join(shared[:8]) or 'none (matched the PR text)'}")
+    band = Band.POSSIBLE if closes else Band.UNKNOWN
+    risks[rid] = RequirementRisk(
+        requirement_id=rid, statement=row["text"], quote=q["quote"], section=row["section"] or "",
+        status="may_close_gap" if closes else "cannot_verify", band=band, evidence_ids=[ev])
+    confs[rid] = _BAND_FLOOR[band]
 
 
 def _change_words(retr: Retrieval, direct: list[ReportItem], controls: dict[str, list[tuple[str, str]]],

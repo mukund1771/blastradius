@@ -31,7 +31,7 @@ against evidence**. The code layer is deliberately shallow (frontend, file granu
 | Live crawl | 55 screens, 1,468 elements, 321 transitions, 150 actions, 0 WAF blocks; 280 requests stopped by the egress allowlist |
 | UI -> code links | 333 of 434 named canonical elements (76.7%) have an `IMPLEMENTED_BY` edge. 1,409 edges: 1,292 `i18n_key`, 117 `llm_pick`. Median confidence 0.30. Against the source-map oracle (124 scored controls, 3 pages): linker coverage 117/124 (Wilson 95% 0.888–0.972), top-1 of covered 64/117 (0.457–0.634), hit@3 of covered 78/117 (0.577–0.746) |
 | Requirements | 343 extracted, 160 kept, 341 of 343 quotes verified before later drops; 183 dropped (154 over the per-chunk cap, 19 duplicates, 6 not phrased as a user action, 2 too long, 2 quote-shape). Cost $0.6256 on claude-sonnet-5-5. 124 of those 160 have a `REALIZED_BY` edge (320 edges). Docs are 2026.5.0; the app is 2026.9.0 |
-| PR #6645 | Risk HIGH. 3 direct items (2 confirmed, 1 possible), 7 indirect, 5 could-not-determine, checklist of 2. Verifier passed. Narration is the template. The checklist is the environment sidebar. The requirements table had 48 rows; the first cut of D41 listed 12 and held 36 back. A hop-0 control lists its requirement even when a shared-code route is more confident. A screen, flow, or shared-code link lists one only when the wording overlaps the change. A removal stays listed |
+| PR #6645 | Risk HIGH. 3 direct items (2 confirmed, 1 possible), 7 indirect, 5 could-not-determine, checklist of 2. Verifier passed. Narration is the template. The checklist is the environment sidebar. The requirements table had 48 rows before D41 and has 13 now (12 at risk, 1 "may close a gap"); 36 reach the PR only through a screen, a flow or shared code and 20 absences share nothing with it, and they are counted, not listed. A hop-0 control lists its requirement even when a shared-code route is more confident. A removal stays listed |
 | Tests | 2,385 collected in 60 files. The full suite, including the live Chromium tests, passed on 2026-10-12 (about 14 minutes, exit 0; a few tests skipped). One earlier failure, the workspace-header test, was the `.env` file refilling a variable the test had unset; the test now ignores that file. Independent reviewers found 22 major (and 51 lesser) defects the builders' own tests missed; all fixed or dispositioned (section 10) |
 
 **What it is not.** It is not validated accuracy on a population of PRs. Three open PRs are case studies. The
@@ -131,6 +131,8 @@ search effort that justifies it:
 | `NOT_UI_TESTABLE` | NFR/API, or another edition (desktop, self-host) | `CLASSIFIED` |
 | `ACCESS_RESTRICTED` | behind login/WAF/policy; **excluded from the NOT_FOUND denominator** | `SKIPPED_BY_POLICY` |
 | `UNSPECIFIED_UI` / `UNMAPPED_CODE` | UI with no requirement / no code link | `OBSERVED` |
+
+**What the live run shows.** Of 160 requirements, 124 have a `REALIZED_BY` edge and 36 do not. All 36 carry a Gap: 21 `NO_UI_EVIDENCE` (`NOT_FOUND_WITHIN_BUDGET`, reason `SPEC_MAY_BE_STALE`, confidence 0.46 after 150 actions over 55 screens), 13 `ACCESS_RESTRICTED` (the requirement needs a login) and 2 `ACCESS_RESTRICTED` (an external link). One more requirement says a control must not exist and the crawl shows it, which is a contradiction gap, not a pass. `links/gaps.jsonl` in the sample run holds them.
 
 Real consequence on this target: the docs changelog stops at 2026.5.0 while the app is 2026.9.0, and several
 statements are edition-gated ("only in the Desktop App"). Without `edition` and `doc_version` on the requirement,
@@ -233,10 +235,11 @@ On PR #6645 that produces: risk HIGH, touching the Home page and the menu popup 
 Peek" and "Edit"; five things not determined, including the new labels "Edit current value" and "environments
 editor". A requirement is listed when a changed file implements its control (any hop-0 route, even if a
 shared-code route on that control is more confident), or when a screen, flow, or shared-code link shares a word
-with the change. A requirement whose only controls this PR removes stays listed. The last regeneration listed 12
-rows and held 36 back; that 12 was not all environment editing (a few were collection and AI-script rows kept by
-a hop-0 control or a flow step). The word check is a stem overlap, so the table can still carry a loosely
-related row. A QA lead should re-test the checklist first.
+with the change. A requirement whose only controls this PR removes stays listed. The last regeneration lists 13 rows (12 at risk, 1 may close a gap) and counts 36 + 20 more as not listed; a few
+of the 12 are collection and AI-script rows kept by a hop-0 control or a flow step. An absence ("cannot verify",
+"may close a gap") is listed only when it shares two specific words, or one long word of the PR title, with the
+PR's title, changed file names or added text, at most five rows (D43). The word check is a stem overlap, so the
+table can still carry a loosely related row. A QA lead should re-test the checklist first.
 
 ---
 

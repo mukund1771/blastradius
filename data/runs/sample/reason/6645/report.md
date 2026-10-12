@@ -1,6 +1,6 @@
 # Blast radius: PR #6645 "feat(common): edit environment values from quick peek and the sidebar"
 
-**Risk: HIGH.** Touches Home page and Menu popup on the Home page. 10 screens, 5 user flows, 12 requirements.
+**Risk: HIGH.** Touches Home page and Menu popup on the Home page. 10 screens, 5 user flows, 13 requirements.
 
 Confidence: 2 items confirmed, 0 probable and 8 possible. 5 things could not be determined and are listed below with the same weight as the findings.
 
@@ -64,14 +64,15 @@ Connected through: 2 pieces of shared code (current environment value, secret en
 | User can select Accept Change to integrate the generated test into the test script editor. [^20] Spec says: “Select Accept Change to integrate it into the test script editor for execution.” | AI Features > Generate Test Scripts | At risk | Possible |
 | User can create a sub-collection by clicking Add new on a collection and entering a name. [^21] Spec says: “You can also create a sub-collection by clicking on the "Add new" button on the desired collection and entering the name of the sub-collection.” | Collections > Creating a new collection | At risk | Possible |
 | User can add the current request to a collection with the New request button in the collection's options. [^22] Spec says: “To add a request to a collection, click on the "New request" button on the collection's options to save the current request to the collection.” | Collections > Organizing collections > Adding requests to collections | At risk | Possible |
+| User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables. [^23] Spec says: “Run all requests in a Hoppscotch collection sequentially with configurable delays, iterations, and environment variables using the Runner.” | Runner | This PR may close a gap | Possible |
 
 ## What we could not determine, and who should look
 
 | Item | Why we could not tell | What a person should check |
 |---|---|---|
 | **New in this PR; not observable in the live app yet** | This PR adds “Edit current value” and “environments editor”. The live app does not show that yet. | After this PR is deployed, open the screen that should contain “Edit current value” and “environments editor”. |
-| **the whole PR** | The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown. [^23] | Rebase the PR on main and run the report again before relying on the file lists; 2 file(s) were edited on both sides. |
-| **the shared teams environment code** | The only links we found to screens are weak. [^24] | Decide which screens that rely on teams environment need a re-test; the list shown is not exhaustive. |
+| **the whole PR** | The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown. [^24] | Rebase the PR on main and run the report again before relying on the file lists; 2 file(s) were edited on both sides. |
+| **the shared teams environment code** | The only links we found to screens are weak. [^25] | Decide which screens that rely on teams environment need a re-test; the list shown is not exhaustive. |
 | **controls linked to the teams environment code** | Two independent checks disagreed about 3 control(s); they were left as found. | Look at these controls by hand: DELETE, More, More. |
 | **6 screen(s) linked only by very weak evidence: “Collections dialog on the Home page”, “New Collection dialog on the Home page”, “New Folder dialog on the Home page” and 3 more** | The connection from the change to these screens is too weak to call an effect. | Look at these screens if time allows; nothing says they are affected. |
 
@@ -83,7 +84,8 @@ Connected through: 2 pieces of shared code (current environment value, secret en
 - Frontend files only: backend, scripts and build tooling are outside this analysis.
 - Cloud web edition only: desktop and self-hosted behaviour was not assessed.
 - Set aside as not user-facing: 1 generated file(s), 2 test file(s).
-- 36 requirement(s) reach this PR only through a whole screen or through code it shares, and do not mention anything it changes; they are not listed.
+- 20 requirement(s) with no matching screen sit on pages this PR touches but do not mention anything it changes; they are not listed.
+- 36 requirement(s) reach this PR only through a whole screen, a flow, or code it shares, and do not mention anything it changes; they are not listed.
 - The crawl stopped at its action budget, so some screens were not observed.
 - The product documentation may be older than the app, so some requirements may be out of date.
 - Some source files could not be read completely.
@@ -347,12 +349,19 @@ Everything above cites the numbered entries below. File paths, ids and commit ha
     - Evidence `ev_cc1ef1b5c02a` (reason.requirement): requirement req_0b11b11f956f is at_risk at possible. Reference `hoppscotch/hoppscotch#6645:req_0b11b11f956f:at_risk`.
     - Requirements: `req_0b11b11f956f`.
 
-[^23]: **What we could not determine, and who should look.** the whole PR: The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown.
+[^23]: **Requirements at risk.** Runner: User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables. Possible.
+
+    - Claim `clm_d4b5dc9dbd98`: “User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables.”: This PR adds wording that might close this gap; worth a quick look.
+    - Evidence `ev_14920f22411a` (reason.absence): requirement has no realising control; its searched screens sit under 4 changed file(s); words it shares with the change: environment. Reference `hoppscotch/hoppscotch#6645:req_334dad4a07cc`.
+    - Evidence `ev_bab8ea0790f8` (reason.requirement): requirement req_334dad4a07cc is may_close_gap at possible. Reference `hoppscotch/hoppscotch#6645:req_334dad4a07cc:may_close_gap`.
+    - Requirements: `req_334dad4a07cc`.
+
+[^24]: **What we could not determine, and who should look.** the whole PR: The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown.
 
     - Reason code `STALE_BASE`.
     - Evidence `ev_cceeb14d61fd` (pr.meta): PR #6645 head 64ba4ff75eff base ac145e7f7581 (fork safwanyp/hoppscotch): 14 of 14 files. Reference `hoppscotch/hoppscotch#6645@64ba4ff75eff7bef868b010947f50e9b6b326540`.
 
-[^24]: **What we could not determine, and who should look.** the shared teams environment code: The only links we found to screens are weak.
+[^25]: **What we could not determine, and who should look.** the shared teams environment code: The only links we found to screens are weak.
 
     - Reason code `NEEDS_HUMAN`.
     - Evidence `ev_56902424d433` (pr.file): modified packages/hoppscotch-common/src/components/environments/teams/Environment.vue (+8 -4) class component kind BODY. Reference `hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/teams/Environment.vue`.

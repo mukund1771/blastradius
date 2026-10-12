@@ -1,6 +1,6 @@
 # Blast radius: PR #6641 "Feature/add compare button"
 
-**Risk: MEDIUM.** Touches GraphQL page. 11 screens, 0 user flows, 5 requirements.
+**Risk: MEDIUM.** Touches GraphQL page. 11 screens, 0 user flows, 8 requirements.
 
 Confidence: 1 item confirmed, 0 probable and 10 possible. 5 things could not be determined and are listed below with the same weight as the findings.
 
@@ -50,15 +50,18 @@ Connected through: 2 pieces of shared code (gql response meta, http response met
 | User can view headers and bodies of persisted responses by selecting each request when enabled. [^14] Spec says: “Persisted Responses: If enabled, view headers and bodies by selecting each request; otherwise, this section remains hidden.” | Runner > Runner Results | At risk | Likely |
 | User can run Tests on the responses received. [^15] Spec says: “Hoppscotch also provides the capability to run Tests on the responses you receive.” | RESTful API Testing > Request | At risk | Possible |
 | User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses. [^16] Spec says: “Write pre-request scripts and post-request tests in Hoppscotch using JavaScript to add dynamic behavior, set variables, and validate responses.” | Scripts | At risk | Possible |
+| User can click the "Install +" button at the top right of the address bar to install the PWA. [^17] Spec says: “At the top right of the address bar, click "Install +".” | Hoppscotch Progressive Web App > Install Hoppscotch PWA | Cannot verify | Unknown |
+| User can use the context menu on selected text to choose Set as Variable, Add to Parameters, or Open Request in New Tab. [^18] Spec says: “The context menu offers three options: Set as Variable, Add to Parameters, and Open Request in New Tab.” | Context Menu | This PR may close a gap | Possible |
+| User can have the collection run stop if a script error or request sending problem occurs. [^19] Spec says: “Stop Run if Error Occurs: The collection run stops if an error is encountered within a script or if there's a problem sending a request.” | Runner > Run Settings | This PR may close a gap | Possible |
 
 ## What we could not determine, and who should look
 
 | Item | Why we could not tell | What a person should check |
 |---|---|---|
 | **New in this PR; not observable in the live app yet** | This PR adds “Compare API Responses”, “diff”, “gql response compare modal” and “response history”. The live app does not show that yet. | After this PR is deployed, open the screen that should contain “Compare API Responses”, “diff”, “gql response compare modal” and “response history”. |
-| **the whole PR** | The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown. [^17] | Rebase the PR on main and run the report again before relying on the file lists; 2 file(s) were edited on both sides. |
-| **the http response compare modal component** | This PR adds the file and other code in the PR uses it, but none of that code reaches a screen we observed. [^18] | Find where http response compare modal appears in the product and try it by hand; this change is not tied to any screen we observed. |
-| **4 items: the shared gql response code, the shared gql response meta code, the shared http response code and 1 more** | The only links we found to screens are weak. [^19] | Decide which screens that rely on gql response need a re-test; the list shown is not exhaustive. |
+| **the whole PR** | The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown. [^20] | Rebase the PR on main and run the report again before relying on the file lists; 2 file(s) were edited on both sides. |
+| **the http response compare modal component** | This PR adds the file and other code in the PR uses it, but none of that code reaches a screen we observed. [^21] | Find where http response compare modal appears in the product and try it by hand; this change is not tied to any screen we observed. |
+| **4 items: the shared gql response code, the shared gql response meta code, the shared http response code and 1 more** | The only links we found to screens are weak. [^22] | Decide which screens that rely on gql response need a re-test; the list shown is not exhaustive. |
 | **3 items: controls linked to the gql response code, controls linked to the http response code and controls linked to the http response meta code** | Two independent checks disagreed about 1 control(s); they were left as found. | Look at these controls by hand: More. |
 
 ### What this report did not look at
@@ -70,7 +73,8 @@ Connected through: 2 pieces of shared code (gql response meta, http response met
 - Cloud web edition only: desktop and self-hosted behaviour was not assessed.
 - Set aside as not user-facing: 1 build config file(s), 1 generated file(s).
 - 2 more lower-priority item(s) could not be determined (see the appendix data).
-- 2 requirement(s) reach this PR only through a whole screen or through code it shares, and do not mention anything it changes; they are not listed.
+- 18 requirement(s) with no matching screen sit on pages this PR touches but do not mention anything it changes; they are not listed.
+- 2 requirement(s) reach this PR only through a whole screen, a flow, or code it shares, and do not mention anything it changes; they are not listed.
 - The crawl stopped at its action budget, so some screens were not observed.
 - The product documentation may be older than the app, so some requirements may be out of date.
 - Some source files could not be read completely.
@@ -261,18 +265,39 @@ Everything above cites the numbered entries below. File paths, ids and commit ha
     - Evidence `ev_fc9e1d578995` (reason.requirement): requirement req_21b7a82f89ef is at_risk at possible. Reference `hoppscotch/hoppscotch#6641:req_21b7a82f89ef:at_risk`.
     - Requirements: `req_21b7a82f89ef`.
 
-[^17]: **What we could not determine, and who should look.** the whole PR: The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown.
+[^17]: **Requirements at risk.** Hoppscotch Progressive Web App > Install Hoppscotch PWA: User can click the "Install +" button at the top right of the address bar to install the PWA. Unknown.
+
+    - Claim `clm_1d71a934519f`: “User can click the "Install +" button at the top right of the address bar to install the PWA.”: We cannot tell whether the screens that should show this requirement still do; not determined.
+    - Evidence `ev_27a751974e1a` (reason.absence): requirement has no realising control; its searched screens sit under 3 changed file(s); words it shares with the change: button, right. Reference `hoppscotch/hoppscotch#6641:req_7cebff10bcf5`.
+    - Evidence `ev_dad21dace3ff` (reason.requirement): requirement req_7cebff10bcf5 is cannot_verify at unknown. Reference `hoppscotch/hoppscotch#6641:req_7cebff10bcf5:cannot_verify`.
+    - Requirements: `req_7cebff10bcf5`.
+
+[^18]: **Requirements at risk.** Context Menu: User can use the context menu on selected text to choose Set as Variable, Add to Parameters, or Open Request in New Tab. Possible.
+
+    - Claim `clm_2f6906ed349b`: “User can use the context menu on selected text to choose Set as Variable, Add to Parameters, or Open Request in New Tab.”: This PR adds wording that might close this gap; worth a quick look.
+    - Evidence `ev_cdcc912dbe61` (reason.requirement): requirement req_2039a51bc971 is may_close_gap at possible. Reference `hoppscotch/hoppscotch#6641:req_2039a51bc971:may_close_gap`.
+    - Evidence `ev_d074cbb06843` (reason.absence): requirement has no realising control; its searched screens sit under 3 changed file(s); words it shares with the change: add, open, request, select, set, tab, text. Reference `hoppscotch/hoppscotch#6641:req_2039a51bc971`.
+    - Requirements: `req_2039a51bc971`.
+
+[^19]: **Requirements at risk.** Runner > Run Settings: User can have the collection run stop if a script error or request sending problem occurs. Possible.
+
+    - Claim `clm_c7f3e24ea0bd`: “User can have the collection run stop if a script error or request sending problem occurs.”: This PR adds wording that might close this gap; worth a quick look.
+    - Evidence `ev_1e4dd34da393` (reason.absence): requirement has no realising control; its searched screens sit under 3 changed file(s); words it shares with the change: request, run, send. Reference `hoppscotch/hoppscotch#6641:req_f7cb70d6f5a1`.
+    - Evidence `ev_5ef4aa132911` (reason.requirement): requirement req_f7cb70d6f5a1 is may_close_gap at possible. Reference `hoppscotch/hoppscotch#6641:req_f7cb70d6f5a1:may_close_gap`.
+    - Requirements: `req_f7cb70d6f5a1`.
+
+[^20]: **What we could not determine, and who should look.** the whole PR: The PR base is 10 commit(s) behind the indexed main and 2 changed file(s) were also edited there: the diff may not apply as shown.
 
     - Reason code `STALE_BASE`.
     - Evidence `ev_c39f73cfc7eb` (pr.meta): PR #6641 head 5eea64fd209a base ac145e7f7581 (fork NavuluriBalaji/hoppscotch): 13 of 13 files. Reference `hoppscotch/hoppscotch#6641@5eea64fd209addde0d770831b7234817eb339699`.
 
-[^18]: **What we could not determine, and who should look.** the http response compare modal component: This PR adds the file and other code in the PR uses it, but none of that code reaches a screen we observed.
+[^21]: **What we could not determine, and who should look.** the http response compare modal component: This PR adds the file and other code in the PR uses it, but none of that code reaches a screen we observed.
 
     - Reason code `UNMAPPED_CHANGE`.
     - Evidence `ev_aacdd73d2b8d` (pr.file): added packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue (+407 -0) class component kind ADDITIVE_API. Reference `hoppscotch/hoppscotch#6641:packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue`.
     - Evidence `ev_fdf104a1044e` (reason.probe): packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue is imported by 1 file(s) (1 in the PR); 0 of them draw a screen. Reference `packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue`.
 
-[^19]: **What we could not determine, and who should look.** 4 items: the shared gql response code, the shared gql response meta code, the shared http response code and 1 more: The only links we found to screens are weak.
+[^22]: **What we could not determine, and who should look.** 4 items: the shared gql response code, the shared gql response meta code, the shared http response code and 1 more: The only links we found to screens are weak.
 
     - Reason code `NEEDS_HUMAN`.
     - Evidence `ev_12495e5d4267` (pr.file): modified packages/hoppscotch-common/src/components/http/ResponseMeta.vue (+13 -1) class component kind BODY. Reference `hoppscotch/hoppscotch#6641:packages/hoppscotch-common/src/components/http/ResponseMeta.vue`.

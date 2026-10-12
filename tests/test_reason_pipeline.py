@@ -490,6 +490,37 @@ def test_a_requirement_tied_to_a_whole_screen_is_at_risk_only_when_it_relates_to
         w.close()
 
 
+def test_an_absence_that_shares_only_everyday_words_with_the_page_is_not_listed(world: World):
+    """Regression (first real NO_UI_EVIDENCE gaps, #6645): the context was widened with the control names of the
+    page and the sections of other requirements, so "select", "new", "type" and "request" listed OAuth, Runner and
+    Inspections requirements as "cannot verify" on an environment-editing PR."""
+    from blastradius.models import Gap, GapKind, Requirement
+
+    reqs = [Requirement(id="req_absgeneric01", target=world.target,
+                        text="User can select the global option", quote="quote of generic",
+                        source_url="https://d/x", section="Settings", edition="cloud-web", ui_observable="yes",
+                        spec_sha="s1"),
+            Requirement(id="req_absrelated001", target=world.target,
+                        text="User can rename an environment", quote="quote of related",
+                        source_url="https://d/x", section="Environments", edition="cloud-web", ui_observable="yes",
+                        spec_sha="s1")]
+    world.store.write_requirements(reqs, world.run.run_id)
+    spec_path = world.run.path("spec", "requirements.json")
+    existing = json.loads(spec_path.read_text(encoding="utf-8"))
+    existing.extend(r.model_dump(mode="json") for r in reqs)
+    spec_path.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
+    world.store.link_routes(world.run.run_id)
+    ev = world.run.evidence.add("gap.test", "g2", "searched home")
+    world.store.write_gaps([Gap(id=f"gap_{r.id[-9:]}", kind=GapKind.NO_UI_EVIDENCE, status="NOT_FOUND_WITHIN_BUDGET",
+                                subject_id=r.id, confidence=0.3, screens_searched=["scr_eeb51c7c9803"],
+                                actions_spent=14, bundle_hash="c81a0323d1f5b4f5", evidence_id=ev) for r in reqs],
+                           world.run.run_id)
+    _, report = run_pr(world, 6645)
+    by = {r.requirement_id: r for r in report.requirements}
+    assert "req_absgeneric01" not in by                        # shares only everyday words with the page
+    assert by["req_absrelated001"].status == "cannot_verify"    # "environment" is in the PR title
+
+
 # --------------------------------------------------------------------------------- model use and cache
 def test_the_judge_runs_inside_the_pipeline_on_ambiguous_subgraphs_only(world: World, tmp_path: Path):
     seen = {"judge": 0, "narrate": 0}

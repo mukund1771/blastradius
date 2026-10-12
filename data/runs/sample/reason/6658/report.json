@@ -79,6 +79,15 @@
       "text": "“User can create collections and add requests to them to share with the team or use later.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
     },
     {
+      "band": "unknown",
+      "evidence_ids": [
+        "ev_2e19bf0a57ce",
+        "ev_8058afc436aa"
+      ],
+      "id": "clm_1b05014dc330",
+      "text": "“User can have the collection run stop if a script error or request sending problem occurs.”: We cannot tell whether the screens that should show this requirement still do; not determined."
+    },
+    {
       "band": "possible",
       "evidence_ids": [
         "ev_1425c928a675",
@@ -89,6 +98,15 @@
       ],
       "id": "clm_1d9da967abdc",
       "text": "“User can generate API documentation from their Collections”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+    },
+    {
+      "band": "unknown",
+      "evidence_ids": [
+        "ev_137eabeaf8da",
+        "ev_fb0f0944882d"
+      ],
+      "id": "clm_21d0ffd546da",
+      "text": "“User can persist response headers and bodies for review after running the collection.”: We cannot tell whether the screens that should show this requirement still do; not determined."
     },
     {
       "band": "possible",
@@ -321,6 +339,15 @@
       "text": "Socket.IO page: This screen might be affected by this PR; worth a quick look. It uses 3 pieces of shared code (backend helpers, collection, import export steps url import), which this PR edits (its behaviour changed; only type definitions or comments changed). Controls built from code that uses it: “Import” and “Send”."
     },
     {
+      "band": "unknown",
+      "evidence_ids": [
+        "ev_058ff83a577a",
+        "ev_b80d6e1839b1"
+      ],
+      "id": "clm_da0eaac65b95",
+      "text": "“User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables.”: We cannot tell whether the screens that should show this requirement still do; not determined."
+    },
+    {
       "band": "confirmed",
       "evidence_ids": [
         "ev_984107d9bc63",
@@ -530,7 +557,7 @@
       "what_changed": "This PR edits the shared package (“hoppscotch data”). Many screens are probably affected by this PR. The lists in this report are therefore not exhaustive."
     }
   ],
-  "headline": "Blast radius: PR #6658 “feat: refresh collections imported from URL”\nRisk: HIGH. Touches Home page and GraphQL page. 9 screens, 0 user flows, 17 requirements. It also changes code shared across the app. It also changes how data is saved.",
+  "headline": "Blast radius: PR #6658 “feat: refresh collections imported from URL”\nRisk: HIGH. Touches Home page and GraphQL page. 9 screens, 0 user flows, 20 requirements. It also changes code shared across the app. It also changes how data is saved.",
   "indirect": [
     {
       "band": "possible",
@@ -646,7 +673,8 @@
     "Frontend files only: backend, scripts and build tooling are outside this analysis.",
     "Cloud web edition only: desktop and self-hosted behaviour was not assessed.",
     "Other programs that read this saved data (a command-line tool, the backend, the desktop app) were not assessed.",
-    "34 requirement(s) reach this PR only through a whole screen or through code it shares, and do not mention anything it changes; they are not listed.",
+    "18 requirement(s) with no matching screen sit on pages this PR touches but do not mention anything it changes; they are not listed.",
+    "34 requirement(s) reach this PR only through a whole screen, a flow, or code it shares, and do not mention anything it changes; they are not listed.",
     "The crawl stopped at its action budget, so some screens were not observed.",
     "The product documentation may be older than the app, so some requirements may be out of date.",
     "Some source files could not be read completely."
@@ -891,6 +919,39 @@
       "section": "Runner > Running a Collection",
       "statement": "User can hover over a collection name and click the \"Run Collection\" icon.",
       "status": "at_risk"
+    },
+    {
+      "band": "unknown",
+      "evidence_ids": [
+        "ev_058ff83a577a"
+      ],
+      "quote": "Run all requests in a Hoppscotch collection sequentially with configurable delays, iterations, and environment variables using the Runner.",
+      "requirement_id": "req_334dad4a07cc",
+      "section": "Runner",
+      "statement": "User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables.",
+      "status": "cannot_verify"
+    },
+    {
+      "band": "unknown",
+      "evidence_ids": [
+        "ev_137eabeaf8da"
+      ],
+      "quote": "Persist Responses: Log response headers and bodies for review after running the collection.",
+      "requirement_id": "req_e72c8b611579",
+      "section": "Runner > Run Settings",
+      "statement": "User can persist response headers and bodies for review after running the collection.",
+      "status": "cannot_verify"
+    },
+    {
+      "band": "unknown",
+      "evidence_ids": [
+        "ev_2e19bf0a57ce"
+      ],
+      "quote": "Stop Run if Error Occurs: The collection run stops if an error is encountered within a script or if there's a problem sending a request.",
+      "requirement_id": "req_f7cb70d6f5a1",
+      "section": "Runner > Run Settings",
+      "statement": "User can have the collection run stop if a script error or request sending problem occurs.",
+      "status": "cannot_verify"
     }
   ],
   "risk_level": "HIGH",

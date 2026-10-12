@@ -1,6 +1,6 @@
 # Blast radius: PR #6658 "feat: refresh collections imported from URL"
 
-**Risk: HIGH.** Touches Home page and GraphQL page. 9 screens, 0 user flows, 17 requirements. It also changes code shared across the app. It also changes how data is saved.
+**Risk: HIGH.** Touches Home page and GraphQL page. 9 screens, 0 user flows, 20 requirements. It also changes code shared across the app. It also changes how data is saved.
 
 Confidence: 3 items confirmed, 1 probable and 7 possible. 4 things could not be determined and are listed below with the same weight as the findings.
 
@@ -92,14 +92,17 @@ This PR changes how something is saved. Check it by hand.
 | User can save a request to a new location using Save as from the drop-down next to the Save button. [^26] Spec says: “Click on the drop-down menu next to the save button and click on "Save as" to save the request to a new location.” | Collections > Save requests to collections | At risk | Possible |
 | User can right-click a collection and select the "Run Collection" option. [^27] Spec says: “Right-click on the collection and select the "Run Collection" option.” | Runner > Running a Collection | At risk | Possible |
 | User can hover over a collection name and click the "Run Collection" icon. [^28] Spec says: “Alternatively, hover over the collection name and click on the "Run Collection" icon.” | Runner > Running a Collection | At risk | Possible |
+| User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables. [^29] Spec says: “Run all requests in a Hoppscotch collection sequentially with configurable delays, iterations, and environment variables using the Runner.” | Runner | Cannot verify | Unknown |
+| User can persist response headers and bodies for review after running the collection. [^30] Spec says: “Persist Responses: Log response headers and bodies for review after running the collection.” | Runner > Run Settings | Cannot verify | Unknown |
+| User can have the collection run stop if a script error or request sending problem occurs. [^31] Spec says: “Stop Run if Error Occurs: The collection run stops if an error is encountered within a script or if there's a problem sending a request.” | Runner > Run Settings | Cannot verify | Unknown |
 
 ## What we could not determine, and who should look
 
 | Item | Why we could not tell | What a person should check |
 |---|---|---|
 | **New in this PR; not observable in the live app yet** | This PR adds “v 13”. The live app does not show that yet. | After this PR is deployed, open the screen that should contain “v 13”. |
-| **the shared import export steps url import code** | The only links we found to screens are weak. [^29] | Decide which screens that rely on import export steps url import need a re-test; the list shown is not exhaustive. |
-| **the collections import code** | No control we observed is built from this file or from code that uses it within two steps (it may be backend-only, internal, or on a screen the crawl did not reach). [^30] | Find where collections import appears in the product and try it by hand; this change is not tied to any screen we observed. |
+| **the shared import export steps url import code** | The only links we found to screens are weak. [^32] | Decide which screens that rely on import export steps url import need a re-test; the list shown is not exhaustive. |
+| **the collections import code** | No control we observed is built from this file or from code that uses it within two steps (it may be backend-only, internal, or on a screen the crawl did not reach). [^33] | Find where collections import appears in the product and try it by hand; this change is not tied to any screen we observed. |
 | **8 screen(s) linked only by very weak evidence: “Collections dialog on the Home page”, “New Folder dialog on the Home page”, “Support dialog on the Home page” and 5 more** | The connection from the change to these screens is too weak to call an effect. | Look at these screens if time allows; nothing says they are affected. |
 
 ### What this report did not look at
@@ -110,7 +113,8 @@ This PR changes how something is saved. Check it by hand.
 - Frontend files only: backend, scripts and build tooling are outside this analysis.
 - Cloud web edition only: desktop and self-hosted behaviour was not assessed.
 - Other programs that read this saved data (a command-line tool, the backend, the desktop app) were not assessed.
-- 34 requirement(s) reach this PR only through a whole screen or through code it shares, and do not mention anything it changes; they are not listed.
+- 18 requirement(s) with no matching screen sit on pages this PR touches but do not mention anything it changes; they are not listed.
+- 34 requirement(s) reach this PR only through a whole screen, a flow, or code it shares, and do not mention anything it changes; they are not listed.
 - The crawl stopped at its action budget, so some screens were not observed.
 - The product documentation may be older than the app, so some requirements may be out of date.
 - Some source files could not be read completely.
@@ -418,13 +422,34 @@ Everything above cites the numbered entries below. File paths, ids and commit ha
     - Evidence `ev_6705bf060010` (code.import): packages/hoppscotch-common/src/components/collections/ImportExport.vue imports packages/hoppscotch-common/src/helpers/import-export/import/import-sources/UrlSource.ts via \~/helpers/import-export/import/import-sources/UrlSource symbols=UrlSource. Reference `packages/hoppscotch-common/src/components/collections/ImportExport.vue->packages/hoppscotch-common/src/helpers/import-export/import/import-sources/UrlSource.ts`.
     - Requirements: `req_a2deaac054d3`.
 
-[^29]: **What we could not determine, and who should look.** the shared import export steps url import code: The only links we found to screens are weak.
+[^29]: **Requirements at risk.** Runner: User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables. Unknown.
+
+    - Claim `clm_da0eaac65b95`: “User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables.”: We cannot tell whether the screens that should show this requirement still do; not determined.
+    - Evidence `ev_058ff83a577a` (reason.absence): requirement has no realising control; its searched screens sit under 3 changed file(s); words it shares with the change: collection. Reference `hoppscotch/hoppscotch#6658:req_334dad4a07cc`.
+    - Evidence `ev_b80d6e1839b1` (reason.requirement): requirement req_334dad4a07cc is cannot_verify at unknown. Reference `hoppscotch/hoppscotch#6658:req_334dad4a07cc:cannot_verify`.
+    - Requirements: `req_334dad4a07cc`.
+
+[^30]: **Requirements at risk.** Runner > Run Settings: User can persist response headers and bodies for review after running the collection. Unknown.
+
+    - Claim `clm_21d0ffd546da`: “User can persist response headers and bodies for review after running the collection.”: We cannot tell whether the screens that should show this requirement still do; not determined.
+    - Evidence `ev_137eabeaf8da` (reason.absence): requirement has no realising control; its searched screens sit under 3 changed file(s); words it shares with the change: collection. Reference `hoppscotch/hoppscotch#6658:req_e72c8b611579`.
+    - Evidence `ev_fb0f0944882d` (reason.requirement): requirement req_e72c8b611579 is cannot_verify at unknown. Reference `hoppscotch/hoppscotch#6658:req_e72c8b611579:cannot_verify`.
+    - Requirements: `req_e72c8b611579`.
+
+[^31]: **Requirements at risk.** Runner > Run Settings: User can have the collection run stop if a script error or request sending problem occurs. Unknown.
+
+    - Claim `clm_1b05014dc330`: “User can have the collection run stop if a script error or request sending problem occurs.”: We cannot tell whether the screens that should show this requirement still do; not determined.
+    - Evidence `ev_2e19bf0a57ce` (reason.absence): requirement has no realising control; its searched screens sit under 3 changed file(s); words it shares with the change: collection. Reference `hoppscotch/hoppscotch#6658:req_f7cb70d6f5a1`.
+    - Evidence `ev_8058afc436aa` (reason.requirement): requirement req_f7cb70d6f5a1 is cannot_verify at unknown. Reference `hoppscotch/hoppscotch#6658:req_f7cb70d6f5a1:cannot_verify`.
+    - Requirements: `req_f7cb70d6f5a1`.
+
+[^32]: **What we could not determine, and who should look.** the shared import export steps url import code: The only links we found to screens are weak.
 
     - Reason code `NEEDS_HUMAN`.
     - Evidence `ev_1786871934d1` (reason.probe): packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue is imported by 2 file(s) (2 util); 0 of them draw a screen. Reference `packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue`.
     - Evidence `ev_c2313f3347d7` (pr.file): modified packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue (+3 -3) class component kind BODY. Reference `hoppscotch/hoppscotch#6658:packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue`.
 
-[^30]: **What we could not determine, and who should look.** the collections import code: No control we observed is built from this file or from code that uses it within two steps (it may be backend-only, internal, or on a screen the crawl did not reach).
+[^33]: **What we could not determine, and who should look.** the collections import code: No control we observed is built from this file or from code that uses it within two steps (it may be backend-only, internal, or on a screen the crawl did not reach).
 
     - Reason code `NEEDS_HUMAN`.
     - Evidence `ev_24c5b710b5c4` (pr.file): modified packages/hoppscotch-common/src/lib/sync/collections/import.ts (+1 -0) class source_other kind BODY. Reference `hoppscotch/hoppscotch#6658:packages/hoppscotch-common/src/lib/sync/collections/import.ts`.

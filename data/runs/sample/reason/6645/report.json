@@ -221,6 +221,15 @@
     {
       "band": "possible",
       "evidence_ids": [
+        "ev_14920f22411a",
+        "ev_bab8ea0790f8"
+      ],
+      "id": "clm_d4b5dc9dbd98",
+      "text": "“User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables.”: This PR adds wording that might close this gap; worth a quick look."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
         "ev_2cf17f738c8c",
         "ev_4186af1d533e",
         "ev_59b56cd87114",
@@ -381,7 +390,7 @@
     }
   ],
   "global_changes": [],
-  "headline": "Blast radius: PR #6645 “feat(common): edit environment values from quick peek and the sidebar”\nRisk: HIGH. Touches Home page and Menu popup on the Home page. 10 screens, 5 user flows, 12 requirements.",
+  "headline": "Blast radius: PR #6645 “feat(common): edit environment values from quick peek and the sidebar”\nRisk: HIGH. Touches Home page and Menu popup on the Home page. 10 screens, 5 user flows, 13 requirements.",
   "indirect": [
     {
       "band": "possible",
@@ -591,7 +600,8 @@
     "Frontend files only: backend, scripts and build tooling are outside this analysis.",
     "Cloud web edition only: desktop and self-hosted behaviour was not assessed.",
     "Set aside as not user-facing: 1 generated file(s), 2 test file(s).",
-    "36 requirement(s) reach this PR only through a whole screen or through code it shares, and do not mention anything it changes; they are not listed.",
+    "20 requirement(s) with no matching screen sit on pages this PR touches but do not mention anything it changes; they are not listed.",
+    "36 requirement(s) reach this PR only through a whole screen, a flow, or code it shares, and do not mention anything it changes; they are not listed.",
     "The crawl stopped at its action budget, so some screens were not observed.",
     "The product documentation may be older than the app, so some requirements may be out of date.",
     "Some source files could not be read completely."
@@ -766,6 +776,17 @@
       "section": "Collections > Organizing collections > Adding requests to collections",
       "statement": "User can add the current request to a collection with the New request button in the collection's options.",
       "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_14920f22411a"
+      ],
+      "quote": "Run all requests in a Hoppscotch collection sequentially with configurable delays, iterations, and environment variables using the Runner.",
+      "requirement_id": "req_334dad4a07cc",
+      "section": "Runner",
+      "statement": "User can run all requests in a collection sequentially with the Runner, configuring delays, iterations and environment variables.",
+      "status": "may_close_gap"
     }
   ],
   "risk_level": "HIGH",

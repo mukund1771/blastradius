@@ -20,6 +20,15 @@
       "text": "Menu popup on the Home page: This screen might be affected by this PR; worth a quick look. Controls involved: “Documentation” and “Status”."
     },
     {
+      "band": "unknown",
+      "evidence_ids": [
+        "ev_27a751974e1a",
+        "ev_dad21dace3ff"
+      ],
+      "id": "clm_1d71a934519f",
+      "text": "“User can click the \"Install +\" button at the top right of the address bar to install the PWA.”: We cannot tell whether the screens that should show this requirement still do; not determined."
+    },
+    {
       "band": "likely",
       "evidence_ids": [
         "ev_053f446bbd18",
@@ -30,6 +39,15 @@
       ],
       "id": "clm_299f21fa89b9",
       "text": "“User can view headers and bodies of persisted responses by selecting each request when enabled.”: This requirement rests on a screen that is probably affected by this PR."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_cdcc912dbe61",
+        "ev_d074cbb06843"
+      ],
+      "id": "clm_2f6906ed349b",
+      "text": "“User can use the context menu on selected text to choose Set as Variable, Add to Parameters, or Open Request in New Tab.”: This PR adds wording that might close this gap; worth a quick look."
     },
     {
       "band": "possible",
@@ -119,6 +137,15 @@
       ],
       "id": "clm_b442f3c37f46",
       "text": "Home page: This screen might be affected by this PR; worth a quick look. Controls involved: “Documentation”, “Download file”, “More” and 1 more."
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_1e4dd34da393",
+        "ev_5ef4aa132911"
+      ],
+      "id": "clm_c7f3e24ea0bd",
+      "text": "“User can have the collection run stop if a script error or request sending problem occurs.”: This PR adds wording that might close this gap; worth a quick look."
     },
     {
       "band": "possible",
@@ -317,7 +344,7 @@
     }
   ],
   "global_changes": [],
-  "headline": "Blast radius: PR #6641 “Feature/add compare button”\nRisk: MEDIUM. Touches GraphQL page. 11 screens, 0 user flows, 5 requirements.",
+  "headline": "Blast radius: PR #6641 “Feature/add compare button”\nRisk: MEDIUM. Touches GraphQL page. 11 screens, 0 user flows, 8 requirements.",
   "indirect": [
     {
       "band": "possible",
@@ -499,7 +526,8 @@
     "Cloud web edition only: desktop and self-hosted behaviour was not assessed.",
     "Set aside as not user-facing: 1 build config file(s), 1 generated file(s).",
     "2 more lower-priority item(s) could not be determined (see the appendix data).",
-    "2 requirement(s) reach this PR only through a whole screen or through code it shares, and do not mention anything it changes; they are not listed.",
+    "18 requirement(s) with no matching screen sit on pages this PR touches but do not mention anything it changes; they are not listed.",
+    "2 requirement(s) reach this PR only through a whole screen, a flow, or code it shares, and do not mention anything it changes; they are not listed.",
     "The crawl stopped at its action budget, so some screens were not observed.",
     "The product documentation may be older than the app, so some requirements may be out of date.",
     "Some source files could not be read completely."
@@ -576,6 +604,39 @@
       "section": "Scripts",
       "statement": "User can write pre-request scripts and post-request tests in JavaScript to add dynamic behavior, set variables, and validate responses.",
       "status": "at_risk"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_d074cbb06843"
+      ],
+      "quote": "The context menu offers three options: Set as Variable, Add to Parameters, and Open Request in New Tab.",
+      "requirement_id": "req_2039a51bc971",
+      "section": "Context Menu",
+      "statement": "User can use the context menu on selected text to choose Set as Variable, Add to Parameters, or Open Request in New Tab.",
+      "status": "may_close_gap"
+    },
+    {
+      "band": "possible",
+      "evidence_ids": [
+        "ev_1e4dd34da393"
+      ],
+      "quote": "Stop Run if Error Occurs: The collection run stops if an error is encountered within a script or if there's a problem sending a request.",
+      "requirement_id": "req_f7cb70d6f5a1",
+      "section": "Runner > Run Settings",
+      "statement": "User can have the collection run stop if a script error or request sending problem occurs.",
+      "status": "may_close_gap"
+    },
+    {
+      "band": "unknown",
+      "evidence_ids": [
+        "ev_27a751974e1a"
+      ],
+      "quote": "At the top right of the address bar, click \"Install +\".",
+      "requirement_id": "req_7cebff10bcf5",
+      "section": "Hoppscotch Progressive Web App > Install Hoppscotch PWA",
+      "statement": "User can click the \"Install +\" button at the top right of the address bar to install the PWA.",
+      "status": "cannot_verify"
     }
   ],
   "risk_level": "MEDIUM",
