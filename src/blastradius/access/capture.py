@@ -22,7 +22,7 @@ from urllib.parse import unquote
 from ..failures import FailureCode
 from ..ids import sha, stable_id
 from ..models import AccessResult, AccessVerdict, Capture
-from ..redact import redact_obj, redact_text
+from ..redact import redact_obj, redact_text, redact_tokens
 from ..trace import now_iso
 from .classify import normalise_headers
 
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 HEADER_ALLOWLIST: frozenset[str] = frozenset({
     "content-type", "content-length", "server", "via", "retry-after",
     "cf-ray", "cf-cache-status", "cf-mitigated", "x-vercel-id", "x-vercel-mitigated", "x-amz-cf-id",
-    "x-amzn-waf-action",
+    "x-amzn-waf-action", "x-iinfo", "x-cdn",
 })
 # Credentials that HARs and traces carry; stripped from anything imported before it is classified or stored.
 SECRET_HEADERS: frozenset[str] = frozenset({"cookie", "set-cookie", "authorization", "proxy-authorization"})
@@ -48,9 +48,10 @@ _MAX_HEADER_VALUE = 256
 # A parameter whose (percent-decoded, lower-cased) name contains one of these has its value masked. Substring
 # match on purpose: over-masking a benign `author=` costs a debugging detail, under-masking leaks a secret.
 _SECRET_NAME_PARTS = ("token", "secret", "key", "code", "sid", "session", "auth", "password", "pass", "sig",
-                      "signature")
+                      "signature", "pwd", "credential", "cred", "jwt", "bearer", "otp", "ticket", "assertion",
+                      "saml", "cookie")
 _SEGMENT_END = re.compile(r"([&?#;])")                  # query, fragment and `;matrix=` parameters end here
-_USERINFO = re.compile(r"^([A-Za-z][A-Za-z0-9+.\-]*://)[^/?#]*@")
+_USERINFO = re.compile(r"^((?:[A-Za-z][A-Za-z0-9+.\-]*:)?//)[^/?#]*@")
 MAX_URL_CHARS = 4096                                    # a persisted url is cut here (length and hash kept)
 _SURROGATE = re.compile("[\ud800-\udfff]")
 _MASK = "[REDACTED]"
@@ -143,7 +144,7 @@ def _row(capture: Capture) -> dict:
     row = capture.model_dump(mode="json")
     row["url"], row["final_url"] = _persistable_url(row["url"]), _persistable_url(row["final_url"])
     if row["action"] is not None:
-        row["action"] = redact_text(_scrub_action(row["action"]), truncate=False)
+        row["action"] = redact_tokens(_scrub_action(row["action"]))
     row["headers"] = redact_obj(row["headers"], truncate=False)
     row["access"] = redact_obj(row["access"], truncate=False)
     return row

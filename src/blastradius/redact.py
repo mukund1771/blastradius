@@ -19,10 +19,16 @@ _PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{5,}"), "[REDACTED:jwt]"),
     (re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._\-]{12,}"), "Bearer [REDACTED]"),
     (
-        re.compile(r"(?i)\b(api[_-]?key|token|secret|password|passwd|authorization|cookie|set-cookie)\b(\s*[:=]\s*)[^\s'\",;]+"),
+        # generic `name: value` only when the value looks like a secret (>= 8 chars with a digit), so ordinary
+        # UI text such as "Token: how to use" or "Reset password: step 1" is left alone
+        re.compile(
+            r"(?i)\b(api[_-]?key|token|secret|password|passwd|authorization|cookie|set-cookie)\b(\s*[:=]\s*)"
+            r"(?=[^\s'\",;]*\d)[^\s'\",;]{8,}"
+        ),
         r"\1\2[REDACTED]",
     ),
 ]
+_TOKEN_PATTERNS = _PATTERNS[:5]   # prefix/shape based only: safe on free text such as UI labels
 
 _SENSITIVE_KEYS = {"cookie", "set-cookie", "authorization", "x-api-key", "api_key", "password", "secret", "token"}
 
@@ -33,6 +39,13 @@ def redact_text(text: str, *, truncate: bool = True) -> str:
     if truncate and len(text) > MAX_STR:
         digest = hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()[:12]
         text = f"{text[:MAX_STR]}...[len={len(text)} sha={digest}]"
+    return text
+
+
+def redact_tokens(text: str) -> str:
+    """Only well-known secret shapes (provider keys, JWTs, bearer tokens); never touches ordinary words."""
+    for pattern, repl in _TOKEN_PATTERNS:
+        text = pattern.sub(repl, text)
     return text
 
 

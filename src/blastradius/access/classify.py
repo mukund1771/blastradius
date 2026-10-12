@@ -38,7 +38,7 @@ from ..targets import AnchorConfig
 
 SOFT_STATUSES = frozenset({202, 403, 405, 429, 503})   # HTML with one of these where an app is expected
 COLLAPSE_MIN_URLS = 3                                  # distinct pages sharing one fingerprint = a collapse
-ROBOTS_MAX_RULES_PER_GROUP = 1000                      # rules past this, within one group, are not read
+ROBOTS_MAX_RULES_PER_GROUP = 20000                     # past this a group gets a deny-all rule (fail closed)
 ROBOTS_MAX_URL_CHARS = 4096                            # longer urls are refused (fail closed), not matched
 _WAF_ACTIONS = frozenset({"challenge", "captcha"})     # x-amzn-waf-action values: 202 and 405 respectively
 _VERCEL_ACTIONS = frozenset({"challenge", "deny"})     # x-vercel-mitigated values
@@ -102,7 +102,9 @@ def normalise_headers(items: Iterable[tuple[object, object]]) -> dict[str, str]:
     keeps both."""
     out: dict[str, str] = {}
     for name, value in items:
-        key = str(name).lower()
+        if value is None:                              # JSON null is "no header", not the string 'None'
+            continue
+        key = (bytes(name).decode("latin-1") if isinstance(name, (bytes, bytearray)) else str(name)).lower()
         text = _header_text(value)
         out[key] = f"{out[key]}, {text}" if key in out else text
     return out
@@ -253,7 +255,9 @@ def _classify(*, status: int | None, headers: Mapping[str, object], title: str |
     h = normalise_headers((headers or {}).items())
     text = _as_text(body)
     markup = _expects_markup(h)
-    page_title = title if title is not None else ((extract_title(text) or "") if markup else "")
+    # a blank title ("" from exporters that did not know it) is unknown, not "no title"
+    known_title = title if (title is not None and title.strip()) else None
+    page_title = known_title if known_title is not None else ((extract_title(text) or "") if markup else "")
     title_low = " ".join(page_title.lower().split()) if markup else ""
     hard = _hard_signals(status, h, text.lower(), title_low, markup)
     if hard:
@@ -303,6 +307,8 @@ def classify_capture(*, status: int | None, headers: Mapping[str, str], title: s
       valid regex is dropped (stricter, never looser). A wall confined to exempt routes is still caught by the
       hard markers and the anchor.
     """
+    if isinstance(collapse_exempt_patterns, str):      # a bare string would be iterated per character
+        collapse_exempt_patterns = [collapse_exempt_patterns]
     return _classify(status=status, headers=headers, title=title, body=body_text,
                      interactive_count=interactive_count, anchor=anchor, url=url, rung=rung,
                      prior_fingerprints=prior_fingerprints, exempt_patterns=collapse_exempt_patterns)
@@ -363,6 +369,7 @@ def _parse_robots(text: str) -> tuple[_Group, ...]:
     skipped; at most ROBOTS_MAX_RULES_PER_GROUP rules are read per group. Lines end at LF, CR or CRLF only."""
     groups: list[tuple[list[str], list[_Rule]]] = []
     in_agents = False
+    clipped = len(text) > _ROBOTS_MAX_CHARS
     normalised = text[:_ROBOTS_MAX_CHARS].lstrip("\ufeff").replace("\r\n", "\n").replace("\r", "\n")
     for raw in normalised.split("\n"):
         field, sep, value = raw.split("#", 1)[0].partition(":")
@@ -376,8 +383,18 @@ def _parse_robots(text: str) -> tuple[_Group, ...]:
             in_agents = True
         elif field in ("allow", "disallow") and groups:
             in_agents = False
-            if value and len(groups[-1][1]) < ROBOTS_MAX_RULES_PER_GROUP:
-                groups[-1][1].append(_make_rule(field == "allow", value))
+            if not value:
+                continue
+            rules = groups[-1][1]
+            if len(rules) < ROBOTS_MAX_RULES_PER_GROUP:
+                rules.append(_make_rule(field == "allow", value))
+            elif len(rules) == ROBOTS_MAX_RULES_PER_GROUP:
+                rules.append(_make_rule(False, "/"))     # unread rules may have denied: fail closed
+    if clipped:                                           # the unread tail may have held any rule
+        if groups:
+            groups[-1][1].append(_make_rule(False, "/"))
+        else:
+            groups.append((["*"], [_make_rule(False, "/")]))
     return tuple((tuple(agents), tuple(rules)) for agents, rules in groups)
 
 
@@ -412,6 +429,9 @@ def robots_allows(robots_txt: str | None, user_agent: str, url: str) -> AccessVe
     Percent-encoded reserved characters are compared encoded (`/a%2Fb` is not `/a/b`); rules past
     ROBOTS_MAX_RULES_PER_GROUP in one group are not read.
     """
+    if isinstance(robots_txt, (bytes, bytearray)):
+        robots_txt = bytes(robots_txt).decode("utf-8", errors="replace")
+    user_agent = user_agent or ""
     if robots_txt is None or not isinstance(url, str) or len(url) > ROBOTS_MAX_URL_CHARS:
         return AccessVerdict.DISALLOWED
     try:

@@ -63,6 +63,13 @@ class _Meta(BaseModel):
             raise ValueError("must be an integer, not a boolean")  # noqa: TRY004  (pydantic wants ValueError)
         return value
 
+    @field_validator("status")
+    @classmethod
+    def _http_status_range(cls, value: int | None) -> int | None:
+        if value is not None and not 100 <= value <= 599:
+            raise ValueError("must be an HTTP status between 100 and 599")
+        return value
+
     @field_validator("headers", mode="before")
     @classmethod
     def _header_shapes(cls, value: Any) -> dict[str, str]:
@@ -144,7 +151,7 @@ class RecordedSession:
         body = html_file.read_text(encoding="utf-8-sig", errors="replace") if html_file else ""
         headers = strip_secret_headers(meta.headers)
         final_url = meta.final_url or meta.url
-        title = meta.title if meta.title is not None else extract_title(body)
+        title = meta.title if (meta.title and meta.title.strip()) else extract_title(body)
         access = classify_capture(status=meta.status, headers=headers, title=title, body_text=body,
                                   interactive_count=meta.interactive_count, anchor=self.anchor, url=final_url,
                                   rung="RECORDED")

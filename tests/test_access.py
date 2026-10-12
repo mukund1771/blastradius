@@ -634,7 +634,9 @@ def test_anchor_min_interactive_and_title_regex():
     assert low.verdict is SUSPECT and low.signals == ["anchor:interactive=7<8"]
     wrong = go("Example Domain", 59)
     assert wrong.verdict is SUSPECT and wrong.signals == ["anchor:title-mismatch"]
-    both = go("", 0)                                                            # a page with no title at all
+    # a page with no title at all (body has none either); a blank title string is "unknown", not "no title"
+    both = classify_capture(status=200, headers={}, title="", body_text="<html><body></body></html>",
+                            interactive_count=0, anchor=anchor, url=URL)
     assert both.verdict is SUSPECT and both.signals == ["anchor:title-mismatch", "anchor:interactive=0<8"]
 
 
@@ -843,7 +845,8 @@ def test_m4_a_million_characters_of_whitespace_in_robots_are_cheap():
 def test_m4_robots_is_read_up_to_500_kib_and_no_further():
     text = "User-agent: *\nDisallow: /early\n" + "# " + "x" * 600_000 + "\nDisallow: /late\n"
     assert robots_allows(text, UA, "https://x/early") is DISALLOWED
-    assert robots_allows(text, UA, "https://x/late") is OK            # past the RFC 9309 minimum of 500 KiB
+    # past the 512 KiB read limit the unread tail may hold any rule: fail CLOSED (it used to fail open)
+    assert robots_allows(text, UA, "https://x/late") is DISALLOWED
 
 
 def test_m4_thousands_of_rules_and_urls_are_fast():
@@ -889,7 +892,8 @@ def test_m4_rule_count_per_group_and_url_length_are_capped():
     n = ROBOTS_MAX_RULES_PER_GROUP
     robots = "User-agent: *\n" + "".join(f"Disallow: /r{i:05d}/\n" for i in range(n + 5))
     assert robots_allows(robots, UA, f"https://x/r{n - 1:05d}/") is DISALLOWED     # the 1000th is read
-    assert robots_allows(robots, UA, f"https://x/r{n:05d}/") is OK                 # the 1001st is not read
+    # the first unread rule: the group is truncated, so unknown paths are denied (fail closed, was fail open)
+    assert robots_allows(robots, UA, f"https://x/r{n:05d}/") is DISALLOWED
     assert robots_allows(robots, UA, "https://x/r00000/") is DISALLOWED
     base = "https://x/"
     at_cap = base + "a" * (ROBOTS_MAX_URL_CHARS - len(base))
@@ -1582,3 +1586,72 @@ def test_classification_and_capture_output_is_independent_of_the_hash_seed():
         done = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=120, check=True)
         outputs.append(done.stdout)
     assert outputs[0] and outputs[0] == outputs[1] == outputs[2]
+
+
+# ---- residual findings from the independent verifier (blank title, secret names, bytes, status range)
+def test_blank_title_falls_back_to_the_body_title_so_the_interstitial_still_fires():
+    body = "<title>Just a moment...</title><script>window._cf_chl_opt={}</script>"
+    kw = dict(status=200, headers={"content-type": "text/html", "server": "cloudflare"}, body_text=body,
+              interactive_count=None, anchor=None, url=URL)
+    assert classify_capture(title="", **kw).verdict is BLOCKED
+    assert classify_capture(title=None, **kw).verdict is BLOCKED
+
+
+def test_collapse_exempt_patterns_accepts_a_bare_string():
+    priors = {f"https://x/{c}": "f" for c in "abc"}
+    kw = dict(status=200, headers={}, title="App", body_text="<html></html>", interactive_count=None, anchor=None)
+    assert classify_capture(url="https://x/a", prior_fingerprints=priors, collapse_exempt_patterns="/zzz$",
+                            **kw).verdict is SUSPECT        # a string must not be iterated per character
+    assert classify_capture(url="https://x/a", prior_fingerprints=priors, collapse_exempt_patterns="/a$",
+                            **kw).verdict is OK
+
+
+def test_robots_accepts_bytes_and_a_missing_user_agent():
+    assert robots_allows(b"User-agent: *\nDisallow: /x\n", UA, "https://h/x") is DISALLOWED
+    assert robots_allows("User-agent: *\nAllow: /\n", None, "https://h/x") is OK
+
+
+def test_normalise_headers_decodes_byte_names_and_drops_null_values():
+    from blastradius.access.classify import normalise_headers
+
+    out = normalise_headers([(b"CF-Mitigated", b"challenge"), ("Server", None), ("X-Y", "1")])
+    assert out == {"cf-mitigated": "challenge", "x-y": "1"}
+
+
+def test_recorded_session_rejects_out_of_range_status(tmp_path):
+    import json
+
+    from blastradius.access.source import RecordedSession
+
+    (tmp_path / "001.json").write_text(json.dumps({"url": "https://x/", "status": 99999}))
+    (tmp_path / "001.html").write_text("<html></html>")
+    try:
+        list(RecordedSession(tmp_path).captures())
+    except ValueError as exc:
+        assert "100 and 599" in str(exc)
+    else:
+        raise AssertionError("status 99999 accepted")
+
+
+def test_persisted_action_keeps_ordinary_words_but_removes_secret_shapes(tmp_path):
+    import json
+
+    from blastradius.access.capture import append_capture, make_capture
+    from blastradius.models import AccessResult
+    from blastradius.run import RunContext
+
+    run = RunContext.create("t", run_id="act-test", runs_dir=tmp_path)
+    cap = make_capture(target="t", url="https://x/", access=AccessResult(verdict=OK), status=200,
+                       action="click:Reset password: step 1 of 3 sk-ant-api03-CANARYCANARYCANARY")
+    append_capture(run, cap)
+    row = json.loads((run.run_dir / "crawl" / "captures.jsonl").read_text().splitlines()[0])
+    assert "Reset password: step 1 of 3" in row["action"]
+    assert "CANARY" not in row["action"]
+
+
+def test_more_secret_parameter_names_and_scheme_relative_userinfo_are_masked():
+    from blastradius.access.capture import scrub_url
+
+    out = scrub_url("//user:pw@host/p?pwd=abc12345&otp=123456&ticket=zz&SAMLResponse=PHNhbWw&q=ok#jwt=eyJabc")
+    assert "pw@" not in out and "abc12345" not in out and "123456" not in out
+    assert "PHNhbWw" not in out and "q=ok" in out
