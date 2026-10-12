@@ -31,7 +31,7 @@ against evidence**. The code layer is deliberately shallow (frontend, file granu
 | Live crawl | 55 screens, 1,468 elements, 321 transitions, 150 actions, 0 WAF blocks; 280 requests stopped by the egress allowlist |
 | UI -> code links | 333 of 434 named canonical elements (76.7%) have an `IMPLEMENTED_BY` edge. 1,409 edges: 1,292 `i18n_key`, 117 `llm_pick`. Median confidence 0.30. Against the source-map oracle (124 scored controls, 3 pages): linker coverage 117/124 (Wilson 95% 0.888–0.972), top-1 of covered 64/117 (0.457–0.634), hit@3 of covered 78/117 (0.577–0.746) |
 | Requirements | 343 extracted, 160 kept, 341 of 343 quotes verified before later drops; 183 dropped (154 over the per-chunk cap, 19 duplicates, 6 not phrased as a user action, 2 too long, 2 quote-shape). Cost $0.6256 on claude-sonnet-5-5. 124 of those 160 have a `REALIZED_BY` edge (320 edges). Docs are 2026.5.0; the app is 2026.9.0 |
-| PR #6645 | Risk HIGH. 3 direct items (2 confirmed, 1 possible), 7 indirect, 5 could-not-determine, 48 requirements in the table, checklist of 2. Verifier passed. Narration is the template. The checklist is the environment sidebar; the 48-row table is wider than that change because shared controls on the home page were judged as partial matches |
+| PR #6645 | Risk HIGH. 3 direct items (2 confirmed, 1 possible), 7 indirect, 5 could-not-determine, 12 requirements in the table, checklist of 2. Verifier passed. Narration is the template. The checklist is the environment sidebar. The table had 48 rows until D41: requirements tied to the Home page as a whole, or to a parent that renders a changed component, were all "at risk"; now they are listed only when they share a word with the change, and the other 36 are counted in the not-checked section |
 | Tests | 2,385 collected in 60 files. The full suite, including the live Chromium tests, passed on 2026-10-12 (about 14 minutes, exit 0; a few tests skipped). One earlier failure, the workspace-header test, was the `.env` file refilling a variable the test had unset; the test now ignores that file. Independent reviewers found 22 major (and 51 lesser) defects the builders' own tests missed; all fixed or dispositioned (section 10) |
 
 **What it is not.** It is not validated accuracy on a population of PRs. Three open PRs are case studies. The
@@ -231,9 +231,10 @@ are not actions.
 
 On PR #6645 that produces: risk HIGH, touching the Home page and the menu popup on it; re-test "Environment Quick
 Peek" and "Edit"; five things not determined, including the new labels "Edit current value" and "environments
-editor". The requirements table lists 48 rows. Many of those are partial matches (AI features, mock servers) on
-controls that merely share the home page with the environment sidebar. A QA lead should re-test the checklist, and
-treat the long table as a wide net, not as 48 broken features.
+editor". The requirements table lists 12 rows, all about environments and variables. It listed 48 until the
+requirement filter of D41 (the other 36 are counted, not listed): AI features, mock servers and history were "at
+risk" only because they share the home page with the environment sidebar. The filter is a word-overlap heuristic,
+so the table can still carry a loosely related row; a QA lead should re-test the checklist first.
 
 ---
 
