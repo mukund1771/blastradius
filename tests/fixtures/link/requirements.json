@@ -1,0 +1,361 @@
+[
+ {
+  "id": "req_22a2e8c41679",
+  "target": "hoppscotch",
+  "text": "User can create a collection to organize requests.",
+  "quote": "Collections allow you to organize your requests into folders.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/collections",
+  "section": "Collections",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_2da4624dcdfb",
+  "target": "hoppscotch",
+  "text": "User can view the history of sent requests.",
+  "quote": "History keeps a list of the requests you have sent.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/history",
+  "section": "History",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_5d2590ee39c2",
+  "target": "hoppscotch",
+  "text": "User can open the Cookie Manager from the \"Cookies\" button in the bottom bar.",
+  "quote": "To open the Cookie Manager, click on the \"Cookies\" button in the bottom bar.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/cookies",
+  "section": "Cookies",
+  "doc_version": "2026.5.0",
+  "edition": "desktop",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_5da5a66c4979",
+  "target": "hoppscotch",
+  "text": "User can add client certificates for a domain.",
+  "quote": "Add client certificates in the settings to authenticate requests to a domain.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/settings",
+  "section": "Settings",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_611f14434de4",
+  "target": "hoppscotch",
+  "text": "User can configure a proxy URL for requests.",
+  "quote": "Set a proxy URL in the settings to route requests through your own proxy.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/settings",
+  "section": "Settings",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_672046e06569",
+  "target": "hoppscotch",
+  "text": "User can generate a code snippet for a request.",
+  "quote": "Generate code snippets for your request in many languages and frameworks.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/generate-code",
+  "section": "Generate Code",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_80de95a128a3",
+  "target": "hoppscotch",
+  "text": "User can connect to a WebSocket server and send messages.",
+  "quote": "Connect to a WebSocket server and send and receive messages in real time.",
+  "source_url": "https://docs.hoppscotch.io/documentation/protocols/websocket",
+  "section": "WebSocket",
+  "doc_version": "2026.5.0",
+  "edition": "all",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_863c1a5e2848",
+  "target": "hoppscotch",
+  "text": "User can choose the interface language.",
+  "quote": "Choosing a different interface language is not available yet.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/languages",
+  "section": "Languages",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_not_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified",
+   "synthetic"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_8cf9865c3eac",
+  "target": "hoppscotch",
+  "text": "User can schedule a request to run on a timer.",
+  "quote": "Scheduled requests run automatically at the interval you choose.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/schedules",
+  "section": "Schedules",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified",
+   "synthetic"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_a28f393095f9",
+  "target": "hoppscotch",
+  "text": "User can use the app in many languages.",
+  "quote": "Hoppscotch is available in many languages.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/languages",
+  "section": "Languages",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "unknown",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_a3a6dbfa8d98",
+  "target": "hoppscotch",
+  "text": "User can manage environment variables used in requests.",
+  "quote": "Environments let you store variables and reuse them across requests.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/environments",
+  "section": "Environments",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_a6e8b8b600b5",
+  "target": "hoppscotch",
+  "text": "User can browse the schema of a GraphQL endpoint.",
+  "quote": "Fetch the schema of a GraphQL endpoint and browse its types and fields.",
+  "source_url": "https://docs.hoppscotch.io/documentation/protocols/graphql",
+  "section": "GraphQL",
+  "doc_version": "2026.5.0",
+  "edition": "all",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_b5d78f2069b2",
+  "target": "hoppscotch",
+  "text": "User can add, edit and remove cookies for a domain.",
+  "quote": "Hoppscotch Cookie Manager enables you to add, edit, and remove cookies for a domain.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/cookies",
+  "section": "Cookies",
+  "doc_version": "2026.5.0",
+  "edition": "desktop",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_bd4c86bc82e1",
+  "target": "hoppscotch",
+  "text": "User can invite users to a workspace.",
+  "quote": "To invite users to a workspace, click on the \"Invite\" button and enter the email address of the user you want to invite.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/workspaces",
+  "section": "Workspaces",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": true,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_bff156ad184d",
+  "target": "hoppscotch",
+  "text": "User can run a collection from the command line.",
+  "quote": "Use the Hoppscotch CLI to run a collection in your CI pipeline.",
+  "source_url": "https://docs.hoppscotch.io/documentation/clients/cli/overview",
+  "section": "CLI",
+  "doc_version": "2026.5.0",
+  "edition": "all",
+  "polarity": "must_exist",
+  "ui_observable": "no",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_e5b71b9c589d",
+  "target": "hoppscotch",
+  "text": "User can export a collection as an OpenAPI 3.1 specification.",
+  "quote": "You can now export collections as OpenAPI 3.1 specs, making it easier to share APIs with external tools.",
+  "source_url": "https://docs.hoppscotch.io/documentation/changelog",
+  "section": "Changelog",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_ec748065cc5c",
+  "target": "hoppscotch",
+  "text": "User can chain the response of one request into the next request.",
+  "quote": "Request chaining is coming soon.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/chaining",
+  "section": "Request chaining",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_not_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified",
+   "synthetic"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_f198ca984fbf",
+  "target": "hoppscotch",
+  "text": "User can connect to an MQTT broker and subscribe to topics.",
+  "quote": "Connect to an MQTT broker and subscribe to topics to receive messages.",
+  "source_url": "https://docs.hoppscotch.io/documentation/protocols/mqtt",
+  "section": "MQTT",
+  "doc_version": "2026.5.0",
+  "edition": "all",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": false,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written",
+   "quote-unverified"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ },
+ {
+  "id": "req_fb6165ba517a",
+  "target": "hoppscotch",
+  "text": "User can create a workspace from the workspace switcher.",
+  "quote": "To create a workspace, click on the \"+\" icon on the top right corner of the workspace switcher.",
+  "source_url": "https://docs.hoppscotch.io/documentation/features/workspaces",
+  "section": "Workspaces",
+  "doc_version": "2026.5.0",
+  "edition": "cloud-web",
+  "polarity": "must_exist",
+  "ui_observable": "yes",
+  "requires_login": true,
+  "source_kind": "docs",
+  "tags": [
+   "hand-written"
+  ],
+  "spec_sha": "f895cca9ad176109"
+ }
+]

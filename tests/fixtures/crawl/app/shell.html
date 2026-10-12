@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mini Scotch • API client</title>
+<script type="module" crossorigin src="/assets/index-AAA111.js"></script>
+<link rel="modulepreload" crossorigin href="/assets/vendor-BBB222.js">
+</head>
+<body>
+<div id="app"></div>
+<div id="modal-portal"></div>
+<div id="crisp-chatbox"><button id="crisp-open">Open chat</button></div>
+<script>
+// A tiny SPA that mimics the parts of Hoppscotch that stress the explorer. Unknown paths render the
+// catch-all "not found" screen with HTTP 200 (soft-404, case 3).
+const ICON = '<svg viewBox="0 0 24 24" class="svg-icons"><path d="M12 5v14m-7-7h14"></path></svg>';
+const ICON2 = '<svg viewBox="0 0 24 24" class="svg-icons"><circle cx="12" cy="12" r="9"></circle></svg>';
+const hit = (p) => fetch('/__hit' + p).catch(() => {});
+const kbd = '<span><kbd class="shortcut-key">⌘</kbd><kbd class="shortcut-key">K</kbd></span>';
+const header = `
+  <header>
+    <button aria-label="button" id="brand"><span>Mini Scotch</span></button>
+    <button id="search">${ICON} Search and commands ${kbd}</button>
+    <button aria-label="button" id="iconA">${ICON}</button>
+    <button aria-label="button" id="iconB">${ICON2}</button>
+    <button aria-label="button" id="login">Login</button>
+    <button id="chat">Chat with us</button>
+  </header>
+  <nav>
+    <a href="/" aria-label="REST">REST</a>
+    <a href="/graphql" aria-label="GraphQL">GraphQL</a>
+    <a href="/settings" aria-label="Settings">Settings</a>
+    <a href="/admin/users">Admin users</a>
+    <a href="/old-page">Old page</a>
+    <a href="https://docs.app.test/start" aria-label="Link" role="button" target="_blank">Docs</a>
+  </nav>`;
+const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+const sidebar = (active) => `
+  <aside>
+    ${['Collections', 'Environments', 'History'].map((t) =>
+      `<button class="tab${t === active ? ' active' : ''}" aria-label="${t}" role="button" data-tab="${t}">${t}</button>`).join('')}
+    <div id="tabpanel">${panel(active)}</div>
+  </aside>`;
+const panel = (t) => t === 'Collections'
+  ? `<button id="new">New</button><button id="import">Import</button><button id="clear" aria-label="Clear history">Clear history</button>`
+  : t === 'Environments' ? `<button id="newenv">New</button><span>Global</span>`
+  : `<span>No history yet</span><button id="delall">Delete all history</button>`;
+const request = () => `
+  <main>
+    <input aria-label="URL" id="urlfield" value="https://echo.app.test">
+    <button id="send">Send</button>
+    <div class="cm-editor"><div class="cm-content" role="textbox" aria-label="Request body"><div class="cm-line">{"a": 1}</div><div class="cm-line">{"b": 2}</div></div></div>
+    <div id="rtabs">${['Parameters', 'Body'].map((t) =>
+      `<button class="tab${t === (store('rtab') || 'Parameters') ? ' active' : ''}" aria-label="${t}" role="button" data-rtab="${t}">${t}</button>`).join('')}</div>
+    <p id="rt">Last response 245 ms, 1.2 KB, updated 3 minutes ago</p>
+  </main>`;
+const pages = {
+  '/': () => header + '<div class="layout">' + sidebar(store('tab') || 'Collections') + request() + '</div>',
+  '/graphql': () => header + '<main><h1>GraphQL</h1><button id="gqlsend">Send</button><button id="schema">Schema</button><button id="breaker">Break</button><button id="stuck">Stuck</button></main>',
+  '/settings': () => header + '<main><h1>Settings</h1><button class="tab active" aria-label="General" role="button">General</button><button class="tab" aria-label="Theme" role="button" id="themetab">Theme</button><label><input type="checkbox" id="dark"> Dark mode</label></main>',
+  '/admin/users': () => header + '<main><h1>Admin</h1><button>Reset all</button></main>',
+};
+const notFound = () => header + '<main><h1>Page not found</h1><p>The page you are looking for does not exist.</p><button id="reload">Reload</button></main>';
+function render() {
+  const path = location.pathname.replace(/\/$/, '') || '/';
+  document.getElementById('app').innerHTML = (pages[path] || notFound)();
+  wire();
+}
+function modal(title, body) {
+  const m = document.createElement('div');
+  m.setAttribute('role', 'dialog');
+  m.id = 'dlg';
+  m.innerHTML = `<h2>${title}</h2>${body}<button id="closedlg" aria-label="Close">${ICON}</button>`;
+  document.getElementById('modal-portal').appendChild(m);
+  const close = () => m.remove();
+  m.querySelector('#closedlg').onclick = close;
+  document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); } });
+  return m;
+}
+function wire() {
+  const $ = (s) => document.querySelector(s);
+  const on = (s, f) => { const e = $(s); if (e) e.onclick = f; };
+  on('#search', () => modal('', '<input placeholder="Type a command or search…">'));
+  on('#login', () => hit('/login'));
+  on('#chat', () => hit('/chat'));
+  on('#send', () => { hit('/send'); fetch('https://echo.app.test/').then(() => { $('#rt').textContent = 'Last response 120 ms'; }); });
+  on('#new', () => {
+    const m = modal('New Collection', '<input placeholder="Label" id="label"><button id="save">Save</button><button id="cancel">Cancel</button>');
+    m.querySelector('#save').onclick = () => { hit('/created?name=' + encodeURIComponent(m.querySelector('#label').value)); m.remove(); };
+    m.querySelector('#cancel').onclick = () => m.remove();
+  });
+  on('#import', () => modal('Import', '<button role="menuitem">Import from Postman</button><button role="menuitem">Import from HAR</button>'));
+  on('#clear', () => hit('/clear'));
+  on('#delall', () => hit('/deleted'));
+  on('#gqlsend', () => hit('/gqlsend'));
+  on('#breaker', () => {   // an unclosable dialog; only a reload clears it, and the site stops serving the app
+    hit('/break');
+    const d = document.createElement('div');
+    d.setAttribute('role', 'dialog');
+    d.innerHTML = '<h2>Session lost</h2><p>Reload required</p>';
+    document.getElementById('modal-portal').appendChild(d);
+  });
+  on('#stuck', () => {     // a dialog that ignores Escape and closes only through its aria-label=Close button
+    const d = document.createElement('div');
+    d.setAttribute('role', 'dialog');
+    d.innerHTML = '<h2>Stuck</h2><button aria-label="Close" id="stuckclose">x</button>';
+    document.getElementById('modal-portal').appendChild(d);
+    d.querySelector('#stuckclose').onclick = () => d.remove();
+  });
+  on('#themetab', () => { document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.id === 'themetab')); });
+  on('#iconA', () => modal('Help', '<a href="https://docs.app.test/">Documentation</a><button role="menuitem">Keyboard shortcuts</button>'));
+  document.querySelectorAll('[data-tab]').forEach((b) => b.onclick = () => { store('tab', b.dataset.tab); render(); });
+  document.querySelectorAll('[data-rtab]').forEach((b) => b.onclick = () => { store('rtab', b.dataset.rtab); render(); });
+  on('#dark', () => hit('/dark'));
+  on('#reload', () => location.reload());
+  document.querySelectorAll('nav a[href^="/"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); history.pushState({}, '', a.getAttribute('href')); render(); });
+  const crisp = document.getElementById('crisp-open'); if (crisp) crisp.onclick = () => hit('/crisp');
+}
+window.addEventListener('popstate', render);
+render();
+// egress probes: none of these may leave the sandbox
+fetch('http://127.0.0.1:9119/ping').catch(() => {});
+fetch('http://169.254.169.254/latest/meta-data/').catch(() => {});
+fetch('https://tracker.example/collect').catch(() => {});
+</script>
+</body>
+</html>

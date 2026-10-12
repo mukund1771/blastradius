@@ -1,0 +1,24 @@
+{
+ "base": {
+  "ref": "main",
+  "repo": {
+   "full_name": "hoppscotch/hoppscotch"
+  },
+  "sha": "ac145e7f758151b41fd46d3e5f513886ce9068ba"
+ },
+ "body": "<!-- If this pull request closes an issue, please mention the issue number below -->\r\n\r\nFeature-6632\r\n[https://github.com/hoppscotch/hoppscotch/issues/6632#issuecomment-5599319582](url)\r\n\r\nWhen testing APIs, developers often need to compare response payloads across different test runs, environments, or request tabs. Previously, users had to copy responses into third-party tools to inspect differences. This PR introduces a native side-by-side response comparison modal directly inside Hoppscotch for both REST and GraphQL API clients.\r\n\r\n### What's changed\r\n\r\n- Added a \"Compare\" button in the response metadata header next to status code, response time, and payload size.\r\n- Created `HttpResponseCompareModal.vue` and `GqlResponseCompareModal.vue` components to render a side-by-side visual line diff.\r\n- Added target selection options to compare the active response against other open request tabs or raw JSON input.\r\n- Displays metadata comparison (Status, Time, and Size) side-by-side at the top of the modal.\r\n- Wired `@compare` event handlers in both REST and GraphQL response view components.\r\n- Added locale entry in `en.json` and registered components in `components.d.ts`.\r\n\r\n### Notes to reviewers\r\n\r\n- The feature works for both REST (`/`) and GraphQL (`/graphql`) request panes.\r\n- Dual tab lookup is included in the GraphQL comparison modal to handle both standalone GraphQL tabs (`GQLTabService`) and unified workspace tabs (`WorkspaceTabsService`).\r\n- All changes have been verified with `pnpm typecheck` across the workspace without any errors.\r\n\r\n<img width=\"1903\" height=\"933\" alt=\"Screenshot 2026-09-07 234354\" src=\"https://github.com/user-attachments/assets/dad68ded-c0d0-42a0-b023-deb5cefb6929\" />\r\n<img width=\"1911\" height=\"944\" alt=\"Screenshot 2026-09-07 234256\" src=\"https://github.com/user-attachments/assets/dbf4ddbf-14ea-4c5e-bd24-3f3e7fe9d5da\" />\r\n<img width=\"1913\" height=\"934\" alt=\"Screenshot 2026-09-07 234210\" src=\"https://github.com/user-attachments/assets/0f459e8f-1660-4cfa-9bcb-1545a4bbc456\" />\r\n<img width=\"1914\" height=\"936\" alt=\"Screenshot 2026-09-07 234143\" src=\"https://github.com/user-attachments/assets/2ae633b0-8dea-49e3-b07c-613413035d3b\" />\r\n<img width=\"1918\" height=\"941\" alt=\"Screenshot 2026-09-07 233853\" src=\"https://github.com/user-attachments/assets/cc2ceb4b-bcef-43cc-807e-9db8a976cf41\" />\n\n<!-- This is an auto-generated description by cubic. -->\n---\n## Summary by cubic\nImplements [Feature-6632](https://github.com/hoppscotch/hoppscotch/issues/6632) by adding native response comparison to REST and GraphQL clients. Users can now compare the current response with another open request tab or pasted input instead of using a third-party tool.\n\n**Details**\n\n- Adds a Compare button beside response status, time, and size.\n- Shows responses side by side with added and removed lines highlighted.\n- Displays status, duration, and size for both responses.\n- Adds localized Compare text and session caching for the last 30 executed REST responses.\n\n<sup>Written for commit 5eea64fd209addde0d770831b7234817eb339699. Summary will update on new commits.</sup>\n\n<a href=\"https://cubic.dev/pr/hoppscotch/hoppscotch/pull/6641?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n\n<!-- End of auto-generated description by cubic. -->\n\n",
+ "changed_files": 13,
+ "created_at": "2026-09-09T16:10:54Z",
+ "draft": false,
+ "head": {
+  "ref": "feature/addCompareButton",
+  "repo": {
+   "fork": true,
+   "full_name": "NavuluriBalaji/hoppscotch"
+  },
+  "sha": "5eea64fd209addde0d770831b7234817eb339699"
+ },
+ "number": 6641,
+ "state": "open",
+ "title": "Feature/add compare button"
+}

@@ -1,0 +1,29 @@
+sylius_twig_hooks:
+  hooks:
+    sylius_shop.cart.index:
+      content:
+        template: '@SyliusShop/cart/index/content.html.twig'
+        priority: 0
+    sylius_shop.cart.index.content:
+      form:
+        component: sylius_shop:cart:form
+        props:
+          resource: '@=_context.cart'
+          template: '@SyliusShop/cart/index/content/form.html.twig'
+        priority: 100
+    sylius_shop.cart.index.content.form:
+      sections:
+        template: '@SyliusShop/cart/index/content/form/sections.html.twig'
+        priority: 0
+    sylius_shop.cart.index.content.form.sections:
+      general:
+        template: '@SyliusShop/cart/index/content/form/sections/general.html.twig'
+        priority: 0
+    sylius_shop.cart.index.content.form.sections.general#left:
+      coupon:
+        template: '@SyliusShop/cart/index/content/form/sections/general/coupon.html.twig'
+        priority: 100
+    sylius_shop.cart.index.content.form.sections.general.items.body:
+      item:
+        template: '@SyliusShop/cart/index/content/form/sections/general/items/body/item.html.twig'
+        priority: 300

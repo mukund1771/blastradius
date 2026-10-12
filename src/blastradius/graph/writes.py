@@ -2,7 +2,14 @@
 
 Each statement is a fixed string. Rows and ids arrive as `$rows` / `$ids` / scalar parameters, never as
 text. A label or relationship type cannot be a parameter, so there is one literal statement per type.
-`PRUNE` lists, per layer, what `GraphStore.prune_stale` removes when a run did not re-assert it.
+`PRUNE` lists, per layer, what `GraphStore.prune_stale` removes when a run did not re-assert it, and never
+touches a `method = 'human'` link. `DELETE_BY_LABEL` is `clear_target`'s per-label batch delete (served by
+the per-label `target` index in schema.cypher, not by a scan of every node).
+
+Statements that belong together (a Gap and its SEARCHED edges, a Flow and its STEP/STARTS_AT/ENDS_AT edges, a
+link and its sorted `screen_ids`) are listed by the store as one group and run in ONE transaction, so a
+failure part-way leaves the previous state intact. They delete only what the new row set no longer asserts and
+MERGE the rest, so an identical rewrite creates and deletes nothing and `first_run_id` survives.
 """
 
 from __future__ import annotations
@@ -150,22 +157,28 @@ FOREACH (x IN subjects |
 RETURN sum(CASE WHEN size(subjects) = 0 THEN 1 ELSE 0 END) AS unresolved
 """
 
-SEARCHED_RESET = """
+# A Gap's SEARCHED edges: drop those to screens no longer searched, then MERGE the searched ones.
+SEARCHED_PRUNE = """
 UNWIND $rows AS row
-MATCH (g:Gap {target: $target, id: row.id, bundle_hash: row.bundle_hash})-[r:SEARCHED]->()
+MATCH (g:Gap {target: $target, id: row.id, bundle_hash: row.bundle_hash})-[r:SEARCHED]->(s:Screen)
+WHERE NOT s.id IN row.screens
 DELETE r
 """
 
 SEARCHED = """
 UNWIND $rows AS row
 MATCH (g:Gap {target: $target, id: row.id, bundle_hash: row.bundle_hash})
-MATCH (s:Screen {target: $target, id: row.screen})
+UNWIND row.screens AS sid
+MATCH (s:Screen {target: $target, id: sid})
 MERGE (g)-[r:SEARCHED]->(s)
   ON CREATE SET r.first_run_id = $run_id
 SET r.run_id = $run_id
 RETURN count(r) AS matched
 """
 
+# Per-screen attribution (decision 3): `screen_ids` on the edge lists the observations the link was derived on
+# ([] = every screen of the element). Within one run a rewrite unions the sets and "all" absorbs; a different
+# run re-asserts from scratch. The SET lists screen_ids first so it still sees the previous run_id.
 IMPLEMENTED_BY = """
 UNWIND $rows AS row
 OPTIONAL MATCH (e:UIElement {target: $target, id: row.src})
@@ -174,10 +187,25 @@ WITH row, e, f
 FOREACH (_ IN CASE WHEN e IS NULL OR f IS NULL THEN [] ELSE [1] END |
   MERGE (e)-[r:IMPLEMENTED_BY {method: row.method}]->(f)
     ON CREATE SET r.first_run_id = $run_id
-  SET r.confidence = row.confidence, r.evidence_id = row.evidence_id, r.judge = row.judge,
+  SET r.screen_ids = CASE
+        WHEN r.run_id IS NULL OR r.run_id <> $run_id THEN row.screen_ids
+        WHEN size(coalesce(r.screen_ids, [])) = 0 OR size(row.screen_ids) = 0 THEN []
+        ELSE [x IN r.screen_ids WHERE NOT x IN row.screen_ids] + row.screen_ids END,
+      r.confidence = row.confidence, r.evidence_id = row.evidence_id, r.judge = row.judge,
       r.run_id = $run_id, r.snapshot_id = f.snapshot_id, r.bundle_hash = e.bundle_hash)
 RETURN sum(CASE WHEN e IS NULL THEN 1 ELSE 0 END) AS missing_src,
-       sum(CASE WHEN e IS NOT NULL AND f IS NULL THEN 1 ELSE 0 END) AS missing_dst
+       sum(CASE WHEN e IS NOT NULL AND f IS NULL THEN 1 ELSE 0 END) AS missing_dst,
+       collect(CASE WHEN e IS NULL OR f IS NULL THEN [row.src, row.dst] END) AS missing
+"""
+
+IMPLEMENTED_BY_SORT = """
+UNWIND $rows AS row
+MATCH (:UIElement {target: $target, id: row.src})-[r:IMPLEMENTED_BY {method: row.method}]->
+      (:CodeFile {target: $target, path: row.dst})
+UNWIND r.screen_ids AS sid
+WITH r, sid ORDER BY sid
+WITH r, collect(DISTINCT sid) AS sorted
+SET r.screen_ids = sorted
 """
 
 REALIZED_BY = """
@@ -190,10 +218,25 @@ WITH row, q, [x IN [e, s, fl] WHERE x IS NOT NULL] AS dsts
 FOREACH (d IN CASE WHEN q IS NULL THEN [] ELSE dsts END |
   MERGE (q)-[r:REALIZED_BY {method: row.method}]->(d)
     ON CREATE SET r.first_run_id = $run_id
-  SET r.confidence = row.confidence, r.evidence_id = row.evidence_id, r.judge = row.judge,
+  SET r.screen_ids = CASE
+        WHEN r.run_id IS NULL OR r.run_id <> $run_id THEN row.screen_ids
+        WHEN size(coalesce(r.screen_ids, [])) = 0 OR size(row.screen_ids) = 0 THEN []
+        ELSE [x IN r.screen_ids WHERE NOT x IN row.screen_ids] + row.screen_ids END,
+      r.confidence = row.confidence, r.evidence_id = row.evidence_id, r.judge = row.judge,
       r.run_id = $run_id, r.doc_sha = q.spec_sha, r.bundle_hash = d.bundle_hash)
 RETURN sum(CASE WHEN q IS NULL THEN 1 ELSE 0 END) AS missing_src,
-       sum(CASE WHEN q IS NOT NULL AND size(dsts) = 0 THEN 1 ELSE 0 END) AS missing_dst
+       sum(CASE WHEN q IS NOT NULL AND size(dsts) = 0 THEN 1 ELSE 0 END) AS missing_dst,
+       collect(CASE WHEN q IS NULL OR size(dsts) = 0 THEN [row.src, row.dst] END) AS missing
+"""
+
+REALIZED_BY_SORT = """
+UNWIND $rows AS row
+MATCH (:Requirement {target: $target, id: row.src})-[r:REALIZED_BY {method: row.method}]->
+      ({target: $target, id: row.dst})
+UNWIND r.screen_ids AS sid
+WITH r, sid ORDER BY sid
+WITH r, collect(DISTINCT sid) AS sorted
+SET r.screen_ids = sorted
 """
 
 OWNER_FILE = """
@@ -204,12 +247,6 @@ WITH e, collect(f.path)[0] AS top
 SET e.owner_file = top
 """
 
-FLOW_RESET = """
-UNWIND $ids AS id
-MATCH (fl:Flow {target: $target, id: id})-[r:STEP|STARTS_AT|ENDS_AT]->()
-DELETE r
-"""
-
 FLOW = """
 UNWIND $rows AS row
 MERGE (fl:Flow {target: $target, id: row.id})
@@ -217,20 +254,37 @@ MERGE (fl:Flow {target: $target, id: row.id})
 SET fl += row.props, fl.run_id = $run_id
 """
 
+# `row.keep` lists [order, element id] for every step of the new flow: a STEP edge outside it is stale.
+STEP_PRUNE = """
+UNWIND $rows AS row
+MATCH (fl:Flow {target: $target, id: row.id})-[r:STEP]->(e:UIElement)
+WHERE NOT [r.order, e.id] IN row.keep
+DELETE r
+"""
+
 STEP = """
 UNWIND $rows AS row
-MATCH (fl:Flow {target: $target, id: row.flow})
-MATCH (e:UIElement {target: $target, id: row.element})
-MERGE (fl)-[r:STEP {order: row.order}]->(e)
+MATCH (fl:Flow {target: $target, id: row.id})
+UNWIND row.steps AS st
+MATCH (e:UIElement {target: $target, id: st.element})
+MERGE (fl)-[r:STEP {order: st.order}]->(e)
   ON CREATE SET r.first_run_id = $run_id
 SET r.run_id = $run_id
 RETURN count(r) AS matched
 """
 
+ENDPOINT_PRUNE = """
+UNWIND $rows AS row
+MATCH (fl:Flow {target: $target, id: row.id})-[r:STARTS_AT|ENDS_AT]->(s:Screen)
+WHERE (type(r) = 'STARTS_AT' AND (row.start IS NULL OR s.id <> row.start))
+   OR (type(r) = 'ENDS_AT' AND (row.end IS NULL OR s.id <> row.end))
+DELETE r
+"""
+
 STARTS_AT = """
 UNWIND $rows AS row
-MATCH (fl:Flow {target: $target, id: row.flow})
-MATCH (s:Screen {target: $target, id: row.screen})
+MATCH (fl:Flow {target: $target, id: row.id})
+MATCH (s:Screen {target: $target, id: row.start})
 MERGE (fl)-[r:STARTS_AT]->(s)
   ON CREATE SET r.first_run_id = $run_id
 SET r.run_id = $run_id
@@ -239,8 +293,8 @@ RETURN count(r) AS matched
 
 ENDS_AT = """
 UNWIND $rows AS row
-MATCH (fl:Flow {target: $target, id: row.flow})
-MATCH (s:Screen {target: $target, id: row.screen})
+MATCH (fl:Flow {target: $target, id: row.id})
+MATCH (s:Screen {target: $target, id: row.end})
 MERGE (fl)-[r:ENDS_AT]->(s)
   ON CREATE SET r.first_run_id = $run_id
 SET r.run_id = $run_id
@@ -262,11 +316,22 @@ WHERE b.run_id <> $run_id
 DELETE b
 """
 
-DELETE_BATCH = """
-MATCH (n {target: $target})
-WITH n LIMIT $batch
-DETACH DELETE n
-"""
+# clear_target: one literal statement per label so each batch is an index seek on (label, target), then one
+# label-less sweep for nodes of a label this package does not know (it matches nothing in a normal graph).
+DELETE_ANY = "MATCH (n {target: $target}) WITH n LIMIT $batch DETACH DELETE n"
+
+DELETE_BY_LABEL: dict[str, str] = {
+    "Requirement": "MATCH (n:Requirement {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "Screen": "MATCH (n:Screen {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "UIElement": "MATCH (n:UIElement {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "Flow": "MATCH (n:Flow {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "CodeFile": "MATCH (n:CodeFile {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "I18nKey": "MATCH (n:I18nKey {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "Route": "MATCH (n:Route {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "PullRequest": "MATCH (n:PullRequest {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "Gap": "MATCH (n:Gap {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+    "Run": "MATCH (n:Run {target: $target}) WITH n LIMIT $batch DETACH DELETE n",
+}
 
 # Prune statements per layer: relationships first, then nodes (DETACH DELETE takes link edges with them).
 # One literal statement per label / type because neither can be a Cypher parameter.
@@ -302,23 +367,32 @@ PRUNE: dict[str, tuple[tuple[str, str], ...]] = {
     "spec": (
         ("Requirement", "MATCH (n:Requirement {target: $target}) WHERE n.run_id <> $run_id DETACH DELETE n"),
     ),
-    # The linker's output: a re-link replaces it. `owner_file` is derived from IMPLEMENTED_BY, so it is
-    # recomputed (and removed when no edge is left) by the last statement.
+    # The linker's output: a re-link replaces it, except what a person asserted (`method = 'human'` is never
+    # pruned, D09). `owner_file` is derived from the IMPLEMENTED_BY edges that remain, human ones included, so
+    # it is recomputed (and removed when no edge is left) by the last statement.
     "links": (
         (
             "IMPLEMENTED_BY",
-            "MATCH (:UIElement {target: $target})-[r:IMPLEMENTED_BY]->() WHERE r.run_id <> $run_id DELETE r",
+            (
+                "MATCH (:UIElement {target: $target})-[r:IMPLEMENTED_BY]->() "
+                "WHERE r.run_id <> $run_id AND r.method <> 'human' DELETE r"
+            ),
         ),
         (
             "REALIZED_BY",
-            "MATCH (:Requirement {target: $target})-[r:REALIZED_BY]->() WHERE r.run_id <> $run_id DELETE r",
+            (
+                "MATCH (:Requirement {target: $target})-[r:REALIZED_BY]->() "
+                "WHERE r.run_id <> $run_id AND r.method <> 'human' DELETE r"
+            ),
         ),
         (
             "owner_file",
-            "MATCH (e:UIElement {target: $target}) WHERE e.owner_file IS NOT NULL "
-            "OPTIONAL MATCH (e)-[r:IMPLEMENTED_BY]->(f:CodeFile) "
-            "WITH e, r, f ORDER BY coalesce(r.confidence, 0.0) DESC, f.path ASC "
-            "WITH e, collect(f.path)[0] AS top SET e.owner_file = top",
+            (
+                "MATCH (e:UIElement {target: $target}) WHERE e.owner_file IS NOT NULL "
+                "OPTIONAL MATCH (e)-[r:IMPLEMENTED_BY]->(f:CodeFile) "
+                "WITH e, r, f ORDER BY coalesce(r.confidence, 0.0) DESC, f.path ASC "
+                "WITH e, collect(f.path)[0] AS top SET e.owner_file = top"
+            ),
         ),
     ),
 }

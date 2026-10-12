@@ -10,15 +10,18 @@ from __future__ import annotations
 
 import gzip
 import json
+import random
 import time
 import uuid
 from collections import defaultdict
 from collections.abc import Iterator
 from pathlib import Path
 
+import neo4j
 import pytest
 from test_graph import neo4j_settings, obs, screen
 
+from blastradius.graph import queries
 from blastradius.graph.store import GraphConnectionError, GraphStore
 from blastradius.models import CodeIndex, Gap, GapKind, Link, Requirement
 
@@ -280,4 +283,121 @@ def test_real_absence_near_through_the_graphql_page(loaded: tuple[GraphStore, Co
     ]
     assert rows[0]["actions_spent"] == 12 and rows[0]["reason"] == "SPEC_MAY_BE_STALE"
     assert store.read("absence_near", changed=[dep], bundle_hash="some_other_bundle") == []
-    assert store.read("absence_near", changed=[COMMON + "pages/settings.vue"], hops=0) == []
+    assert store.read("absence_near", changed=[dep], bundle_hash=None) == rows  # explicit None: any bundle
+    assert store.read("absence_near", changed=[COMMON + "pages/settings.vue"], hops=0, bundle_hash=None) == []
+
+
+# ------------------------------------------------------------------------------------------------ wave 2
+def shuffled(index: CodeIndex, seed: int) -> CodeIndex:
+    rnd = random.Random(seed)
+    files, edges = list(index.files), list(index.edges)
+    rnd.shuffle(files)
+    rnd.shuffle(edges)
+    return index.model_copy(update={"files": files, "edges": edges})
+
+
+def test_real_impact_is_independent_of_edge_insertion_order(
+    store: GraphStore, target: str, real_index: CodeIndex
+):
+    """Review wave 1: 29 of 203 rows at 2 hops (seed @hoppscotch/data) changed their witness path between
+    two loads of the same graph. The whole row (witness, symbols, evidence inputs, lists) must be stable."""
+    seeds = {"hub": [HUB], "services": SERVICES, "both": [HUB, *SERVICES]}
+    answers: list[dict[str, list]] = []
+    for order in (1, 2, 3):
+        store.clear_target(target)
+        index = shuffled(real_index.model_copy(update={"target": target}), order)
+        store.write_code(index, "real-1")
+        with_one_element_per_vue_file(store, target, index)
+        answers.append(
+            {
+                f"{name}/{hops}": store.read("impact", changed=changed, hops=hops, forward=1)
+                for name, changed in seeds.items()
+                for hops in (2, 3)
+            }
+        )
+    assert answers[0] == answers[1] == answers[2]
+    assert all(len(rows) > 50 for rows in answers[0].values())
+
+
+def test_real_closure_work_is_linear_in_edges(loaded: tuple[GraphStore, CodeIndex], target: str):
+    """A path-enumerating closure moved ~98,500 rows through the plan for the data hub at 3 hops (15.7 rows
+    per edge); one DISTINCT frontier per hop moves ~16,600 (2.6 per edge)."""
+    store, index = loaded
+    with_one_element_per_vue_file(store, target, index)
+    tpl = queries.get("impact")
+    bound = tpl.bind({"target": target, "changed": [HUB], "hops": 3})
+    with store.driver.session(default_access_mode=neo4j.READ_ACCESS) as session:
+        profile = session.run("PROFILE " + tpl.cypher, bound).consume().profile
+
+    def rows(node: dict) -> int:
+        return int(node.get("rows", 0)) + sum(rows(c) for c in node.get("children", []))
+
+    assert rows(profile) < 8 * len(index.edges)
+
+
+def test_real_files_using_keys_match_the_index(loaded: tuple[GraphStore, CodeIndex], target: str):
+    store, index = loaded
+    wanted = ["tab.close", "action.cancel", "environment.name", "tab.history", "no.such.key"]
+    expected: set[tuple[str, str, str]] = set()
+    for use in index.key_uses:
+        for key in wanted:
+            if use.key == key:
+                expected.add((key, "exact", use.file))
+            elif use.dynamic and use.key and key.startswith(use.key):
+                expected.add((key, "dynamic_prefix", use.file))
+    rows = store.read("files_using_keys", keys=wanted)
+    assert {(r["key"], r["match"], r["file"]) for r in rows} == expected
+    assert len(rows) == len(expected) > 40
+    assert [(r["key"], r["match"], r["file"]) for r in rows] == sorted(
+        (r["key"], r["match"], r["file"]) for r in rows
+    )
+    close = {r["file"] for r in rows if r["key"] == "tab.close" and r["match"] == "exact"}
+    assert close == {COMMON + f"components/{tree}/TabHead.vue" for tree in ("gql", "graphql", "http")}
+
+
+def test_real_same_named_control_is_attributed_per_screen(loaded: tuple[GraphStore, CodeIndex], target: str):
+    """'Close tab' is rendered by components/http/TabHead.vue and components/graphql/TabHead.vue (case 44).
+    One canonical element on / and /graphql must light only the screen its changed file was derived on."""
+    store, _ = loaded
+    http, gql = COMMON + "components/http/TabHead.vue", COMMON + "components/graphql/TabHead.vue"
+    store.write_crawl(
+        [
+            screen(target, "scr_http", "/", [obs("c_http", "button", "Close tab")]),
+            screen(target, "scr_gql", "/graphql", [obs("c_gql", "button", "Close tab")]),
+        ],
+        [],
+        "real-1",
+        "bundle",
+    )
+    store.write_links(
+        [
+            Link(
+                kind="IMPLEMENTED_BY",
+                src="c_http",
+                dst=http,
+                confidence=0.9,
+                method="i18n_key",
+                evidence_id="ev_http",
+                screen_ids=["scr_http"],
+            ),
+            Link(
+                kind="IMPLEMENTED_BY",
+                src="c_gql",
+                dst=gql,
+                confidence=0.9,
+                method="i18n_key",
+                evidence_id="ev_gql",
+                screen_ids=["scr_gql"],
+            ),
+        ],
+        "real-1",
+    )
+    assert [r["screen_id"] for r in store.read("impact", changed=[http], hops=0)] == ["scr_http"]
+    assert [r["screen_id"] for r in store.read("impact", changed=[gql], hops=0)] == ["scr_gql"]
+    both = store.read("impact", changed=[http, gql], hops=0)
+    assert sorted(r["screen_id"] for r in both) == ["scr_gql", "scr_http"]
+    elements = store.read("elements_for_keys", keys=["tab.close"])
+    assert sorted((r["file"], tuple(r["screen_ids"])) for r in elements) == [
+        (gql, ("scr_gql",)),
+        (http, ("scr_http",)),
+    ]

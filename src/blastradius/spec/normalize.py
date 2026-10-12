@@ -14,7 +14,14 @@ Two forms, one pipeline:
   normalize(text)  comparison form: render() with line-start markers (#, -, 1.) and table pipes dropped and
                    every whitespace run collapsed to one space.
 
-Both are idempotent (`render(render(x)) == render(x)`), which is what lets the model quote the rendered text.
+  flatten(rendered) the same comparison form for text that is already rendered (no second render pass).
+
+Both are idempotent on every page of the real document (104 of 104) and on ordinary markup, which is what
+lets the model quote the rendered text. Contrived input can still need a second pass (`!<b>[a]` loses its
+tag, then reads as an image marker); such a quote simply fails the verbatim check, it is never accepted.
+Invariant the quote check relies on: `render` output is a fixed point of `safety.clean_untrusted`, so the
+text the model reads (`untrusted(chunk.text)`) is exactly the text the quote is checked against, including
+for entity-encoded or re-formed comment openers (`&lt;!--`, `<<!---->!--`).
 """
 
 from __future__ import annotations
@@ -47,18 +54,21 @@ _PUNCT = str.maketrans({
 })
 
 # Spec pages are untrusted input, so every pattern is bounded or linear: no unbounded lazy scans that
-# restart at each candidate (a page of repeated `[a](` or `<!--` must not stall ingestion).
+# restart at each candidate (a page of repeated `**a `, `[a](` or `<!--` must not stall ingestion). Emphasis
+# spans longer than _SPAN are left to the final `**` / backtick sweep, which removes the markers anyway.
+_SPAN = 500
 _FENCE_OPEN = re.compile(r"[ \t]*(`{3,}|~{3,})")
-_IMG_MD = re.compile(r"!\[[^\]\n]{0,300}\]\([^)\n]{0,500}\)")
-_MDX_COMMENT = re.compile(r"\{/\*.{0,5000}?\*/\}", re.DOTALL)
+# Possessive quantifiers: a run that does not end in the next delimiter cannot succeed by giving characters
+# back, so the engine fails at once instead of retrying every shorter length (that was the bracket-soup cost).
+_IMG_MD = re.compile(r"!\[[^\]\n]{0,300}+\]\([^)\n]{0,500}+\)")
 _TAG = re.compile(r"""<(/?)([A-Za-z][A-Za-z0-9]*)((?:\s(?:[^<>"']|"[^"]{0,400}"|'[^']{0,400}')*)?)/?>""")
 _TITLE_ATTR = re.compile(r"""\b(?:title|caption|label)\s*=\s*(?:"([^"]*)"|'([^']*)')""")
-_LINK = re.compile(r"""\[([^\]\n]{1,500})\]\(\s*[^)\s]{0,500}(?:\s+"[^"\n]{0,200}")?\s*\)""")
+_LINK = re.compile(r"""\[([^\]\n]{1,300}+)\]\(\s*[^)\s]{0,500}+(?:\s+"[^"\n]{0,200}")?\s*\)""")
 _AUTOLINK = re.compile(r"<(https?://[^>\s]{1,2000})>")
-_BOLD = re.compile(r"\*\*(?=\S)([^\n]+?)(?<=\S)\*\*")
-_BOLD_U = re.compile(r"(?<!\w)__(?=\S)([^_\n]+?)(?<=\S)__(?!\w)")
-_ITALIC = re.compile(r"(?<![\w*])\*(?![\s*])([^*\n]+?)(?<![\s*])\*(?![\w*])")
-_CODE_SPAN = re.compile(r"`([^`\n]*)`")
+_BOLD = re.compile(rf"\*\*(?=\S)([^\n]{{1,{_SPAN}}}?)(?<=\S)\*\*")
+_BOLD_U = re.compile(rf"(?<!\w)__(?=\S)([^_\n]{{1,{_SPAN}}}?)(?<=\S)__(?!\w)")
+_ITALIC = re.compile(rf"(?<![\w*])\*(?![\s*])([^*\n]{{1,{_SPAN}}}?)(?<![\s*])\*(?![\w*])")
+_CODE_SPAN = re.compile(rf"`([^`\n]{{0,{_SPAN}}})`")
 # A callout/tab label joins the plain text it qualifies; before a heading, list or table it stays alone.
 _LABEL_JOIN = re.compile(r"\x00\s*+(?![#|>*+-]|\d+[.)][ \t])")
 _LINE_MARK = re.compile(r"^(?:[ \t]*(?:#{1,6}|[*+-]|\d+[.)]|>)[ \t]+)+", re.MULTILINE)
@@ -85,19 +95,34 @@ def _strip_fences(text: str) -> str:
     return "\n".join(out)
 
 
-def _strip_html_comments(text: str) -> str:
-    """Remove `<!-- ... -->` in one linear pass; an unclosed opener is dropped, its text stays visible."""
-    parts: list[str] = []
-    pos = 0
-    while (start := text.find("<!--", pos)) >= 0:
-        parts.append(text[pos:start])
-        end = text.find("-->", start + 4)
-        if end < 0:
-            pos = start + 4
+def _strip_delimited(text: str, opener: str, closer: str, *, drop_unclosed: bool) -> str:
+    """Remove `opener ... closer` spans in one linear pass that cannot be re-formed by its own removals.
+
+    The output is built left to right and the opener is looked for at the tail of what has been emitted, so
+    `<<!---->!--` loses both comments (a second look at the finished string would find a fresh opener).
+    An unclosed opener is dropped when `drop_unclosed` (its text stays visible), else it is left as text.
+    """
+    if opener not in text:
+        return text
+    out: list[str] = []
+    k, last = len(opener), opener[-1]
+    closer_left = True              # once no closer exists after a position, none exists after a later one
+    i, n = 0, len(text)
+    while i < n:
+        ch = text[i]
+        out.append(ch)
+        i += 1
+        if ch != last or len(out) < k or "".join(out[-k:]) != opener:
             continue
-        pos = end + 3
-    parts.append(text[pos:])
-    return "".join(parts)
+        end = text.find(closer, i) if closer_left else -1
+        if end >= 0:
+            del out[-k:]
+            i = end + len(closer)
+        else:
+            closer_left = False
+            if drop_unclosed:
+                del out[-k:]
+    return "".join(out)
 
 
 def _tag(m: re.Match[str]) -> str:
@@ -128,29 +153,52 @@ def _is_rule(line: str) -> bool:
 
 def render(text: str) -> str:
     """Markup-free text that keeps headings, line structure and qualifier labels (the model's view)."""
-    text = unicodedata.normalize("NFKC", text.replace("\r\n", "\n").replace("\r", "\n")).translate(_PUNCT)
+    # Entities are decoded first so `&lt;!--`, `&#123;/*` and `&#8203;` get exactly the treatment of their
+    # literal forms; a second render pass then finds nothing new to remove.
+    text = html.unescape(text.replace("\r\n", "\n").replace("\r", "\n"))
+    text = unicodedata.normalize("NFKC", text).translate(_PUNCT)
     text = _strip_fences(text)
     text = _IMG_MD.sub("", text).replace("![", "[")
-    text = _MDX_COMMENT.sub("", _strip_html_comments(text))
+    text = _strip_delimited(text, "<!--", "-->", drop_unclosed=True)
+    text = _strip_delimited(text, "{/*", "*/}", drop_unclosed=False)
     text = clean_untrusted(text)    # control and zero-width chars: what the LLM never sees
-    text = html.unescape(text)
     text = _TAG.sub(_tag, text)
     text = _LABEL_JOIN.sub(" ", text).replace("\x00", "\n")
-    text = _LINK.sub(r"\1", text)
-    text = _AUTOLINK.sub(r"\1", text)
-    text = _BOLD.sub(r"\1", text)
-    text = _BOLD_U.sub(r"\1", text)
-    text = _ITALIC.sub(r"\1", text)
-    text = _CODE_SPAN.sub(r"\1", text)
+    text = _LINK.sub(r"\1", text) if "](" in text else text
+    text = _AUTOLINK.sub(r"\1", text) if "<http" in text else text
+    text = _BOLD.sub(r"\1", text) if "**" in text else text
+    text = _BOLD_U.sub(r"\1", text) if "__" in text else text
+    text = _ITALIC.sub(r"\1", text) if "*" in text else text
+    text = _CODE_SPAN.sub(r"\1", text) if "`" in text else text
     text = text.replace("**", "").replace("`", "")
     lines = [re.sub(r"[^\S\n]+", " ", line).strip() for line in text.split("\n")]
     text = "\n".join("" if _is_rule(line) else line for line in lines)
-    return re.sub(r"\n{3,}", "\n\n", text).strip()
+    return _settle(re.sub(r"\n{3,}", "\n\n", text).strip())
+
+
+def _settle(text: str) -> str:
+    """Finish with what `safety.untrusted` will do to the same text, so model view == quote-check view.
+
+    Tag and link removal can join characters into a fresh `<!--` or `![a](b c)`; this is bounded work
+    (a few linear passes) and a no-op for ordinary pages.
+    """
+    for _ in range(3):
+        cleaned = _strip_delimited(clean_untrusted(text), "<!--", "-->", drop_unclosed=True)
+        if cleaned == text:
+            break
+        text = cleaned
+    return text.strip()
+
+
+def flatten(rendered: str) -> str:
+    """Comparison form of text that is already `render`ed: line markers and table pipes dropped, whitespace
+    runs collapsed. `normalize(x) == flatten(render(x))`; chunk code uses this to avoid re-rendering."""
+    return " ".join(_LINE_MARK.sub("", rendered).replace("|", " ").split())
 
 
 def normalize(text: str) -> str:
     """Comparison form used on both the source page and the model's quote."""
-    return " ".join(_LINE_MARK.sub("", render(text)).replace("|", " ").split())
+    return flatten(render(text))
 
 
 def quote_key(normalised_quote: str) -> str:

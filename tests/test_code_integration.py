@@ -2,7 +2,11 @@
 
 Run alone with `pytest tests/test_code_integration.py`; deselect with `-m "not slow"`. The first run fetches
 about 3 MB from GitHub (blob-less, depth 1); later runs reuse data/cache/repos. Skipped when the commit is
-neither cached nor reachable. Numbers are compared to docs/RECON.md as bands, never tuned to match.
+neither cached nor reachable.
+
+Bands are +-5% of the value this indexer measured at the pinned commit (wave-1 fix pass, 2026-10-12): the
+commit is fixed, so a move of more than 5% is a behaviour change, not noise. The RECON figure beside each
+band came from an earlier, separate parse of the same commit and is there for orientation only.
 """
 
 from __future__ import annotations
@@ -65,35 +69,61 @@ def test_only_allow_listed_paths_are_indexed(real):
 def test_render_graph_against_recon(real):
     idx, _, _ = real
     s = idx.stats
-    assert 400 <= s["renders"] <= 520                           # RECON: 455
-    assert 1250 <= s["tag_pairs_total"] <= 1500                 # RECON: 1,308 (file, tag) pairs
-    assert 700 <= s["external_tag_count"] <= 1000               # RECON: 812 external
-    assert s["resolved_tag_rate"] >= 0.95                       # RECON: ~97%
-    assert 60 <= s["dynamic_component_count"] <= 110            # RECON: 83 `<component :is>`
-    assert s["tag_resolution_by"]["dts"] > 1000
-    assert len(s["unresolved_tags"]) <= 50 and s["tag_pairs_unresolved"] == len(s["unresolved_tags"])
+    assert 440 <= s["renders"] <= 486                           # measured 463; RECON: 455
+    assert 1348 <= s["tag_pairs_total"] <= 1490                 # measured 1,419; RECON: 1,308 (file, tag) pairs
+    assert 902 <= s["external_tag_count"] <= 996                # measured 949; RECON: 812 external
+    assert s["resolved_tag_rate"] >= 0.947                      # measured 0.9972; RECON: ~97%
+    assert 78 <= s["dynamic_component_count"] <= 86             # measured 82; RECON: 83 `<component :is>`
+    assert 1257 <= s["tag_resolution_by"]["dts"] <= 1389        # measured 1,323
+    assert s["tag_pairs_unresolved"] == len(s["unresolved_tags"]) == 4
 
 
 def test_import_graph_hubs_and_barrels(real):
     idx, _, _ = real
     s = idx.stats
-    assert s["imports"] >= 2810                                 # RECON: 2,810 (we also resolve @composables/* etc.)
-    # the repo's real tsconfig/vite aliases are in targets/hoppscotch.yaml now, so nothing needs the inference
+    assert 3541 <= s["imports"] <= 3913                         # measured 3,727; RECON: 2,810 (no alias table there)
+    # the repo's real tsconfig/vite aliases are in targets/hoppscotch.yaml, so nothing needs the inference
     assert s["inferred_alias_imports"] == 0
-    assert s["unresolved_imports"] < 30
-    assert s["hub_importers"]["@hoppscotch/data"] > 107         # RECON: 107 of 413 main-chunk app files
-    assert s["barrel_importers"] > 200                          # RECON: 248
+    assert s["unresolved_imports"] == 8                         # measured 8: package.json, scss assets, `../steps`
+    assert not any(u["specifier"] == "@hoppscotch/common/src/platform/instance"
+                   for u in s["unresolved_imports_sample"])     # alias target missing: the workspace rule resolves it
+    assert 236 <= s["hub_importers"]["@hoppscotch/data"] <= 260             # measured 248 without tests (RECON: 107/413)
+    assert 269 <= s["hub_importers_with_tests"]["@hoppscotch/data"] <= 297  # measured 283 with the 35 test files
+    assert 275 <= s["barrel_importers"] <= 303                  # measured 289; RECON: 248
     data_index = "packages/hoppscotch-data/src/index.ts"
     assert any(e.dst == data_index and e.src.startswith(COMMON) for e in idx.edges)
+
+
+def test_the_generated_graphql_client_is_a_ts_node(real):
+    idx, _, _ = real
+    node = "packages/hoppscotch-selfhost-web/src/api/generated/graphql.ts"
+    by_path = {f.path: f for f in idx.files}
+    assert by_path[node].kind is FileClass.GENERATED and by_path[node].sha is None
+    assert "packages/hoppscotch-selfhost-web/src/api/generated/graphql" not in by_path
+    assert idx.stats["generated_missing_imports"] == 75
+
+
+def test_nothing_is_silently_unread(real):
+    idx, _, _ = real
+    s = idx.stats
+    assert s["index_empty"] is False and s["symlinks_skipped"] == 0
+    assert [(r["root"], r["status"]) for r in s["code_roots"]] == [
+        (r, "ok") for r in TargetConfig.load("hoppscotch").code.roots]
+    assert set(s["configured_files"].values()) == {"ok"}
+    # two real files make tree-sitter recover from an error (a call-signature overload and a .d.ts); both are
+    # reported, and no import statement is lost (checked against a line scan when this test was written)
+    assert s["parse_error_kinds"] == {"script_parse_error": 2}
+    assert [e["file"] for e in s["parse_error_sample"]] == [
+        f"{COMMON}/helpers/actions.ts", f"{COMMON}/types/post-request.d.ts"]
 
 
 def test_i18n_keys_against_recon(real):
     idx, _, _ = real
     s = idx.stats
-    assert 1350 <= s["keys_used_in_locale"] <= 1450             # RECON: 1,401 distinct keys used
-    assert 3000 <= s["key_call_sites"] <= 3600                  # RECON: about 3,200 call sites
-    assert s["dynamic_key_uses"] < 0.02 * s["key_call_sites"]   # case 33: dynamic keys are < 1-2% of calls
-    assert 10 <= s["text_literals"] <= 80                       # RECON: about 8 (a stricter definition)
+    assert 1330 <= s["keys_used_in_locale"] <= 1470             # measured 1,400; RECON: 1,401 distinct keys used
+    assert 3137 <= s["key_call_sites"] <= 3467                  # measured 3,302; RECON: about 3,200 call sites
+    assert s["dynamic_key_uses"] == 6 and s["dynamic_key_uses"] < 0.02 * s["key_call_sites"]   # case 33: < 1-2%
+    assert 39 <= s["text_literals"] <= 43                       # measured 41; RECON: about 8 (a stricter definition)
 
 
 def test_routes_match_the_pages_tree(real):
@@ -116,9 +146,9 @@ def test_services_radius_for_pr_6645_matches_recon(real):
         reached = reverse_closure(idx.edges, services, max_hops=hops)
         return sum(1 for p in reached if p.endswith(".vue") and kinds[p] is not FileClass.TEST)
 
-    assert 85 <= vue_count(2) <= 105                            # RECON: 2 hops 93/90 .vue (28%)
-    assert 140 <= vue_count(3) <= 185                           # RECON: 3 hops 158/156 (47%)
-    assert 235 <= vue_count(None) <= 285                        # RECON: unbounded 252/335 (75%)
+    assert 89 <= vue_count(2) <= 99                             # measured 94; RECON: 2 hops 93/90 .vue (28%)
+    assert 162 <= vue_count(3) <= 179                           # measured 170; RECON: 3 hops 158/156 (47%)
+    assert 247 <= vue_count(None) <= 273                        # measured 260; RECON: unbounded 252/335 (75%)
 
 
 def test_component_table_fallback_reproduces_the_committed_dts(real):
@@ -138,4 +168,4 @@ def test_component_table_fallback_reproduces_the_committed_dts(real):
 
 def test_indexing_is_fast_enough_to_run_on_every_pr(real):
     _, _, seconds = real
-    assert seconds < 30
+    assert seconds < 30                                         # measured 1.7 s on a warm cache

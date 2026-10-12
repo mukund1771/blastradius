@@ -1,0 +1,10 @@
+sylius_twig_hooks:
+  hooks:
+    sylius_shop.product.show:
+      content:
+        template: '@SyliusShop/product/show/content.html.twig'
+        priority: 0
+    sylius_shop.product.show.content:
+      header:
+        template: '@SyliusShop/product/show/content/header.html.twig'
+        priority: 200

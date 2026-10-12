@@ -1,0 +1,23 @@
+sylius_shop_homepage:
+    path: /
+    methods: [GET]
+    controller: Symfony\Bundle\FrameworkBundle\Controller\TemplateController::templateAction
+    defaults:
+        template: "@SyliusShop/homepage/index.html.twig"
+
+sylius_shop_product:
+    resource: "@SyliusShopBundle/Resources/config/routing/product.yml"
+
+sylius_shop_cart:
+    resource: "@SyliusShopBundle/Resources/config/routing/cart.yml"
+    prefix: /cart
+
+sylius_shop_contact_request:
+    resource: "@SyliusShopBundle/Resources/config/routing/contact.yml"
+    prefix: /contact
+
+sylius_shop_switch_locale:
+    path: /switch-locale/{code}
+    methods: [GET]
+    defaults:
+        _controller: sylius_shop.controller.locale_switch::switchAction

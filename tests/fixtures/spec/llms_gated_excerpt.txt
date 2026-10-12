@@ -1,0 +1,88 @@
+[Test fixture. Excerpt (2 pages, trimmed) of https://docs.hoppscotch.io/llms-full.txt, MIT licence, fetched 2026-10-12. AI Features carries a page-top callout that grants two editions, denies a third and says "coming soon"; Authorization carries a section-level warning that denies the Desktop app. Text before the first `# title` + `Source:` pair is ignored by the splitter.]
+
+
+# AI Features
+Source: https://docs.hoppscotch.io/documentation/features/ai-features
+
+Use AI-powered features in Hoppscotch to rename requests, generate payloads, write scripts and tests, and use the experimental AI Assistant.
+
+<span>Experimental</span>
+
+Hoppscotch now offers a set of AI-powered features designed to simplify core stages of the API development lifecycle. These include renaming of API requests, generation of structured request payloads, and scripting capabilities for pre-request logic and test cases.
+
+<Warning> The AI-assisted editing features below are experimental and available on [Hoppscotch Cloud](https://hoppscotch.io) and the [Desktop app](https://hoppscotch.com/download). They are not supported in Self-Hosted Edition. The separate AI Assistant is experimental and available on Enterprise Self-Host. Enterprise Cloud support is coming soon. </Warning>
+
+### AI Assistant
+
+The AI Assistant is an experimental chat assistant that can act on the request, response, environment, and collections you're working with. It uses Hoppscotch tools to carry out tasks such as adding authentication, running a request, writing a test, creating an environment, or organizing a collection. It can chain actions together and show its progress.
+
+It can edit request fields, run and save requests, manage tabs, work with environments and collections, publish documentation, and manage mock servers. Skills for common workflows are available from the `/` menu.
+
+An admin turns it on and connects an AI provider in the Admin Dashboard: Anthropic, OpenAI, Gemini, DeepSeek, Bedrock, Azure, or any OpenAI-compatible endpoint, including local runtimes. See [AI Assistant](/documentation/self-host/enterprise-edition/ai-assistant) for setup and usage.
+
+### Enable AI-powered features
+
+To activate AI-powered features, follow these steps:
+
+1. Open the **Settings** page within the Hoppscotch application.
+2. Scroll to the **Experiments** section.
+3. Toggle the **AI Experiments** option to enable the features.
+
+### Rename API Requests
+
+When saving an API request to a collection, click the **Modify with AI** icon **( .⟡⁺ )** next to the request name field to have the system automatically assign a name based on the request's context and properties. Alternatively, you can use this feature to rename the pre-saved requests.
+
+You can even customize the naming convention (e.g., CamelCase, PascalCase) through the **Request Naming Style** dropdown located in the **Experiments** section of the **Settings** page.
+
+
+# Authorization
+Source: https://docs.hoppscotch.io/documentation/features/authorization
+
+Configure API authorization in Hoppscotch using Basic Auth, Bearer Tokens, OAuth 2.0, and more. Set auth at the request or collection level.
+
+REST APIs use authorization to ensure that a client has secure access only to the resources permitted by their roles. If you are building or integrating with a 3rd party API, you can choose between Basic Auth, Bearer Tokens, and OAuth2.0.
+
+Auth details can be added to a header, body, or as parameters to a request. However, if you enter your auth details in the Authorization Tab, Hoppscotch will automatically modify the relevant parts of the request based on your chosen `Auth` type. Storing Auth Credentials or Bearer Tokens as environment variables, lets you re-use these more safely and efficiently.
+
+## Inherit
+
+Inherit Authorization allows requests to automatically adopt the authorization settings defined at the parent collection or subfolder level. This means you only need to configure the authorization once, and all nested requests will inherit these settings, ensuring consistency and saving time during setup.
+
+## Basic Auth
+
+Basic Authentication is one of the simplest methods to secure your API requests in Hoppscotch. It works by requiring a username and password to be sent along with each request. To get started, head to the **Authorization** tab and select `Basic Auth` as your authentication type. You'll then input your verified **username** and **password**. When you send the request, Hoppscotch will automatically encode your credentials in the format:
+
+```
+Basic <Base64-encoded-credentials>
+```
+
+<Tip> Basic Auth transmits your credentials in a way that can be easily decoded, so it's best suited for secure channels like HTTPS to prevent exposure.</Tip>
+
+## Bearer Tokens
+
+Bearer Tokens are used to authenticate requests using an access token, which can be a simple string or a JWT (JSON Web Token). To set it up, choose `Bearer` from the **Authorization** tab and enter your **access token**. Hoppscotch will include the token in the request header as:
+
+```
+Bearer <your-access-token>
+```
+
+<Info>Be aware that if your token expires, you'll need to refresh it manually and update it in Hoppscotch. For better security, consider storing your token as an environment variable so that you can easily reference it in your requests.</Info>
+
+## API Key
+
+API Keys are unique identifiers that help authenticate your requests to an API. In Hoppscotch, you can set up `API Key` authentication by selecting it from the **Authorization** tab. Here, you'll need to fill in two fields: the **Key**, which is the name the API expects (like `api_key` or `Authorization`), and the **Value**, which is your actual API Key. You can also choose whether to pass this API Key as a **Header** or as a **Query Parameter**.
+
+<Tip>When using API Keys, keep an eye on the rate limits set by the API provider to avoid any issues. For improved security practices, store your API Key as an environment variable to facilitate easy management across different environments.</Tip>
+
+## OAuth 2.0
+
+OAuth 2.0 provides a secure way to let third-party applications access your resources without needing to share your passwords. Instead of directly passing credentials, you authenticate through a trusted service, which then issues an access token. This **token** allows your app to make API requests on your behalf.
+
+<Warning> OAuth 2.0 workflows are not fully supported in the Hoppscotch Desktop application and are currently a work in progress. We're actively working on it, and it will function as intended soon!</Warning>
+
+### Steps for OAuth 2.0 Setup
+
+1. In the "**Authorization Tab**" for a request, select `OAuth 2.0` from the Authorization Type drop-down.
+2. Select the [Grant Type](/documentation/features/authorization#grant-types) from Authorization Code (with or without PKCE), Client Credentials, Password Credentials, and Implicit.
+3. Fill out the fields in the section below and click on "**Generate Token**" to generate a new access token.
+4. You can save the token to be re-used later.

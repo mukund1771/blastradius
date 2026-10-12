@@ -258,6 +258,7 @@ def test_run_index_writes_index_json_stats_and_evidence(tmp_path: Path, stub_clo
     on_disk = CodeIndex.model_validate_json((run.run_dir / "code" / "index.json").read_text())
     assert on_disk == out and out.target == "mini" and out.snapshot_id == SHA and out.adapter == "vue"
     assert out.stats["pr_number"] == 6645 and out.stats["pr_overlay"] == "not_applied"
+    assert "run_overlay" in out.stats["pr_overlay_reason"]       # the CLI flag must not promise an overlay
     assert run.evidence.exists(out.stats["snapshot_evidence_id"])
     assert all(run.evidence.exists(edge_evidence_id(e)) for e in out.edges)
     assert not run.failures.items
@@ -287,5 +288,5 @@ def test_run_index_records_a_failure_when_the_checkout_fails(tmp_path: Path, mon
     run = RunContext.create("mini", run_id="idx-3", runs_dir=tmp_path, settings=Settings())
     with pytest.raises(CloneError):
         run_index(run, _target(), ref="nope")
-    assert run.failures.items[0]["code"] == str(FailureCode.CONFIG_INVALID)
-    assert json.loads((run.run_dir / "failures.jsonl").read_text().splitlines()[0])["code"] == "CONFIG_INVALID"
+    assert run.failures.items[0]["code"] == str(FailureCode.CODE_CHECKOUT_FAILED)
+    assert json.loads((run.run_dir / "failures.jsonl").read_text().splitlines()[0])["code"] == "CODE_CHECKOUT_FAILED"

@@ -1,0 +1,35 @@
+{
+ "indexed_snapshot": "63273f8e599e73f0fb38c0739314e8d46b6bc83d",
+ "locale": {
+  "locale_base_ac145e7.json.gz": "8bab07d1aede05be",
+  "locale_head_6641.json.gz": "d444b4930afe62cc",
+  "locale_head_6645.json.gz": "7816f8e7d1fc587e"
+ },
+ "prs": {
+  "6641": {
+   "base_sha": "ac145e7f758151b41fd46d3e5f513886ce9068ba",
+   "behind_by": 10,
+   "compare_files": 95,
+   "files": 13,
+   "head_repo": "NavuluriBalaji/hoppscotch",
+   "head_sha": "5eea64fd209addde0d770831b7234817eb339699"
+  },
+  "6645": {
+   "base_sha": "ac145e7f758151b41fd46d3e5f513886ce9068ba",
+   "behind_by": 10,
+   "compare_files": 95,
+   "files": 14,
+   "head_repo": "safwanyp/hoppscotch",
+   "head_sha": "64ba4ff75eff7bef868b010947f50e9b6b326540"
+  },
+  "6658": {
+   "base_sha": "d86e59f6e9574c69f01b300691b9f4396eeb38d2",
+   "behind_by": 9,
+   "compare_files": 95,
+   "files": 12,
+   "head_repo": "Mbazu-Daniel/hoppscotch",
+   "head_sha": "735a6a0806f90e013339ea76d08d0b6cb2d9c62c"
+  }
+ },
+ "what": "Cached GitHub API responses for the three demo PRs (hoppscotch/hoppscotch), fetched with the authenticated gh CLI on 2026-10-12; compare is <pr base>...main as indexed (63273f8e599e). Offline fixtures for the reason tests."
+}

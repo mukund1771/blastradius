@@ -14,8 +14,11 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
+# `[ \t]*`, not `\s*`, in front of the name: a run of blank lines would otherwise be rescanned from every line
+# start (quadratic on a hostile `components.d.ts`, which a PR can supply).
 _DTS_ENTRY = re.compile(
-    r"""^\s*['"]?([A-Za-z_$][\w$-]*)['"]?\s*:\s*typeof\s+import\(\s*(['"])(.+?)\2\s*\)(?:\[\s*(['"])(.+?)\4\s*\])?""",
+    r"""^[ \t]*['"]?([A-Za-z_$][\w$-]*)['"]?\s*:\s*typeof\s+import\(\s*(['"])(.+?)\2\s*\)"""
+    r"""(?:\[\s*(['"])(.+?)\4\s*\])?""",
     re.MULTILINE)
 
 _HTML = [

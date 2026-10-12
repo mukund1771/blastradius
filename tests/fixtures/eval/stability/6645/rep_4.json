@@ -1,0 +1,507 @@
+{
+ "checklist": [
+  {
+   "item_ids": [
+    "itm_deb28d1eb7c5",
+    "itm_45b19cf66965"
+   ],
+   "text": "Open Environments in the sidebar, choose an environment, and edit a variable's key and current value.",
+   "why": "the sidebar now has a full editor for the variables."
+  },
+  {
+   "item_ids": [
+    "itm_877baa88f510",
+    "itm_e275b21a841b"
+   ],
+   "text": "Open the Select environment menu, edit a current value in the quick peek, then send a request that uses it.",
+   "why": "the selector now writes values straight to the saved variable."
+  },
+  {
+   "item_ids": [
+    "itm_f0b376f62605",
+    "itm_07a1edcded7c"
+   ],
+   "text": "Mark a variable as secret and check that its value stays masked in the quick peek and in the sidebar editor, and that the reveal toggle works.",
+   "why": "secret values can now be edited in place and must stay hidden."
+  },
+  {
+   "item_ids": [
+    "itm_e275b21a841b"
+   ],
+   "text": "Rename a variable, then send a request that uses the old and the new name.",
+   "why": "a rename is now written through the same value service."
+  },
+  {
+   "item_ids": [
+    "itm_c3589e9432eb"
+   ],
+   "text": "Press Back in the editor and confirm the environment list returns with your edits.",
+   "why": "the Back button is new."
+  },
+  {
+   "item_ids": [
+    "itm_569ebd490a4d"
+   ],
+   "text": "Open New Collection from the sidebar and create a collection.",
+   "why": "it opens from the sidebar that holds the changed tab."
+  },
+  {
+   "item_ids": [],
+   "text": "Sign in with a team account and edit a team variable's current value.",
+   "why": "team environment rows use the same editor and could not be reached signed out."
+  }
+ ],
+ "claims": [
+  {
+   "band": "likely",
+   "evidence_ids": [
+    "ev_1c82524d7820",
+    "ev_46547990b66b"
+   ],
+   "id": "clm_3109a10166d2",
+   "text": "Sending a request: Sending a request is probably affected: the value it uses for a variable is read from the current-value service this PR extends."
+  },
+  {
+   "band": "confirmed",
+   "evidence_ids": [
+    "ev_2589e7680ccb",
+    "ev_333ca8da0315",
+    "ev_82a09ba1fea1",
+    "ev_a251650173ac"
+   ],
+   "id": "clm_332ee09de0bb",
+   "text": "Back button: The Back button label is changed by this PR: a new shared Back label is added so the editor can return to the environment list. Controls involved: “Back”."
+  },
+  {
+   "band": "confirmed",
+   "evidence_ids": [
+    "ev_19d2e2dd495c",
+    "ev_53a2aee52577",
+    "ev_56902424d433",
+    "ev_57953b3ce1f3",
+    "ev_7f62f2dfe65e"
+   ],
+   "id": "clm_33660c99a592",
+   "text": "My and team environment lists: Each environment row in the sidebar lists is changed by this PR: choosing one now opens the new editor instead of only selecting it."
+  },
+  {
+   "band": "likely",
+   "evidence_ids": [
+    "ev_71a1251f6ec1",
+    "ev_b78081607646"
+   ],
+   "id": "clm_4d9692f2ba70",
+   "text": "Secret variables when a request is sent: Secret variables are probably affected when a request is sent: their values are now also written through the secret-value service this PR extends."
+  },
+  {
+   "band": "confirmed",
+   "evidence_ids": [
+    "ev_2ed0ea495242",
+    "ev_e4d6dc6004af",
+    "ev_ea0cca1009e9",
+    "ev_eb418800dd4a"
+   ],
+   "id": "clm_63392103f1ac",
+   "text": "Environments sidebar: The Environments sidebar is changed by this PR: choosing an environment now opens an editor with an editable key and current value for each variable. Controls involved: “Environments”."
+  },
+  {
+   "band": "confirmed",
+   "evidence_ids": [
+    "ev_02324575a2ba",
+    "ev_0dcb0dfafec0",
+    "ev_3835cc72df59",
+    "ev_e3ca6af3a9f8"
+   ],
+   "id": "clm_6854fd6d15d7",
+   "text": "Environment selector: The environment selector is changed by this PR: the current value of a non-secret variable can now be edited right in the quick peek. Controls involved: “Select environment”."
+  },
+  {
+   "band": "possible",
+   "evidence_ids": [
+    "ev_46547990b66b",
+    "ev_b925244cdcb5"
+   ],
+   "id": "clm_988a6cc9709b",
+   "text": "Variables in a GraphQL request: Variables in a GraphQL request might be affected: they are read from the same current-value service."
+  },
+  {
+   "band": "confirmed",
+   "evidence_ids": [
+    "ev_2ed0ea495242",
+    "ev_87571466a3b3",
+    "ev_b78081607646"
+   ],
+   "id": "clm_a6ba1f5e9299",
+   "text": "Secret variable values: Secret variable values will change in the new editor: they stay masked behind a reveal toggle and can now be edited in place."
+  },
+  {
+   "band": "possible",
+   "evidence_ids": [
+    "ev_0354a072cec3",
+    "ev_e934eaf645b3"
+   ],
+   "id": "clm_b7b4ac013438",
+   "text": "“User can create a collection to organize requests.”: This requirement rests on a screen that might be affected by this PR; worth a quick look."
+  },
+  {
+   "band": "likely",
+   "evidence_ids": [
+    "ev_0dcb0dfafec0",
+    "ev_19ab71e046d6",
+    "ev_78b39389a408",
+    "ev_ea0cca1009e9"
+   ],
+   "id": "clm_e1bc2e2d3932",
+   "text": "“User can manage environment variables used in requests.”: This requirement rests on a screen that is probably affected by this PR."
+  },
+  {
+   "band": "possible",
+   "evidence_ids": [
+    "ev_9403433671b9",
+    "ev_eb418800dd4a"
+   ],
+   "id": "clm_ea1eac3c3ac6",
+   "text": "New Collection dialog: The New Collection dialog might be affected: it opens from the same sidebar as the changed Environments tab; worth a quick look."
+  },
+  {
+   "band": "possible",
+   "evidence_ids": [
+    "ev_1e045387db70",
+    "ev_46547990b66b"
+   ],
+   "id": "clm_f51e23a7fc0d",
+   "text": "Variables in the WebSocket address: Variables in the WebSocket address might be affected: they are read from the same current-value service; worth a quick look."
+  }
+ ],
+ "confidence_line": "Confidence: 5 items confirmed, 2 probable and 3 possible. 4 things could not be determined and are listed below with the same weight as the findings.",
+ "direct": [
+  {
+   "band": "confirmed",
+   "confidence": 0.93,
+   "evidence_ids": [
+    "ev_2ed0ea495242",
+    "ev_e4d6dc6004af",
+    "ev_ea0cca1009e9",
+    "ev_eb418800dd4a"
+   ],
+   "files": [
+    "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "packages/hoppscotch-common/src/components/environments/index.vue",
+    "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "packages/hoppscotch-common/src/components/environments/teams/index.vue"
+   ],
+   "flows": [
+    "Edit an environment variable"
+   ],
+   "id": "itm_deb28d1eb7c5",
+   "label": "Environments sidebar",
+   "requirement_ids": [
+    "req_a3a6dbfa8d98"
+   ],
+   "screen": "Home page",
+   "section": null,
+   "tier": "direct",
+   "via": null,
+   "what_changed": "The Environments sidebar is changed by this PR: choosing an environment now opens an editor with an editable key and current value for each variable. Controls involved: “Environments”."
+  },
+  {
+   "band": "confirmed",
+   "confidence": 0.9,
+   "evidence_ids": [
+    "ev_02324575a2ba",
+    "ev_0dcb0dfafec0",
+    "ev_3835cc72df59",
+    "ev_e3ca6af3a9f8"
+   ],
+   "files": [
+    "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "packages/hoppscotch-common/src/components/environments/Selector.vue"
+   ],
+   "flows": [
+    "Edit an environment variable",
+    "Send a request that uses a variable"
+   ],
+   "id": "itm_877baa88f510",
+   "label": "Environment selector",
+   "requirement_ids": [
+    "req_a3a6dbfa8d98"
+   ],
+   "screen": "Select environment",
+   "section": null,
+   "tier": "direct",
+   "via": null,
+   "what_changed": "The environment selector is changed by this PR: the current value of a non-secret variable can now be edited right in the quick peek. Controls involved: “Select environment”."
+  },
+  {
+   "band": "confirmed",
+   "confidence": 0.88,
+   "evidence_ids": [
+    "ev_19d2e2dd495c",
+    "ev_53a2aee52577",
+    "ev_56902424d433",
+    "ev_57953b3ce1f3",
+    "ev_7f62f2dfe65e"
+   ],
+   "files": [
+    "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "packages/hoppscotch-common/src/components/environments/teams/index.vue"
+   ],
+   "flows": [
+    "Edit an environment variable"
+   ],
+   "id": "itm_45b19cf66965",
+   "label": "My and team environment lists",
+   "requirement_ids": [
+    "req_a3a6dbfa8d98"
+   ],
+   "screen": "Home page",
+   "section": null,
+   "tier": "direct",
+   "via": null,
+   "what_changed": "Each environment row in the sidebar lists is changed by this PR: choosing one now opens the new editor instead of only selecting it."
+  },
+  {
+   "band": "confirmed",
+   "confidence": 0.87,
+   "evidence_ids": [
+    "ev_2ed0ea495242",
+    "ev_87571466a3b3",
+    "ev_b78081607646"
+   ],
+   "files": [
+    "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "packages/hoppscotch-common/src/services/secret-environment.service.ts"
+   ],
+   "flows": [
+    "Edit an environment variable"
+   ],
+   "id": "itm_f0b376f62605",
+   "label": "Secret variable values",
+   "requirement_ids": [
+    "req_a3a6dbfa8d98"
+   ],
+   "screen": "Home page",
+   "section": null,
+   "tier": "direct",
+   "via": null,
+   "what_changed": "Secret variable values will change in the new editor: they stay masked behind a reveal toggle and can now be edited in place."
+  },
+  {
+   "band": "confirmed",
+   "confidence": 0.9,
+   "evidence_ids": [
+    "ev_2589e7680ccb",
+    "ev_333ca8da0315",
+    "ev_82a09ba1fea1",
+    "ev_a251650173ac"
+   ],
+   "files": [
+    "packages/hoppscotch-common/locales/en.json"
+   ],
+   "flows": [],
+   "id": "itm_c3589e9432eb",
+   "label": "Back button",
+   "requirement_ids": [],
+   "screen": "Home page",
+   "section": null,
+   "tier": "direct",
+   "via": null,
+   "what_changed": "The Back button label is changed by this PR: a new shared Back label is added so the editor can return to the environment list. Controls involved: “Back”."
+  }
+ ],
+ "global_changes": [],
+ "headline": "Blast radius: PR #6645 \"feat(common): edit environment values from quick peek and the sidebar\"\nRisk: MEDIUM. Touches Environments (sidebar, quick peek, selector). 5 screens, 2 user flows, 2 requirements.",
+ "indirect": [
+  {
+   "band": "likely",
+   "confidence": 0.66,
+   "evidence_ids": [
+    "ev_1c82524d7820",
+    "ev_46547990b66b"
+   ],
+   "files": [
+    "packages/hoppscotch-common/src/services/current-environment-value.service.ts"
+   ],
+   "flows": [
+    "Send a request that uses a variable"
+   ],
+   "id": "itm_e275b21a841b",
+   "label": "Sending a request",
+   "requirement_ids": [
+    "req_a3a6dbfa8d98"
+   ],
+   "screen": "Home page",
+   "section": "Environments",
+   "tier": "indirect",
+   "via": "the shared current-value service",
+   "what_changed": "Sending a request is probably affected: the value it uses for a variable is read from the current-value service this PR extends."
+  },
+  {
+   "band": "likely",
+   "confidence": 0.55,
+   "evidence_ids": [
+    "ev_71a1251f6ec1",
+    "ev_b78081607646"
+   ],
+   "files": [
+    "packages/hoppscotch-common/src/services/secret-environment.service.ts"
+   ],
+   "flows": [
+    "Send a request that uses a variable"
+   ],
+   "id": "itm_07a1edcded7c",
+   "label": "Secret variables when a request is sent",
+   "requirement_ids": [
+    "req_a3a6dbfa8d98"
+   ],
+   "screen": "Home page",
+   "section": "Environments",
+   "tier": "indirect",
+   "via": "the shared secret-value service",
+   "what_changed": "Secret variables are probably affected when a request is sent: their values are now also written through the secret-value service this PR extends."
+  },
+  {
+   "band": "possible",
+   "confidence": 0.42,
+   "evidence_ids": [
+    "ev_46547990b66b",
+    "ev_b925244cdcb5"
+   ],
+   "files": [
+    "packages/hoppscotch-common/src/services/current-environment-value.service.ts"
+   ],
+   "flows": [],
+   "id": "itm_c02356e64ce9",
+   "label": "Variables in a GraphQL request",
+   "requirement_ids": [],
+   "screen": "GraphQL page",
+   "section": "Environments",
+   "tier": "indirect",
+   "via": "the shared current-value service",
+   "what_changed": "Variables in a GraphQL request might be affected: they are read from the same current-value service."
+  },
+  {
+   "band": "possible",
+   "confidence": 0.38,
+   "evidence_ids": [
+    "ev_1e045387db70",
+    "ev_46547990b66b"
+   ],
+   "files": [
+    "packages/hoppscotch-common/src/services/current-environment-value.service.ts"
+   ],
+   "flows": [],
+   "id": "itm_0f38c031a1e5",
+   "label": "Variables in the WebSocket address",
+   "requirement_ids": [],
+   "screen": "WebSocket page",
+   "section": "Environments",
+   "tier": "indirect",
+   "via": "the shared current-value service",
+   "what_changed": "Variables in the WebSocket address might be affected: they are read from the same current-value service; worth a quick look."
+  }
+ ],
+ "not_checked": [
+  "FIXTURE: this report was written by hand to test rendering and the lint. It is not a product output and nothing in it was measured.",
+  "Only the signed-out surface of the web app was observed.",
+  "One viewport size was used.",
+  "Only English text (en) was compared.",
+  "Frontend files only: backend, scripts and build tooling are outside this analysis.",
+  "Cloud web edition only: desktop and self-hosted behaviour was not assessed.",
+  "Set aside as not user-facing: 2 test file(s), 1 generated file(s)."
+ ],
+ "pr_number": 6645,
+ "pr_title": "feat(common): edit environment values from quick peek and the sidebar",
+ "requirements": [
+  {
+   "band": "likely",
+   "evidence_ids": [
+    "ev_0dcb0dfafec0",
+    "ev_19ab71e046d6",
+    "ev_78b39389a408",
+    "ev_ea0cca1009e9"
+   ],
+   "quote": "Environments let you store variables and reuse them across requests.",
+   "requirement_id": "req_a3a6dbfa8d98",
+   "section": "Environments",
+   "statement": "User can manage environment variables used in requests.",
+   "status": "at_risk"
+  },
+  {
+   "band": "possible",
+   "evidence_ids": [
+    "ev_0354a072cec3",
+    "ev_e934eaf645b3"
+   ],
+   "quote": "Collections allow you to organize your requests into folders.",
+   "requirement_id": "req_22a2e8c41679",
+   "section": "Collections",
+   "statement": "User can create a collection to organize requests.",
+   "status": "at_risk"
+  }
+ ],
+ "risk_level": "MEDIUM",
+ "snapshot": {
+  "app_version": "2026.9.0",
+  "base_behind_main_commits": 10,
+  "crawl_actions": 46,
+  "crawl_bundle_hash": "c81a0323d1f5b4f5",
+  "crawl_screens": 25,
+  "deployed_vs_indexed": "11 of 104 files differ",
+  "doc_version": "2026.5.0",
+  "indexed_commit": "63273f8e599e73f0fb38c0739314e8d46b6bc83d",
+  "pr_base_sha": "ac145e7f758151b41fd46d3e5f513886ce9068ba",
+  "pr_head_sha": "64ba4ff75eff7bef868b010947f50e9b6b326540",
+  "repo": "hoppscotch/hoppscotch",
+  "spec_sha": "f895cca9ad176109",
+  "target": "hoppscotch"
+ },
+ "stored_data": [],
+ "target": "hoppscotch",
+ "undetermined": [
+  {
+   "code": "STALE_BASE",
+   "evidence_ids": [
+    "ev_cceeb14d61fd",
+    "ev_d2cfae393db5"
+   ],
+   "subject": "the whole PR",
+   "what_to_check": "Rebase the PR on main and run the report again before relying on the lists above; 2 file(s) were edited on both sides.",
+   "why": "The PR is based on code 10 commits behind main, and two files it changes (the English text file and the component list) were also edited there, so its diff may not apply as shown."
+  },
+  {
+   "code": "NEEDS_HUMAN",
+   "evidence_ids": [
+    "ev_1c5a556668d4",
+    "ev_46547990b66b",
+    "ev_b78081607646"
+   ],
+   "subject": "Everything that reads or writes environment values",
+   "what_to_check": "Think about where a variable's value is used: sending a request, saving a request, the GraphQL and realtime screens, and import or export.",
+   "why": "Two shared services changed, and together they reach more than a quarter of the app's components. That is too wide to list reliably, so only the strongest connections are shown above."
+  },
+  {
+   "code": "UNMAPPED_CHANGE",
+   "evidence_ids": [
+    "ev_2ed0ea495242",
+    "ev_e191b3a89b13"
+   ],
+   "subject": "The new sidebar editor and its reveal toggle",
+   "what_to_check": "Open the PR's preview build, click an environment in the sidebar, and look at the editor, the reveal toggle and the Back button.",
+   "why": "These controls are not in the live app yet, so no screen we observed shows them and nothing could be matched to a screen title."
+  },
+  {
+   "code": "ACCESS_RESTRICTED",
+   "evidence_ids": [
+    "ev_56902424d433",
+    "ev_7f62f2dfe65e",
+    "ev_80473c722b52"
+   ],
+   "subject": "Team environments",
+   "what_to_check": "Sign in with a team account, open Environments, and edit a team variable's current value.",
+   "why": "They only appear after signing in, and this report looked at the signed-out app only."
+  }
+ ]
+}

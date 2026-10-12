@@ -1,0 +1,18 @@
+sylius:
+  ui:
+    applied_coupon: Applied coupon
+    apply_coupon: Apply coupon
+    contact_us: Contact us
+    delete: Delete
+    enter_your_code: Enter your code
+    error: Error
+    home: Home
+    image: Image
+    info: Info
+    powered_by: Powered by
+    product: Product
+    success: Success
+    sylius_logo_aria: Sylius logo
+    your_cart_is_empty: Your cart is empty
+    your_shopping_cart: Your shopping cart
+    your_store: your store (ui)

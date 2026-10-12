@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "registered": "2026-10-12",
+  "status": "pre-registered before the grader ran on any demo PR (#6645, #6641, #6658). reason.thresholds.load_thresholds is the only reader in the product path; the eval kit reads the same file. A change after the first run must be logged in docs/DECISIONS.md with the reason.",
+  "_doc": {
+    "retrieval.max_hops": "reverse (importer/renderer) hop cap; must equal models.MAX_HOPS (D25, case 50)",
+    "retrieval.forward_hops": "forward hops admitted by the EXPAND action only (D25)",
+    "retrieval.max_seeds": "changed source files analysed individually; the rest are counted and listed as not assessed (case 45 is DEFER)",
+    "retrieval.tier2_cap": "indirect items shown (REPORT_SPEC section 4); the uncapped list stays in impact.json (case 61)",
+    "retrieval.checklist_max": "REPORT_SPEC section 2",
+    "retrieval.undetermined_top": "aggregated could-not-determine rows shown in the report; the rest is in needs_review.json (case 61)",
+    "grade.breadth_fraction_h2": "plan section 7: a seed whose 2-hop closure holds >= this share of all UI files is too broad to accept (measured: the two #6645 services reach 26.8% and 27.7%)",
+    "grade.hub_fraction_h1": "a seed with direct UI importers >= this share of all UI files is a hub on its own",
+    "grade.min_element_confidence": "CORRECT needs at least one reached element at or above this confidence (the 'likely' floor of models.band_for)",
+    "grade.max_rounds": "corrective rounds per seed (plan section 7); ESCALATE only records and does not use a round",
+    "caps": "the verdict, the change kind and the action CAP a route's confidence; nothing in reason raises one (D17, plan section 7)",
+    "caps.ambiguous_indirect": "indirect routes of a seed that stays AMBIGUOUS: 'possible' at most",
+    "caps.additive_reader": "case 76: readers of an additive-only change keep their edge as 'possible'; downgraded, never deleted",
+    "caps.symbol_miss": "importer names none of the changed symbols (symbols known): lowest 'possible'",
+    "caps.type_only": "type-only or comment-only change: no runtime behaviour change, any route",
+    "caps.forward": "routes admitted by the forward hop of EXPAND",
+    "caps.locale_route": "routes admitted through shared i18n keys by EXPAND",
+    "caps.copy_other_element": "element that shares a file with a changed key but whose own text is not the changed string",
+    "caps.judge_demote": "residue judge IRRELEVANT verdict (demote-only, D18)",
+    "caps.unmapped_probe": "routes found by an explicit probe, no stronger evidence than 'possible'",
+    "confidence.stored_data": "a changed data-schema file is a certain change of the saved format",
+    "confidence.global": "a changed layout or global style reaches every screen by construction",
+    "judge": "D18: <= max_candidates evidenced candidates per AMBIGUOUS subgraph, <= max_calls per PR, two samples per subgraph (disagreement goes to needs_review)",
+    "judge.reserve": "forward routes the grader held back that the judge may nominate from",
+    "judge.max_nominations": "labels the judge may nominate per sample; admitted only when both samples agree"
+  },
+  "retrieval": {
+    "max_hops": 2,
+    "forward_hops": 1,
+    "max_seeds": 80,
+    "tier2_cap": 10,
+    "checklist_max": 8,
+    "undetermined_top": 5
+  },
+  "grade": {
+    "breadth_fraction_h2": 0.25,
+    "hub_fraction_h1": 0.15,
+    "min_element_confidence": 0.5,
+    "max_rounds": 2
+  },
+  "caps": {
+    "ambiguous_indirect": 0.49,
+    "additive_reader": 0.45,
+    "symbol_miss": 0.3,
+    "type_only": 0.4,
+    "forward": 0.4,
+    "locale_route": 0.4,
+    "copy_other_element": 0.45,
+    "judge_demote": 0.3,
+    "unmapped_probe": 0.3
+  },
+  "confidence": {
+    "stored_data": 0.85,
+    "global": 0.85
+  },
+  "judge": {
+    "max_candidates": 12,
+    "max_calls": 6,
+    "samples": 2,
+    "max_reason_words": 25,
+    "shuffle_seed": "blastradius-judge-v1",
+    "reserve": 6,
+    "max_nominations": 3
+  }
+}

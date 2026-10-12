@@ -1,0 +1,2246 @@
+{
+ "6641": {
+  "edges_added": [
+   {
+    "dst": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "./ResponseCompareModal.vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "kind": "RENDERS",
+    "src": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "symbols": [],
+    "via": "GqlResponseCompareModal"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/more-horizontal"
+   },
+   {
+    "dst": "dioc",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "symbols": [
+     "useService"
+    ],
+    "via": "dioc/vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/composables/i18n.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "symbols": [
+     "useI18n"
+    ],
+    "via": "@composables/i18n"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/diff.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "symbols": [
+     "computeLineDiff",
+     "getUtf8ByteSize"
+    ],
+    "via": "~/helpers/diff"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/graphql/connection.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "symbols": [
+     "GQLResponseEvent"
+    ],
+    "via": "~/helpers/graphql/connection"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/services/tab/graphql.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "symbols": [
+     "GQLTabService"
+    ],
+    "via": "~/services/tab/graphql"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/services/tab/workspace-tabs.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "symbols": [
+     "WorkspaceTabsService"
+    ],
+    "via": "~/services/tab/workspace-tabs"
+   },
+   {
+    "dst": "vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "symbols": [
+     "computed",
+     "ref"
+    ],
+    "via": "vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "../gql/ResponseCompareModal.vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "kind": "RENDERS",
+    "src": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "symbols": [],
+    "via": "GqlResponseCompareModal"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/more-horizontal"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/http/Response.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "./ResponseCompareModal.vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "kind": "RENDERS",
+    "src": "packages/hoppscotch-common/src/components/http/Response.vue",
+    "symbols": [],
+    "via": "HttpResponseCompareModal"
+   },
+   {
+    "dst": "dioc",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "symbols": [
+     "useService"
+    ],
+    "via": "dioc/vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/composables/i18n.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "symbols": [
+     "useI18n"
+    ],
+    "via": "@composables/i18n"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/composables/lens-actions.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "symbols": [
+     "useResponseBody"
+    ],
+    "via": "@composables/lens-actions"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/diff.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "symbols": [
+     "computeLineDiff",
+     "getUtf8ByteSize"
+    ],
+    "via": "~/helpers/diff"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/types/HoppRESTResponse.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "symbols": [
+     "HoppRESTResponse"
+    ],
+    "via": "~/helpers/types/HoppRESTResponse"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/services/tab/workspace-tabs.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "symbols": [
+     "WorkspaceTabsService"
+    ],
+    "via": "~/services/tab/workspace-tabs"
+   },
+   {
+    "dst": "vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "symbols": [
+     "computed",
+     "ref"
+    ],
+    "via": "vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/RequestRunner.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/newstore/responseHistory.ts",
+    "symbols": [
+     "executedResponses$"
+    ],
+    "via": "~/helpers/RequestRunner"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/types/HoppRESTResponse.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/newstore/responseHistory.ts",
+    "symbols": [
+     "HoppRESTResponse"
+    ],
+    "via": "~/helpers/types/HoppRESTResponse"
+   },
+   {
+    "dst": "vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/newstore/responseHistory.ts",
+    "symbols": [
+     "ref"
+    ],
+    "via": "vue"
+   }
+  ],
+  "edges_removed": [
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/wrap-text"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/wrap-text"
+   }
+  ],
+  "files_added": [
+   {
+    "kind": "component",
+    "loc": 419,
+    "package": "@hoppscotch/common",
+    "path": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "sha": "5a547f433ce4b2e824115f6a86c20709f5cc2697"
+   },
+   {
+    "kind": "component",
+    "loc": 407,
+    "package": "@hoppscotch/common",
+    "path": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "sha": "51aaeffb95373e43f016701d7a4f776bf55847cc"
+   },
+   {
+    "kind": "util",
+    "loc": 142,
+    "package": "@hoppscotch/common",
+    "path": "packages/hoppscotch-common/src/helpers/diff.ts",
+    "sha": "f79cd0c897c2749cbe5312527d21849121d54e4c"
+   },
+   {
+    "kind": "service",
+    "loc": 37,
+    "package": "@hoppscotch/common",
+    "path": "packages/hoppscotch-common/src/newstore/responseHistory.ts",
+    "sha": "d6dc1ee7ddd6cb33062e771ff7f48eb7bbf210c2"
+   }
+  ],
+  "head_repo": "NavuluriBalaji/hoppscotch",
+  "head_sha": "5eea64fd209addde0d770831b7234817eb339699",
+  "i18n_changed": {
+   "compare.added": "added",
+   "compare.close": "Close",
+   "compare.custom": "Custom",
+   "compare.gql_title": "Compare GraphQL Responses",
+   "compare.how_to_compare_gql": "Your current GraphQL tab's response is loaded as Response A (Left). Select another open GraphQL tab with a response or paste raw JSON in Raw Input to set Response B (Right) and see a line-by-line visual diff.",
+   "compare.how_to_compare_rest": "Your current tab's response is loaded as Response A (Left). Select another open REST tab with a response or paste raw JSON in Raw Input to set Response B (Right) and see a line-by-line visual diff.",
+   "compare.how_to_compare_title": "How to Compare:",
+   "compare.no_open_gql_tabs": "No other open GraphQL tabs with active responses found. Open another GraphQL tab and run a query, or switch to Raw Input.",
+   "compare.no_open_tabs": "No other open REST tabs with active responses found. Open another tab and send a request, or switch to Raw Input.",
+   "compare.open_tabs": "Open Tabs",
+   "compare.raw_input": "Raw Input",
+   "compare.raw_input_placeholder": "Paste JSON response text here to compare...",
+   "compare.removed": "removed",
+   "compare.response_a": "Response A (Current)",
+   "compare.response_b": "Response B (Target)",
+   "compare.select_gql_tab_placeholder": "Select an open GraphQL tab response to compare...",
+   "compare.select_tab_placeholder": "Select an open tab response to compare...",
+   "compare.size": "Size",
+   "compare.status": "Status",
+   "compare.target_response": "Target Response (Response B):",
+   "compare.time": "Time",
+   "compare.title": "Compare API Responses",
+   "compare.visual_diff": "Visual Diff (Side-by-Side)",
+   "response.compare": "Compare"
+  },
+  "i18n_removed": [
+   "ai_experiments.chat.clear",
+   "ai_experiments.chat.collapse",
+   "ai_experiments.chat.context",
+   "ai_experiments.chat.copied",
+   "ai_experiments.chat.copy",
+   "ai_experiments.chat.empty_subtitle",
+   "ai_experiments.chat.empty_title",
+   "ai_experiments.chat.errors.aborted",
+   "ai_experiments.chat.errors.cannot_run_chat",
+   "ai_experiments.chat.errors.chat_disabled",
+   "ai_experiments.chat.errors.input_too_large",
+   "ai_experiments.chat.errors.invalid_input",
+   "ai_experiments.chat.errors.model_unavailable",
+   "ai_experiments.chat.errors.network",
+   "ai_experiments.chat.errors.provider_misconfigured",
+   "ai_experiments.chat.errors.provider_timeout",
+   "ai_experiments.chat.errors.rate_limited",
+   "ai_experiments.chat.errors.unable_to_parse_response",
+   "ai_experiments.chat.errors.unauthorized",
+   "ai_experiments.chat.model",
+   "ai_experiments.chat.model_picker",
+   "ai_experiments.chat.no_context",
+   "ai_experiments.chat.no_models_subtitle",
+   "ai_experiments.chat.no_models_title",
+   "ai_experiments.chat.placeholder",
+   "ai_experiments.chat.send",
+   "ai_experiments.chat.skill_custom",
+   "ai_experiments.chat.skills",
+   "ai_experiments.chat.skills_empty",
+   "ai_experiments.chat.step_done",
+   "ai_experiments.chat.step_error",
+   "ai_experiments.chat.step_running",
+   "ai_experiments.chat.step_warning",
+   "ai_experiments.chat.stop",
+   "ai_experiments.chat.suggestion_add_header",
+   "ai_experiments.chat.suggestion_explain",
+   "ai_experiments.chat.suggestion_explain_response",
+   "ai_experiments.chat.suggestion_run",
+   "ai_experiments.chat.suggestion_save",
+   "ai_experiments.chat.suggestion_use_env",
+   "ai_experiments.chat.suggestion_write_tests",
+   "ai_experiments.chat.suggestions",
+   "ai_experiments.chat.thinking",
+   "ai_experiments.chat.thought_for",
+   "ai_experiments.chat.title",
+   "ai_experiments.confirm_delete_collection",
+   "ai_experiments.confirm_delete_mock_server",
+   "ai_experiments.confirm_public_mock_server",
+   "ai_experiments.confirm_publish_docs",
+   "ai_experiments.confirm_publish_docs_env",
+   "ai_experiments.confirm_run",
+   "ai_experiments.confirm_save",
+   "ai_experiments.confirm_unpublish_docs",
+   "ai_experiments.script_unknown_host",
+   "ai_experiments.team_workspace",
+   "shortcut.tabs.switch_protocol",
+   "spotlight.tab.switch_to_graphql",
+   "spotlight.tab.switch_to_rest"
+  ],
+  "key_uses": [
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "action.copy"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "action.download_file"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "action.more"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "filename.graphql_response"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "graphql.subscribing"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "graphql.waiting_for_events"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "profile.no_permission"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "response.body"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "response.generate_data_schema"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "response.please_save_request"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "response.save_as_example"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "response.saved"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "response.title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "state.linewrap"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "key": "test.results"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.added"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.close"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.custom"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.gql_title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.how_to_compare_gql"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.how_to_compare_title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.no_open_gql_tabs"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.open_tabs"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.raw_input"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.raw_input_placeholder"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.removed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.response_a"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.response_b"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.select_gql_tab_placeholder"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.size"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.status"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.target_response"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.time"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "key": "compare.visual_diff"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "key": "app.documentation"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "key": "error.network_fail"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "key": "helpers.network_fail"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "key": "response.compare"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "key": "response.size"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "key": "response.status"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "key": "response.time"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "key": "state.loading"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "key": "action.copy"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "key": "action.download_file"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "key": "action.more"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "key": "filename.graphql_response"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "key": "response.generate_data_schema"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "key": "response.title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "key": "state.linewrap"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "key": "app.documentation"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "key": "error.network_fail"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "key": "response.compare"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "key": "response.size"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "key": "response.status"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "key": "response.time"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "key": "state.loading"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/Response.vue",
+    "key": "profile.no_permission"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/Response.vue",
+    "key": "request.saved"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/Response.vue",
+    "key": "response.saved"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.added"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.close"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.custom"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.how_to_compare_rest"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.how_to_compare_title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.no_open_tabs"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.open_tabs"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.raw_input"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.raw_input_placeholder"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.removed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.response_a"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.response_b"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.select_tab_placeholder"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.size"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.status"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.target_response"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.time"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "key": "compare.visual_diff"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "app.documentation"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "error.network_fail"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "error.script_fail"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "helpers.network_fail"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "helpers.script_fail"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "response.compare"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "response.size"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "response.status"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "response.time"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/http/ResponseMeta.vue",
+    "key": "state.loading"
+   }
+  ],
+  "stats": {
+   "overlay_added": [
+    "packages/hoppscotch-common/src/components/gql/ResponseCompareModal.vue",
+    "packages/hoppscotch-common/src/components/http/ResponseCompareModal.vue",
+    "packages/hoppscotch-common/src/helpers/diff.ts",
+    "packages/hoppscotch-common/src/newstore/responseHistory.ts"
+   ],
+   "overlay_deleted": [],
+   "overlay_head_repo": "NavuluriBalaji/hoppscotch",
+   "overlay_head_sha": "5eea64fd209addde0d770831b7234817eb339699",
+   "overlay_modified": [
+    "packages/hoppscotch-common/locales/en.json",
+    "packages/hoppscotch-common/src/components.d.ts",
+    "packages/hoppscotch-common/src/components/gql/Response.vue",
+    "packages/hoppscotch-common/src/components/gql/ResponseMeta.vue",
+    "packages/hoppscotch-common/src/components/graphql/Response.vue",
+    "packages/hoppscotch-common/src/components/graphql/ResponseMeta.vue",
+    "packages/hoppscotch-common/src/components/http/Response.vue",
+    "packages/hoppscotch-common/src/components/http/ResponseMeta.vue"
+   ]
+  }
+ },
+ "6645": {
+  "edges_added": [
+   {
+    "dst": "dioc",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "symbols": [
+     "useService"
+    ],
+    "via": "dioc/vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/composables/i18n.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "symbols": [
+     "useI18n"
+    ],
+    "via": "~/composables/i18n"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/services/current-environment-value.service.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "symbols": [
+     "CurrentValueService"
+    ],
+    "via": "~/services/current-environment-value.service"
+   },
+   {
+    "dst": "vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "symbols": [
+     "computed"
+    ],
+    "via": "vue"
+   },
+   {
+    "dst": "dioc",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "useService"
+    ],
+    "via": "dioc/vue"
+   },
+   {
+    "dst": "fp-ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "*"
+    ],
+    "via": "fp-ts/Either"
+   },
+   {
+    "dst": "lodash-es",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "cloneDeep"
+    ],
+    "via": "lodash-es"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/composables/i18n.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "useI18n"
+    ],
+    "via": "~/composables/i18n"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/composables/stream.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "useReadonlyStream"
+    ],
+    "via": "@composables/stream"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/composables/toast.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "useToast"
+    ],
+    "via": "@composables/toast"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/backend/mutations/TeamEnvironment.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "updateTeamEnvironment"
+    ],
+    "via": "~/helpers/backend/mutations/TeamEnvironment"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/clientLocalVariables.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "stripClientLocalValuesForWire"
+    ],
+    "via": "~/helpers/clientLocalVariables"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/error-messages/index.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "getEnvActionErrorMessage"
+    ],
+    "via": "~/helpers/error-messages"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/teams/TeamEnvironment.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "TeamEnvironment"
+    ],
+    "via": "~/helpers/teams/TeamEnvironment"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/newstore/environments.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "environments$",
+     "globalEnv$",
+     "setGlobalEnvVariables",
+     "updateEnvironment"
+    ],
+    "via": "~/newstore/environments"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/services/current-environment-value.service.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "CurrentValueService"
+    ],
+    "via": "~/services/current-environment-value.service"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/services/secret-environment.service.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "SecretEnvironmentService"
+    ],
+    "via": "~/services/secret-environment.service"
+   },
+   {
+    "dst": "packages/hoppscotch-data/src/index.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "Environment",
+     "GlobalEnvironment"
+    ],
+    "via": "@hoppscotch/data"
+   },
+   {
+    "dst": "vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "computed",
+     "ref",
+     "watch"
+    ],
+    "via": "vue"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/arrow-left"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~/components/environments/CurrentValueInput.vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "kind": "RENDERS",
+    "src": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "symbols": [],
+    "via": "CurrentValueInput"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/check"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/index.vue",
+    "symbols": [
+     "EnvironmentEditorTarget",
+     "default"
+    ],
+    "via": "~/components/environments/Editor.vue"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "kind": "RENDERS",
+    "src": "packages/hoppscotch-common/src/components/environments/index.vue",
+    "symbols": [],
+    "via": "EnvironmentsEditor"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/folder-down"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/copy"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/folder-down"
+   },
+   {
+    "dst": "lodash-es",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/services/secret-environment.service.ts",
+    "symbols": [
+     "cloneDeep"
+    ],
+    "via": "lodash-es"
+   }
+  ],
+  "edges_removed": [
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/layers"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/plus"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/settings-2"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/plus"
+   }
+  ],
+  "files_added": [
+   {
+    "kind": "component",
+    "loc": 55,
+    "package": "@hoppscotch/common",
+    "path": "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "sha": "6ab783aab6f54b0512263975056791a1ab5e7246"
+   },
+   {
+    "kind": "component",
+    "loc": 387,
+    "package": "@hoppscotch/common",
+    "path": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "sha": "59bdc28d511c980265ff55b277cf6c8e399a2957"
+   }
+  ],
+  "head_repo": "safwanyp/hoppscotch",
+  "head_sha": "64ba4ff75eff7bef868b010947f50e9b6b326540",
+  "i18n_changed": {
+   "action.back": "Back",
+   "environment.edit_current_value": "Edit current value"
+  },
+  "i18n_removed": [
+   "ai_experiments.chat.clear",
+   "ai_experiments.chat.collapse",
+   "ai_experiments.chat.context",
+   "ai_experiments.chat.copied",
+   "ai_experiments.chat.copy",
+   "ai_experiments.chat.empty_subtitle",
+   "ai_experiments.chat.empty_title",
+   "ai_experiments.chat.errors.aborted",
+   "ai_experiments.chat.errors.cannot_run_chat",
+   "ai_experiments.chat.errors.chat_disabled",
+   "ai_experiments.chat.errors.input_too_large",
+   "ai_experiments.chat.errors.invalid_input",
+   "ai_experiments.chat.errors.model_unavailable",
+   "ai_experiments.chat.errors.network",
+   "ai_experiments.chat.errors.provider_misconfigured",
+   "ai_experiments.chat.errors.provider_timeout",
+   "ai_experiments.chat.errors.rate_limited",
+   "ai_experiments.chat.errors.unable_to_parse_response",
+   "ai_experiments.chat.errors.unauthorized",
+   "ai_experiments.chat.model",
+   "ai_experiments.chat.model_picker",
+   "ai_experiments.chat.no_context",
+   "ai_experiments.chat.no_models_subtitle",
+   "ai_experiments.chat.no_models_title",
+   "ai_experiments.chat.placeholder",
+   "ai_experiments.chat.send",
+   "ai_experiments.chat.skill_custom",
+   "ai_experiments.chat.skills",
+   "ai_experiments.chat.skills_empty",
+   "ai_experiments.chat.step_done",
+   "ai_experiments.chat.step_error",
+   "ai_experiments.chat.step_running",
+   "ai_experiments.chat.step_warning",
+   "ai_experiments.chat.stop",
+   "ai_experiments.chat.suggestion_add_header",
+   "ai_experiments.chat.suggestion_explain",
+   "ai_experiments.chat.suggestion_explain_response",
+   "ai_experiments.chat.suggestion_run",
+   "ai_experiments.chat.suggestion_save",
+   "ai_experiments.chat.suggestion_use_env",
+   "ai_experiments.chat.suggestion_write_tests",
+   "ai_experiments.chat.suggestions",
+   "ai_experiments.chat.thinking",
+   "ai_experiments.chat.thought_for",
+   "ai_experiments.chat.title",
+   "ai_experiments.confirm_delete_collection",
+   "ai_experiments.confirm_delete_mock_server",
+   "ai_experiments.confirm_public_mock_server",
+   "ai_experiments.confirm_publish_docs",
+   "ai_experiments.confirm_publish_docs_env",
+   "ai_experiments.confirm_run",
+   "ai_experiments.confirm_save",
+   "ai_experiments.confirm_unpublish_docs",
+   "ai_experiments.script_unknown_host",
+   "ai_experiments.team_workspace",
+   "shortcut.tabs.switch_protocol",
+   "spotlight.tab.switch_to_graphql",
+   "spotlight.tab.switch_to_rest"
+  ],
+  "key_uses": [
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "key": "environment.edit_current_value"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "key": "action.back"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "key": "action.hide_secret"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "key": "action.show_secret"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "key": "count.currentValue"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "key": "count.variable"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "key": "environment.current_value"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "key": "environment.empty_variables"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "action.edit"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "action.search"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "empty.environments"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "empty.search_environment"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.current_value"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.empty_variables"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.global"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.global_variables"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.initial_value"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.list"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.my_environments"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.name"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.no_active_environment"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.no_environment"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.quick_peek"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.select"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "environment.team_environments"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "key": "state.loading"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/index.vue",
+    "key": "action.duplicate"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/index.vue",
+    "key": "confirm.remove_environment"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/index.vue",
+    "key": "environment.duplicated"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/index.vue",
+    "key": "state.deleted"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/index.vue",
+    "key": "tab.environments"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/index.vue",
+    "key": "team_environment.deleted"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "key": "action.delete"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "key": "action.duplicate"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "key": "action.edit"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "key": "action.more"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "key": "confirm.remove_environment"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "key": "environment.duplicated"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "key": "export.as_json"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "key": "state.deleted"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "action.new"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "action.search"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "add.new"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "app.wiki"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "empty.environments"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "empty.search_environment"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "environment.import_or_create"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "import.title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "key": "modal.import_export"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "action.delete"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "action.duplicate"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "action.edit"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "action.more"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "action.properties"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "confirm.remove_environment"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "environment.duplicated"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "export.as_json"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "key": "team_environment.deleted"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "action.new"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "action.search"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "add.new"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "app.wiki"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "empty.environments"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "empty.search_environment"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "environment.import_or_create"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "import.title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "modal.import_export"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "state.loading"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "key": "team.no_access"
+   }
+  ],
+  "stats": {
+   "overlay_added": [
+    "packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "packages/hoppscotch-common/src/components/environments/Editor.vue"
+   ],
+   "overlay_deleted": [],
+   "overlay_head_repo": "safwanyp/hoppscotch",
+   "overlay_head_sha": "64ba4ff75eff7bef868b010947f50e9b6b326540",
+   "overlay_modified": [
+    "packages/hoppscotch-common/locales/en.json",
+    "packages/hoppscotch-common/src/components.d.ts",
+    "packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "packages/hoppscotch-common/src/components/environments/index.vue",
+    "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "packages/hoppscotch-common/src/services/__tests__/current-environment-value.service.spec.ts",
+    "packages/hoppscotch-common/src/services/__tests__/secret-environment.service.spec.ts",
+    "packages/hoppscotch-common/src/services/current-environment-value.service.ts",
+    "packages/hoppscotch-common/src/services/secret-environment.service.ts"
+   ]
+  }
+ },
+ "6658": {
+  "edges_added": [
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/hopp/graphql"
+   },
+   {
+    "dst": "fp-ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "symbols": [
+     "*",
+     "pipe"
+    ],
+    "via": "fp-ts/Option"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/arrow-up-down"
+   },
+   {
+    "dst": "fp-ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "symbols": [
+     "*",
+     "flow",
+     "pipe"
+    ],
+    "via": "fp-ts/Array"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/helpers/functional/json.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "symbols": [
+     "parseBodyAsJSONOrYAML"
+    ],
+    "via": "~/helpers/functional/json"
+   },
+   {
+    "dst": "packages/hoppscotch-common/src/services/kernel-interceptor.service.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "symbols": [
+     "KernelInterceptorService"
+    ],
+    "via": "~/services/kernel-interceptor.service"
+   },
+   {
+    "dst": "fp-ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/helpers/backend/helpers.ts",
+    "symbols": [
+     "*",
+     "flow",
+     "pipe"
+    ],
+    "via": "fp-ts/Array"
+   },
+   {
+    "dst": "packages/hoppscotch-data/src/collection/v/13.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-data/src/collection/index.ts",
+    "symbols": [
+     "default"
+    ],
+    "via": "./v/13"
+   },
+   {
+    "dst": "packages/hoppscotch-data/src/collection/index.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-data/src/collection/v/13.ts",
+    "symbols": [
+     "HoppCollection"
+    ],
+    "via": ".."
+   },
+   {
+    "dst": "packages/hoppscotch-data/src/collection/v/12.ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-data/src/collection/v/13.ts",
+    "symbols": [
+     "V12_SCHEMA",
+     "v12_baseCollectionSchema"
+    ],
+    "via": "./12"
+   },
+   {
+    "dst": "verzod",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-data/src/collection/v/13.ts",
+    "symbols": [
+     "defineVersion",
+     "entityRefUptoVersion"
+    ],
+    "via": "verzod"
+   },
+   {
+    "dst": "zod",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-data/src/collection/v/13.ts",
+    "symbols": [
+     "z"
+    ],
+    "via": "zod"
+   }
+  ],
+  "edges_removed": [
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/folder-plus"
+   },
+   {
+    "dst": "fp-ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "symbols": [
+     "*",
+     "pipe"
+    ],
+    "via": "fp-ts/function"
+   },
+   {
+    "dst": "~icons",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "symbols": [
+     "default"
+    ],
+    "via": "~icons/lucide/plus"
+   },
+   {
+    "dst": "fp-ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "symbols": [
+     "*",
+     "flow",
+     "pipe"
+    ],
+    "via": "fp-ts/Option"
+   },
+   {
+    "dst": "fp-ts",
+    "kind": "IMPORTS",
+    "src": "packages/hoppscotch-common/src/helpers/backend/helpers.ts",
+    "symbols": [
+     "*",
+     "flow",
+     "pipe"
+    ],
+    "via": "fp-ts/Either"
+   }
+  ],
+  "files_added": [
+   {
+    "kind": "data_schema",
+    "loc": 51,
+    "package": "@hoppscotch/data",
+    "path": "packages/hoppscotch-data/src/collection/v/13.ts",
+    "sha": "0484730c916ac75757b11ec1ca90e40de4b664d7"
+   }
+  ],
+  "head_repo": "Mbazu-Daniel/hoppscotch",
+  "head_sha": "735a6a0806f90e013339ea76d08d0b6cb2d9c62c",
+  "i18n_changed": {},
+  "i18n_removed": [],
+  "key_uses": [
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "action.delete"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "action.duplicate"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "action.edit"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "action.more"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "action.properties"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "action.refresh"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "action.sort"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "collection_runner.run_collection"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "documentation.publish.published"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "documentation.title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "export.collection"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "folder.new"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "mock_server.active"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "mock_server.create_mock_server"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "mock_server.inactive"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "request.add"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "request.new"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "key": "request.new_gql"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "key": "error.no_collections_to_export"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "key": "error.something_went_wrong"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "key": "export.failed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "key": "export.secret_gist_success"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "key": "import.failed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "key": "state.download_started"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "key": "state.file_imported"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "action.new"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "action.sort"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "add.new"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "app.wiki"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "collection.import_or_create"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "empty.collections"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "empty.folder"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "import.title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "modal.import_export"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "key": "state.nothing_found"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "action.add"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "action.add_example"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "action.cancel"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "action.duplicate"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "action.label"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "action.search"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.created"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.different_parent"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.duplicated"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.invalid_name"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.invalid_root_move"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.moved"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.name_length_insufficient"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.order_changed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.properties_updated"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.renamed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "collection.sorted"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "confirm.remove_collection"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "confirm.remove_folder"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "confirm.remove_request"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "confirm.remove_response"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "error.invalid_request"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "error.network_error"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "error.something_went_wrong"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "folder.created"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "folder.name_length_insufficient"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "folder.renamed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "folder.sorted"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "import.failed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "profile.no_permission"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "request.different_collection"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "request.duplicated"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "request.moved"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "request.order_changed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "request.renamed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "response.duplicate_name_error"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "response.duplicated"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "response.invalid_name"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "response.renamed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "response.saved"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "state.deleted"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "state.download_started"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "state.file_imported"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "tab.collections"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "team.invalid_coll_id"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "team.no_request_found"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "team.parent_coll_move"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/collections/index.vue",
+    "key": "team.same_target_destination"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+    "key": "import.cors_error_modal.description"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+    "key": "import.cors_error_modal.explanation"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+    "key": "import.cors_error_modal.retry_with_proxy"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+    "key": "import.failed"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+    "key": "import.from_url"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+    "key": "import.title"
+   },
+   {
+    "dynamic": false,
+    "file": "packages/hoppscotch-common/src/helpers/backend/helpers.ts",
+    "key": "error.no_collections_to_export"
+   }
+  ],
+  "stats": {
+   "overlay_added": [
+    "packages/hoppscotch-data/src/collection/v/13.ts"
+   ],
+   "overlay_deleted": [],
+   "overlay_head_repo": "Mbazu-Daniel/hoppscotch",
+   "overlay_head_sha": "735a6a0806f90e013339ea76d08d0b6cb2d9c62c",
+   "overlay_modified": [
+    "packages/hoppscotch-common/src/components/collections/Collection.vue",
+    "packages/hoppscotch-common/src/components/collections/ImportExport.vue",
+    "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+    "packages/hoppscotch-common/src/components/collections/index.vue",
+    "packages/hoppscotch-common/src/components/importExport/ImportExportSteps/UrlImport.vue",
+    "packages/hoppscotch-common/src/helpers/backend/helpers.ts",
+    "packages/hoppscotch-common/src/helpers/collection/collection.ts",
+    "packages/hoppscotch-common/src/helpers/import-export/import/import-sources/UrlSource.ts",
+    "packages/hoppscotch-common/src/lib/sync/collections/import.ts",
+    "packages/hoppscotch-common/src/lib/sync/collections/index.ts",
+    "packages/hoppscotch-data/src/collection/index.ts"
+   ]
+  }
+ },
+ "_about": "Head overlay of each demo PR over the indexed main (63273f8e599e), produced by code.overlay.run_overlay on 2026-10-12 and stored as a delta so the reason tests run offline."
+}

@@ -1,0 +1,388 @@
+{
+ "ahead_by": 9,
+ "behind_by": 0,
+ "files": [
+  {
+   "filename": ".gitignore",
+   "status": "modified"
+  },
+  {
+   "filename": "package.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-backend/package.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-backend/src/admin/infra.resolver.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-backend/src/admin/input-types.args.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/assets/icons/brands/anthropic.svg",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/assets/icons/brands/aws.svg",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/assets/icons/brands/azure.svg",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/assets/icons/brands/deepseek.svg",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/assets/icons/brands/gemini.svg",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/assets/icons/brands/ollama.svg",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/assets/icons/brands/openai.svg",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/locales/af.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/locales/cn.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/locales/en.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/locales/tr.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/package.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components.d.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/aichat/Assistant.vue",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/aichat/Message.vue",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/app/Shortcuts.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/app/__tests__/shortcuts-flyout.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/gql/Query.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/gql/RequestOptions.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/gql/__tests__/query-pane.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/graphql/RequestOptions.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/http/PreRequestScript.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/http/RawBody.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/http/Tests.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/components/http/test/Runner.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/composables/__tests__/chat-context.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/composables/ai-experiments.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/composables/chat-context.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/__tests__/keybindings.spec.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/__tests__/shortcuts.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/actions.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/app-actions.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/collection-requests.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/collections.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/commands.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/context-serializers.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/script-hosts.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/secret-references.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/skills.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/step-lines.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/__tests__/suggestions.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/app-actions.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/collection-requests.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/collections.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/commands.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/context-serializers.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/provider-logos.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/script-hosts.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/secret-references.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/skills.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/step-lines.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/aichat/suggestions.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/keybindings.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/shortcuts.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/helpers/tab/protocol-switch.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/layouts/default.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/lib/sync/collections/sync.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/pages/settings.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/platform/experiments.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/platform/instance.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-availability-order.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-availability.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-collection-safety.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-collections.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-confirm-workspace.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-reset.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-run-save.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-script-sends.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-turn.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/__tests__/ai-chat-ui.spec.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/ai-chat.service.ts",
+   "status": "added"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/gql-query-builder.service.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/spotlight/searchers/tab.searcher.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/test-runner/__tests__/plan-collection.spec.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/test-runner/test-runner.service.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-common/src/services/workspace.service.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-desktop/package.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-desktop/src-tauri/Cargo.lock",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-desktop/src-tauri/Cargo.toml",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-desktop/src-tauri/tauri.conf.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-desktop/src-tauri/tauri.portable.macos.conf.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-desktop/src-tauri/tauri.portable.windows.conf.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-desktop/src/composables/__tests__/useAppInitialization.spec.ts",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-desktop/src/views/Home.vue",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-selfhost-web/package.json",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-selfhost-web/webapp-server/internal/bundle/types.go",
+   "status": "modified"
+  },
+  {
+   "filename": "packages/hoppscotch-sh-admin/package.json",
+   "status": "modified"
+  },
+  {
+   "filename": "pnpm-lock.yaml",
+   "status": "modified"
+  },
+  {
+   "filename": "prod.Dockerfile",
+   "status": "modified"
+  }
+ ],
+ "status": "ahead",
+ "total_commits": 9
+}

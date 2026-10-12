@@ -1,0 +1,12 @@
+Files under this directory are trimmed copies of github.com/Sylius/Sylius (branch 2.2, commit 28c4862bbc02),
+which is MIT licensed (c) Sylius Sp. z o.o. They are test inputs only.
+
+  features/shop/**              4 real feature files, unchanged, and checkout/placing_an_order.feature (invented:
+                                it sits outside spec.paths and proves the ingester never reads it)
+  src/.../ShopBundle/templates  real templates, unchanged except shared/logo.html.twig (the 3 KB svg path is
+                                replaced by a stub)
+  src/.../twig_hooks/*.yaml     the real wiring filtered to the hookables whose template is in this tree
+  src/.../routing*, config/routes/sylius_shop.yaml   real routing, trimmed; sylius_shop.yaml also mounts an
+                                admin bundle that is not here (an unresolved mount on purpose)
+  src/.../translations          the real catalogues filtered to the keys the templates use; `sylius.ui.your_store`
+                                is set in both so that bundle order is observable

@@ -1,0 +1,3725 @@
+{
+ "labels": [
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Add new",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Parameters.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Parameters (packages/hoppscotch-common/src/components/http/Parameters.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Add new",
+   "oracle_file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "MyCollections (packages/hoppscotch-common/src/components/collections/MyCollections.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Authorization",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Body",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Bulk edit",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Parameters.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Parameters (packages/hoppscotch-common/src/components/http/Parameters.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Clear all",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Parameters.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Parameters (packages/hoppscotch-common/src/components/http/Parameters.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Collapse sidebar",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Collections",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Documentation",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/ShortcutsPrompt.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "ShortcutsPrompt (packages/hoppscotch-common/src/components/app/ShortcutsPrompt.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Downloads",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Environment Quick Peek",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Selector (packages/hoppscotch-common/src/components/environments/Selector.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Environments",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Expand sidebar",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Generate Code",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Headers",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Help & feedback",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "History",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Hoppscotch",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Horizontal layout",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Import",
+   "oracle_file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "MyCollections (packages/hoppscotch-common/src/components/collections/MyCollections.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Import / Export",
+   "oracle_file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "MyCollections (packages/hoppscotch-common/src/components/collections/MyCollections.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Interceptor",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Login",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Mock Servers",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "New",
+   "oracle_file": "packages/hoppscotch-common/src/pages/index.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Windows (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/pages/index.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "New",
+   "oracle_file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "MyCollections (packages/hoppscotch-common/src/components/collections/MyCollections.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Options",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Options",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Parameters",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Post-request Script",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Pre-request Script",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Remove",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/KeyValue.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "KeyValue (packages/hoppscotch-common/src/components/http/KeyValue.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Save",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Save My Workspace",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Search and commands",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/SpotlightSearch.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "SpotlightSearch (packages/hoppscotch-common/src/components/app/SpotlightSearch.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Select environment",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Selector (packages/hoppscotch-common/src/components/environments/Selector.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Send",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Shared Requests",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Shortcuts",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Support",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Switch protocol",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "ProtocolSwitcher (packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Turn off",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/KeyValue.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "KeyValue (packages/hoppscotch-common/src/components/http/KeyValue.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Untitled",
+   "oracle_file": "packages/hoppscotch-common/src/pages/index.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Windows (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/pages/index.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Variables",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Wiki",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Parameters.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Parameters (packages/hoppscotch-common/src/components/http/Parameters.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Wiki",
+   "oracle_file": "packages/hoppscotch-common/src/components/collections/MyCollections.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "MyCollections (packages/hoppscotch-common/src/components/collections/MyCollections.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "GraphQL",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "REST",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Realtime",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Settings",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Search",
+   "oracle_file": "packages/hoppscotch-common/src/components/collections/index.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "index (packages/hoppscotch-common/src/components/collections/index.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "searchbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Description",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/KeyValue.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "KeyValue (packages/hoppscotch-common/src/components/http/KeyValue.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Enter a URL or paste a cURL command",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EnvInput.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "EnvInput (packages/hoppscotch-common/src/components/smart/EnvInput.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Key",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EnvInput.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "EnvInput (packages/hoppscotch-common/src/components/smart/EnvInput.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Method",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Untitled",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Input (@hoppscotch/ui)",
+    "ProtocolSwitcher (packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Collections",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Value",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EnvInput.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "EnvInput (packages/hoppscotch-common/src/components/smart/EnvInput.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Add new",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Parameters.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Parameters (packages/hoppscotch-common/src/components/http/Parameters.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Add new",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/components/environments/my/index.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Authorization",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Body",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Bulk edit",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Parameters.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Parameters (packages/hoppscotch-common/src/components/http/Parameters.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Clear all",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Parameters.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Parameters (packages/hoppscotch-common/src/components/http/Parameters.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Collapse sidebar",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Collections",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Documentation",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/ShortcutsPrompt.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "ShortcutsPrompt (packages/hoppscotch-common/src/components/app/ShortcutsPrompt.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Downloads",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Environment Quick Peek",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Selector (packages/hoppscotch-common/src/components/environments/Selector.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Environments",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Expand sidebar",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Generate Code",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Headers",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Help & feedback",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "History",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Hoppscotch",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Horizontal layout",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Import",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/components/environments/my/index.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Import / Export",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/components/environments/my/index.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Interceptor",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Login",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Mock Servers",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "More",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Environment (packages/hoppscotch-common/src/components/environments/my/Environment.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "New",
+   "oracle_file": "packages/hoppscotch-common/src/pages/index.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Windows (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/pages/index.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "New",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/components/environments/my/index.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Options",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Options",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Parameters",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Post-request Script",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Pre-request Script",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Remove",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/KeyValue.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "KeyValue (packages/hoppscotch-common/src/components/http/KeyValue.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Save",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Save My Workspace",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Search and commands",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/SpotlightSearch.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "SpotlightSearch (packages/hoppscotch-common/src/components/app/SpotlightSearch.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Select environment",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/Selector.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Selector (packages/hoppscotch-common/src/components/environments/Selector.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Send",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Shared Requests",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/http/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Shortcuts",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Support",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Switch protocol",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "ProtocolSwitcher (packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Turn off",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/KeyValue.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "KeyValue (packages/hoppscotch-common/src/components/http/KeyValue.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Untitled",
+   "oracle_file": "packages/hoppscotch-common/src/pages/index.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Windows (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/pages/index.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Variables",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/http/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Wiki",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Parameters.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Parameters (packages/hoppscotch-common/src/components/http/Parameters.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Wiki",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "index (packages/hoppscotch-common/src/components/environments/my/index.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Global",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Environment (packages/hoppscotch-common/src/components/environments/my/Environment.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "generic",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "GraphQL",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "REST",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Realtime",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Settings",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Search",
+   "oracle_file": "packages/hoppscotch-common/src/components/environments/my/index.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "index (packages/hoppscotch-common/src/components/environments/my/index.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "searchbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Description",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/KeyValue.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "KeyValue (packages/hoppscotch-common/src/components/http/KeyValue.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Enter a URL or paste a cURL command",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EnvInput.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "EnvInput (packages/hoppscotch-common/src/components/smart/EnvInput.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Key",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EnvInput.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "EnvInput (packages/hoppscotch-common/src/components/smart/EnvInput.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Method",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Request (packages/hoppscotch-common/src/components/http/Request.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Untitled",
+   "oracle_file": "packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Input (@hoppscotch/ui)",
+    "ProtocolSwitcher (packages/hoppscotch-common/src/components/http/ProtocolSwitcher.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Environments",
+    "Parameters",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Value",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EnvInput.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "EnvInput (packages/hoppscotch-common/src/components/smart/EnvInput.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Authorization",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/graphql/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Clear all",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Query.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Query (packages/hoppscotch-common/src/components/graphql/Query.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Collapse sidebar",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Collections",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/graphql/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Connect",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Request (packages/hoppscotch-common/src/components/graphql/Request.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Copy",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Query.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Query (packages/hoppscotch-common/src/components/graphql/Query.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Documentation",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/ShortcutsPrompt.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "ShortcutsPrompt (packages/hoppscotch-common/src/components/app/ShortcutsPrompt.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Documentation",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Sidebar.vue",
+   "ordinal": 1,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/graphql/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Downloads",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Expand sidebar",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Headers",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/graphql/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Help & feedback",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "History",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/graphql/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Hoppscotch",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Horizontal layout",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Interceptor",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Login",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "New",
+   "oracle_file": "packages/hoppscotch-common/src/pages/graphql.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Windows (@hoppscotch/ui)",
+    "graphql (packages/hoppscotch-common/src/pages/graphql.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Prettify",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Query.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Query (packages/hoppscotch-common/src/components/graphql/Query.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Query",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/graphql/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Request",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Query.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Query (packages/hoppscotch-common/src/components/graphql/Query.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Save",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Query.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Query (packages/hoppscotch-common/src/components/graphql/Query.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Save My Workspace",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Schema",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Sidebar.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "Sidebar (packages/hoppscotch-common/src/components/graphql/Sidebar.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Search and commands",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/SpotlightSearch.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "SpotlightSearch (packages/hoppscotch-common/src/components/app/SpotlightSearch.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Shortcuts",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Support",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Untitled",
+   "oracle_file": "packages/hoppscotch-common/src/pages/graphql.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Windows (@hoppscotch/ui)",
+    "graphql (packages/hoppscotch-common/src/pages/graphql.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Variables",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/RequestOptions.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Tabs (@hoppscotch/ui)",
+    "RequestOptions (packages/hoppscotch-common/src/components/graphql/RequestOptions.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Wiki",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Query.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Query (packages/hoppscotch-common/src/components/graphql/Query.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Wrap lines",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Query.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Query (packages/hoppscotch-common/src/components/graphql/Query.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "GraphQL",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "REST",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Realtime",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Settings",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Query.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Query (packages/hoppscotch-common/src/components/graphql/Query.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [
+    "Documentation",
+    "Query",
+    "Untitled"
+   ],
+   "dialog_title": null,
+   "name": "Enter a GraphQL endpoint URL",
+   "oracle_file": "packages/hoppscotch-common/src/components/graphql/Request.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Request (packages/hoppscotch-common/src/components/graphql/Request.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "textbox",
+   "url_pattern": "/graphql"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Black",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/ColorModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "ColorModePicker (packages/hoppscotch-common/src/components/smart/ColorModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Blue",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "CA Certificates",
+   "oracle_file": "packages/hoppscotch-common/src/components/settings/Agent.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Agent (packages/hoppscotch-common/src/components/settings/Agent.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Client Certificates",
+   "oracle_file": "packages/hoppscotch-common/src/components/settings/Agent.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Agent (packages/hoppscotch-common/src/components/settings/Agent.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Collapse sidebar",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Dark",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/ColorModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "ColorModePicker (packages/hoppscotch-common/src/components/smart/ColorModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Descriptive With Spaces",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Downloads",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "English",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/ChangeLanguage.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "ChangeLanguage (packages/hoppscotch-common/src/components/smart/ChangeLanguage.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Expand sidebar",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Green",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Help & feedback",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Hoppscotch",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Horizontal layout",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Indigo",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Interceptor",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Light",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/ColorModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "ColorModePicker (packages/hoppscotch-common/src/components/smart/ColorModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Login",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Primary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Manage Domains Overrides",
+   "oracle_file": "packages/hoppscotch-common/src/components/settings/Agent.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Agent (packages/hoppscotch-common/src/components/settings/Agent.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Orange",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Pink",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Purple",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Red",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Save My Workspace",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Search and commands",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/SpotlightSearch.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "SpotlightSearch (packages/hoppscotch-common/src/components/app/SpotlightSearch.vue)"
+   ],
+   "owner_hops": 0,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Shortcuts",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Footer.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Footer (packages/hoppscotch-common/src/components/app/Footer.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Support",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Header.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Header (packages/hoppscotch-common/src/components/app/Header.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "System",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/ColorModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "ColorModePicker (packages/hoppscotch-common/src/components/smart/ColorModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Teal",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Use Default Proxy",
+   "oracle_file": "packages/hoppscotch-common/src/components/settings/Proxy.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "Proxy (packages/hoppscotch-common/src/components/settings/Proxy.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Yellow",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/AccentModePicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Secondary (@hoppscotch/ui)",
+    "AccentModePicker (packages/hoppscotch-common/src/components/smart/AccentModePicker.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "button",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "AI Experiments",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Toggle (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "generic",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Enable Documentation",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Toggle (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "generic",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Enable Mock Servers",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Toggle (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "generic",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Enable Unified GraphQL workspace",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Toggle (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "generic",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Expand navigation",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Toggle (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "generic",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Experimental scripting sandbox",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Toggle (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "generic",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Sidebar on left",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Toggle (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "generic",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Telemetry",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Toggle (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "generic",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Contact us",
+   "oracle_file": "packages/hoppscotch-common/src/pages/settings.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Anchor (@hoppscotch/ui)",
+    "settings (packages/hoppscotch-common/src/pages/settings.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "GraphQL",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Proxy privacy policy",
+   "oracle_file": "packages/hoppscotch-common/src/components/settings/Proxy.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "Anchor (@hoppscotch/ui)",
+    "Proxy (packages/hoppscotch-common/src/components/settings/Proxy.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "REST",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Realtime",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Settings",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/Sidenav.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "RouterLink (vue-router)",
+    "Link (@hoppscotch/ui)",
+    "Sidenav (packages/hoppscotch-common/src/components/app/Sidenav.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "link",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Chrome",
+   "oracle_file": "packages/hoppscotch-common/src/components/settings/Extension.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Extension (packages/hoppscotch-common/src/components/settings/Extension.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "menuitem",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Firefox",
+   "oracle_file": "packages/hoppscotch-common/src/components/settings/Extension.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Extension (packages/hoppscotch-common/src/components/settings/Extension.vue)"
+   ],
+   "owner_hops": 2,
+   "role": "menuitem",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Agent",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Radio (@hoppscotch/ui)",
+    "KernelInterceptor (packages/hoppscotch-common/src/components/app/KernelInterceptor.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "radio",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Auto",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EncodingPicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Radio (@hoppscotch/ui)",
+    "EncodingPicker (packages/hoppscotch-common/src/components/smart/EncodingPicker.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "radio",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Browser",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Radio (@hoppscotch/ui)",
+    "KernelInterceptor (packages/hoppscotch-common/src/components/app/KernelInterceptor.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "radio",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Browser extension",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Radio (@hoppscotch/ui)",
+    "KernelInterceptor (packages/hoppscotch-common/src/components/app/KernelInterceptor.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "radio",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Disable",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EncodingPicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Radio (@hoppscotch/ui)",
+    "EncodingPicker (packages/hoppscotch-common/src/components/smart/EncodingPicker.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "radio",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Enable",
+   "oracle_file": "packages/hoppscotch-common/src/components/smart/EncodingPicker.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Radio (@hoppscotch/ui)",
+    "EncodingPicker (packages/hoppscotch-common/src/components/smart/EncodingPicker.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "radio",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Proxy",
+   "oracle_file": "packages/hoppscotch-common/src/components/app/KernelInterceptor.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Link (@hoppscotch/ui)",
+    "? (@hoppscotch/ui)",
+    "Radio (@hoppscotch/ui)",
+    "KernelInterceptor (packages/hoppscotch-common/src/components/app/KernelInterceptor.vue)"
+   ],
+   "owner_hops": 3,
+   "role": "radio",
+   "url_pattern": "/settings"
+  },
+  {
+   "active_tabs": [],
+   "dialog_title": null,
+   "name": "Proxy URL",
+   "oracle_file": "packages/hoppscotch-common/src/components/settings/Proxy.vue",
+   "ordinal": 0,
+   "owner_chain": [
+    "Input (@hoppscotch/ui)",
+    "Proxy (packages/hoppscotch-common/src/components/settings/Proxy.vue)"
+   ],
+   "owner_hops": 1,
+   "role": "textbox",
+   "url_pattern": "/settings"
+  }
+ ],
+ "provenance": {
+  "attribution": {
+   "attribution_status": {
+    "ok": 53
+   },
+   "basename_equals_type_name": {
+    "k": 41,
+    "n": 41,
+    "p": 1.0,
+    "wilson95_hi": 1.0,
+    "wilson95_lo": 0.9143
+   },
+   "component_types": 53,
+   "repo_vue_components": 41,
+   "vote_share_min": 1.0,
+   "vote_share_unanimous": {
+    "k": 53,
+    "n": 53,
+    "p": 1.0,
+    "wilson95_hi": 1.0,
+    "wilson95_lo": 0.9324
+   }
+  },
+  "drift": {
+   "absent_from_main": 6,
+   "differs": 5,
+   "same": 278,
+   "summary": "11 of 289 .vue sources in the loaded maps differ from or are absent on the indexed main",
+   "vue_sources": 289
+  },
+  "entry_chunk": {
+   "bytes": 14220381,
+   "etag": "W/\"1c2a5b27b144c6f6de53ab7a17f57941\"",
+   "map_bytes": 45260813,
+   "map_etag": "W/\"8a8d972af5d2c62ed179eaf7a90e924d\"",
+   "map_sha256": "9f621a0cc9fdf529a54e12167724494ebb04338e2d1a0a0d204f091c9be0b08b",
+   "map_url": "https://hoppscotch.io/assets/index-BVV_7b8U.js.map",
+   "sha256": "ef0f9535bb3e51db9a1c370cfa8d0107caa299eb42c60d9f71140566671a15df",
+   "url": "https://hoppscotch.io/assets/index-BVV_7b8U.js"
+  },
+  "harvested": "2026-10-12",
+  "indexed_snapshot": "63273f8e599e73f0fb38c0739314e8d46b6bc83d",
+  "oracle_coverage": {
+   "k": 208,
+   "n": 208,
+   "p": 1.0,
+   "wilson95_hi": 1.0,
+   "wilson95_lo": 0.9819
+  },
+  "owner_text_check": {
+   "checked": 207,
+   "name_found_in_owner_file": {
+    "k": 199,
+    "n": 207,
+    "p": 0.9614,
+    "wilson95_hi": 0.9803,
+    "wilson95_lo": 0.9256
+   }
+  },
+  "page_visits": 3,
+  "statement": "This oracle exists only because this target publishes its source maps. It labels only UI present in the deployed build (not code added by an open PR), only files that also exist on main are scored, and it is test-only: it is not a product rung and nothing in link/, reason/ or graph/ may import it.",
+  "states": [
+   "/ [Collections, Parameters, Untitled]",
+   "/ [Environments, Parameters, Untitled]",
+   "/graphql [Documentation, Query, Untitled]",
+   "/settings []"
+  ],
+  "what": "Frozen output of the source-map oracle (evalkit.oracle_sourcemap.harvest + build_labels) for hoppscotch.io"
+ }
+}

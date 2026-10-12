@@ -1,0 +1,24 @@
+{
+ "base": {
+  "ref": "main",
+  "repo": {
+   "full_name": "hoppscotch/hoppscotch"
+  },
+  "sha": "d86e59f6e9574c69f01b300691b9f4396eeb38d2"
+ },
+ "body": "## Summary\n\n- persist the source URL and importer format on URL-imported collections\n- add a Refresh action for URL-imported root collections\n- refetch the source and run the existing OpenAPI importer again\n- replace the collection contents in place while preserving the collection ID and `_ref_id`\n- keep the previous collection unchanged when fetching or importing fails\n- persist URL source metadata through personal and team collection data\n\n## Notes\n\nThe current URL collection import flow exposes OpenAPI as the URL-based collection importer, so the refresh action is scoped to URL-imported OpenAPI collections.\n\nCloses #6657\n\n<!-- This is an auto-generated description by cubic. -->\n---\n## Summary by cubic\nAdds a refresh action for URL-imported OpenAPI collections so they can be re-fetched and re-imported in place, preserving the collection ID and `_ref_id`. Failed fetches or imports leave the existing collection unchanged.\n\n- Persists the source URL and importer format on URL-imported collections across personal and team data; non-URL imports remain untouched.\n- Adds a Refresh action to URL-imported root collections that reruns the OpenAPI importer and replaces the collection contents.\n- Bumps the collection schema to version 13 and migrates existing collections automatically.\n\n<sup>Written for commit 735a6a0806f90e013339ea76d08d0b6cb2d9c62c. Summary will update on new commits.</sup>\n\n<a href=\"https://cubic.dev/pr/hoppscotch/hoppscotch/pull/6658?utm_source=github\" target=\"_blank\" rel=\"noopener noreferrer\" data-no-image-dialog=\"true\"><picture><source media=\"(prefers-color-scheme: dark)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"><source media=\"(prefers-color-scheme: light)\" srcset=\"https://www.cubic.dev/buttons/review-in-cubic-light.svg\"><img alt=\"Review in cubic\" src=\"https://www.cubic.dev/buttons/review-in-cubic-dark.svg\"></picture></a>\n\n<!-- End of auto-generated description by cubic. -->\n\n",
+ "changed_files": 12,
+ "created_at": "2026-09-18T12:56:08Z",
+ "draft": false,
+ "head": {
+  "ref": "feat/refresh-url-imported-collections",
+  "repo": {
+   "fork": true,
+   "full_name": "Mbazu-Daniel/hoppscotch"
+  },
+  "sha": "735a6a0806f90e013339ea76d08d0b6cb2d9c62c"
+ },
+ "number": 6658,
+ "state": "open",
+ "title": "feat: refresh collections imported from URL"
+}

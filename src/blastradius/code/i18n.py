@@ -3,6 +3,10 @@
 Static keys are the signal the linker leans on (key -> English value -> files). Template literals such as
 `t(`tab.${name}`)` become dynamic uses carrying the static prefix; arguments that are neither (a variable,
 a call) are only counted, because there is no key to record.
+
+The scanner reads fork-authored files (D06), so its cost is bounded: a first argument longer than
+`_MAX_ARGUMENT` characters is not a key (counted as unresolved), and all calls of one text share a scan budget
+proportional to its size, so `t(` repeated 20,000 times cannot make the work quadratic.
 """
 
 from __future__ import annotations
@@ -15,6 +19,9 @@ from typing import Any
 # `t(`, `$t(`, `this.t(`, `i18n.t(`; a preceding word char or dot is some other function or member.
 _CALL = re.compile(r"(?<![\w$.])(?<!function )(?:(?:this|i18n|\$i18n)\.)?\$?t\(\s*")
 _STRING = re.compile(r"""(['"])((?:\\.|(?!\1)[^\\\n])*)\1""")
+_MAX_ARGUMENT = 1024                # characters of a first argument that are ever examined
+_BUDGET_PER_CHAR = 8                # total characters examined across all calls, per character of text
+_BUDGET_FLOOR = 50_000
 
 
 @dataclass
@@ -44,34 +51,48 @@ def flatten_messages(data: Mapping[str, Any]) -> tuple[dict[str, str], int]:
     return out, skipped
 
 
-def _first_argument(text: str, start: int) -> str:
-    """Source of the first call argument: up to the top-level `,` or the closing `)`."""
+def _first_argument(text: str, start: int, stop: int) -> tuple[str | None, int]:
+    """Source of the first call argument: up to the top-level `,` or the closing `)`, within `text[start:stop]`.
+
+    Returns `(argument, characters examined)`. The argument is None when the window ended before the argument
+    did (and the window is not the end of the text): the caller counts it as unresolved.
+    """
     depth = 0
-    i, n = start, len(text)
-    while i < n:
+    i = start
+    while i < stop:
         c = text[i]
         if c in "'\"`":
             end = i + 1
-            while end < n and text[end] != c:
+            while end < stop and text[end] != c:
                 end += 2 if text[end] == "\\" else 1
+            if end >= stop:
+                i = stop
+                break
             i = end + 1
             continue
         if c in "([{":
             depth += 1
         elif c in ")]}":
             if depth == 0:
-                break
+                return text[start:i].strip(), i - start
             depth -= 1
         elif c == "," and depth == 0:
-            break
+            return text[start:i].strip(), i - start
         i += 1
-    return text[start:i].strip()
+    if stop >= len(text):
+        return text[start:].strip(), stop - start
+    return None, stop - start
 
 
 def scan_t_calls(text: str) -> KeyScan:
     scan = KeyScan()
+    budget = _BUDGET_PER_CHAR * len(text) + _BUDGET_FLOOR
     for m in _CALL.finditer(text):
-        arg = _first_argument(text, m.end())
+        arg, spent = _first_argument(text, m.end(), min(len(text), m.end() + _MAX_ARGUMENT, m.end() + budget))
+        budget -= spent
+        if arg is None:
+            scan.unresolved += 1
+            continue
         if not arg:
             continue
         literal = _STRING.fullmatch(arg)

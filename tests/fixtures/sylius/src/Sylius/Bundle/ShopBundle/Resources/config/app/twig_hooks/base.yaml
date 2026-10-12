@@ -1,0 +1,43 @@
+sylius_twig_hooks:
+  hooks:
+    sylius_shop.base.header:
+      top_bar:
+        template: '@SyliusShop/shared/layout/base/header/top_bar.html.twig'
+        priority: 300
+      content:
+        template: '@SyliusShop/shared/layout/base/header/content.html.twig'
+        priority: 200
+    sylius_shop.base.header.top_bar:
+      info_message:
+        template: '@SyliusShop/shared/layout/base/header/top_bar/info_message.html.twig'
+        priority: 200
+    sylius_shop.base.header.content:
+      logo:
+        template: '@SyliusShop/shared/layout/base/header/content/logo.html.twig'
+        priority: 300
+    sylius_shop.base.header.content.logo:
+      content:
+        template: '@SyliusShop/shared/logo.html.twig'
+        priority: 0
+    sylius_shop.base.footer:
+      content:
+        template: '@SyliusShop/shared/layout/base/footer/content.html.twig'
+        priority: 0
+    sylius_shop.base.footer.content:
+      payment_methods:
+        template: '@SyliusShop/shared/layout/base/footer/content/payment_methods.html.twig'
+        priority: 100
+      copy:
+        template: '@SyliusShop/shared/layout/base/footer/content/copy.html.twig'
+        priority: 0
+    sylius_shop.base.footer.content.payment_methods:
+      providers:
+        template: '@SyliusShop/shared/layout/base/footer/content/payment_methods/providers.html.twig'
+        priority: 100
+    sylius_shop.base.footer.content.payment_methods.providers:
+      paypal:
+        template: '@SyliusShop/shared/layout/base/footer/content/payment_methods/providers/paypal.html.twig'
+        priority: 200
+      adyen:
+        template: '@SyliusShop/shared/layout/base/footer/content/payment_methods/providers/adyen.html.twig'
+        priority: 100

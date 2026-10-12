@@ -191,31 +191,43 @@ def scan_template(template: str, *, is_native: frozenset[str]) -> TemplateScan:
 
     `is_native` holds HTML/SVG element names in their exact case (`Button` is a component, `button` is not);
     everything else is a component candidate.
-    `<template>`, `<slot>` and `<component>` are structural and never reported as tags.
+    `<template>`, `<slot>` and `<component>` (either case) are structural and never reported as tags; content
+    under a `v-pre` element is not compiled by Vue and is not scanned for tags or expressions.
     """
     scan = TemplateScan()
     seen: set[str] = set()
     raw_depth = 0
+    pre_name = ""            # lower-cased tag name of the open `v-pre` element; "" outside one
+    pre_depth = 0
     for tok, _ in tokenize(template):
+        if pre_depth:        # v-pre: nothing inside is compiled: no tags, no expressions, only text
+            if tok.kind == "text":
+                _add_text(scan, tok.value, raw_depth)
+            elif tok.kind == "open" and tok.value.lower() == pre_name and not tok.self_closing:
+                pre_depth += 1
+            elif tok.kind == "close" and tok.value.lower() == pre_name:
+                pre_depth -= 1
+            continue
         if tok.kind == "interp":
             scan.expressions.append(tok.value)
         elif tok.kind == "text":
-            if raw_depth == 0:
-                text = _normalise_text(tok.value)
-                if _is_visible_text(text):
-                    scan.texts.append(text)
+            _add_text(scan, tok.value, raw_depth)
         elif tok.kind == "close":
             if tok.value in _RAW_ELEMENTS and raw_depth:
                 raw_depth -= 1
         else:
             name = tok.value
+            if any(key == "v-pre" for key, _ in tok.attrs):
+                if not tok.self_closing:
+                    pre_name, pre_depth = name.lower(), 1
+                continue
             if name in _RAW_ELEMENTS and not tok.self_closing:
                 raw_depth += 1
             is_expr: str | None = None
             for key, value in tok.attrs:
                 if value is None:
                     continue
-                if key in (":is", "v-bind:is") and name == "component":
+                if key in (":is", "v-bind:is") and name.lower() == "component":
                     is_expr = value
                 if key.startswith((":", "@", "v-", "#")) or key == "is":
                     scan.expressions.append(value)
@@ -223,7 +235,7 @@ def scan_template(template: str, *, is_native: frozenset[str]) -> TemplateScan:
                     text = _normalise_text(value)
                     if _is_visible_text(text):
                         scan.attr_texts.append(text)
-            if name == "component":
+            if name.lower() == "component":     # `<component>` and `<Component>` are the same dynamic element
                 static_is = next((v for k, v in tok.attrs if k == "is" and v), None)
                 literal = _LITERAL_IS.match(is_expr) if is_expr is not None else None
                 if literal:
@@ -239,3 +251,10 @@ def scan_template(template: str, *, is_native: frozenset[str]) -> TemplateScan:
                 seen.add(name)
                 scan.tags.append(name)
     return scan
+
+
+def _add_text(scan: TemplateScan, raw: str, raw_depth: int) -> None:
+    if raw_depth == 0:
+        text = _normalise_text(raw)
+        if _is_visible_text(text):
+            scan.texts.append(text)

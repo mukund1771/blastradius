@@ -19,7 +19,10 @@ import yaml
 from ...models import RouteDef
 from .vue_sfc import Block
 
-_DEFINE_PAGE_LAYOUT = re.compile(r"definePage\s*\(\s*\{.*?layout\s*:\s*(['\"])([\w-]+)\1", re.DOTALL)
+_DEFINE_PAGE = re.compile(r"definePage\s*\(\s*\{")
+_LAYOUT_KEY = re.compile(r"\blayout\s*:\s*(['\"])([\w-]+)\1")
+_DEFINE_PAGE_WINDOW = 2048      # characters after `definePage({` that can hold its `meta.layout`
+_DEFINE_PAGE_CALLS = 16         # a page has one; a hostile file with thousands must not cost as many scans
 _PARAM = re.compile(r"^_(.+)$|^\[(.+)\]$")
 
 
@@ -46,14 +49,19 @@ def layout_name(blocks: Iterable[Block], script_text: str) -> str | None:
             continue
         try:
             data = json.loads(block.content) if block.lang == "json" else yaml.safe_load(block.content)
-        except (ValueError, yaml.YAMLError):
+        except (ValueError, yaml.YAMLError, RecursionError):    # RecursionError: hostile deep nesting
             continue
         meta = data.get("meta") if isinstance(data, dict) else None
         layout = meta.get("layout") if isinstance(meta, dict) else None
         if isinstance(layout, str):
             return layout
-    m = _DEFINE_PAGE_LAYOUT.search(script_text)
-    return m.group(2) if m else None
+    for n, call in enumerate(_DEFINE_PAGE.finditer(script_text)):
+        if n >= _DEFINE_PAGE_CALLS:
+            break
+        hit = _LAYOUT_KEY.search(script_text, call.end(), call.end() + _DEFINE_PAGE_WINDOW)
+        if hit:
+            return hit.group(2)
+    return None
 
 
 def build_routes(page_files: Mapping[str, str], layouts: Mapping[str, str], blocks: Mapping[str, list[Block]],

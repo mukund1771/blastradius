@@ -2,25 +2,32 @@
 
 Implements D08 and cases 46 (canonical UIElement + APPEARS_ON) and 51 (counts are over distinct nodes).
 
-Canonical UIElement rule (documented because the crawler cannot see an owner file):
+Canonical UIElement rule:
 
-  key = (role, normalised accessible name, ordinal, scope)
+  key = (owner_hint or "", role, normalised accessible name, ordinal, scope)
 
+  owner_hint = the owning component/scope id when the page exposes one (UIElementObs.owner_hint, case 7 and
+               46's "owner SFC"), "" when it does not. It is the first part, so two components that render a
+               control with the same role, name and ordinal stay two elements.
   scope = ""                      for a named element on a page, tab or embed Screen
   scope = "dialog:<title>"        for a named element on a modal Screen (the crawler only lists the topmost
                                   dialog's elements there), so two dialogs' "Close" buttons stay apart
   scope = <observation's own id>  for a nameless element (case 7): "button, no name, ordinal 0" says nothing
                                   about identity across pages, so only the crawler's own id may merge it
 
-A layout control that recurs on every Screen has the same role, name and ordinal everywhere, so it becomes
-one UIElement with one APPEARS_ON edge per Screen instead of one node per Screen. The id is a pure function
-of the key (never of group membership), so it does not change when a later crawl observes the element on
-another Screen. The crawl-time ids survive as `obs_ids` so Transition.element_id, Flow.steps and Link.src
-written against an observation id still resolve. Residual risk, stated: two different page-level components
-that both render a control with the same role, name and ordinal on different pages merge into one element.
+A layout control that recurs on every Screen has the same owner, role, name and ordinal everywhere, so it
+becomes one UIElement with one APPEARS_ON edge per Screen instead of one node per Screen. The id is a pure
+function of the key (never of group membership), so it does not change when a later crawl observes the
+element on another Screen; when `owner_hint` is empty the id is the one the wave-1 key produced. The
+crawl-time ids survive as `obs_ids` so Transition.element_id, Flow.steps and Link.src written against an
+observation id still resolve.
 
-UIElementObs has no owner field, so the owner SFC of case 46 is not used here; the link stage fills
-`owner_file` from its IMPLEMENTED_BY edges.
+Residual risk, stated: when the crawler cannot name an owner, two different page-level components that both
+render a control with the same role, name and ordinal on different pages still merge into one element (66 of
+982 UI strings on Hoppscotch are shared between the http and graphql trees). The link stage records the
+screens a link was derived on (`Link.screen_ids`, stored on IMPLEMENTED_BY/REALIZED_BY) and `impact` counts a
+screen only when the edge's screen_ids is empty or contains it, so the merge does not light screens whose
+component did not change. The link stage still fills `owner_file` from its IMPLEMENTED_BY edges.
 """
 
 from __future__ import annotations
@@ -41,7 +48,8 @@ def _norm_name(name: str) -> str:
     return " ".join(name.split()).casefold()
 
 
-def element_key(obs: UIElementObs, screen: ScreenState | None = None) -> tuple[str, str, int, str]:
+def element_key(obs: UIElementObs, screen: ScreenState | None = None) -> tuple[str, str, str, int, str]:
+    """(owner_hint or "", role, normalised name, ordinal, scope): the canonical identity of an observation."""
     name = _norm_name(obs.name)
     if not name:
         scope = obs.id
@@ -49,11 +57,12 @@ def element_key(obs: UIElementObs, screen: ScreenState | None = None) -> tuple[s
         scope = "dialog:" + _norm_name(screen.dialog_title)
     else:
         scope = ""
-    return (obs.role.casefold(), name, obs.ordinal, scope)
+    return (obs.owner_hint or "", obs.role.casefold(), name, obs.ordinal, scope)
 
 
-def element_id(target: str, key: tuple[str, str, int, str]) -> str:
-    return stable_id("uie", target, *key)
+def element_id(target: str, key: tuple[str, str, str, int, str]) -> str:
+    """Pure function of the key. An empty owner is left out of the hash so owner-less ids are unchanged."""
+    return stable_id("uie", target, *(key if key[0] else key[1:]))
 
 
 @dataclass
@@ -70,7 +79,7 @@ def _first(values: Iterable[Any]) -> Any:
 
 def canonicalise(screens: Sequence[ScreenState], target: str) -> Canonical:
     """Group every UIElementObs of `screens` into canonical elements. Deterministic for any input order."""
-    groups: dict[tuple[str, str, int, str], list[tuple[ScreenState, UIElementObs]]] = {}
+    groups: dict[tuple[str, str, str, int, str], list[tuple[ScreenState, UIElementObs]]] = {}
     out = Canonical()
     for screen in sorted(screens, key=lambda s: s.id):
         for obs in sorted(screen.elements, key=lambda o: (o.ordinal, o.id)):
@@ -90,6 +99,7 @@ def canonicalise(screens: Sequence[ScreenState], target: str) -> Canonical:
                     "role": rep.role,
                     "name": rep.name,
                     "ordinal": rep.ordinal,
+                    "owner_hint": rep.owner_hint,
                     "text": _first(o.text for o in obs_all) or "",
                     "tag": _first(o.tag for o in obs_all) or "",
                     "testid": _first(o.testid for o in obs_all),

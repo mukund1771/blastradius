@@ -1,0 +1,8 @@
+sylius:
+  footer:
+    payment_partners: Payment Partners
+  homepage:
+    new_collection: New collection
+  top_bar: Sign up to our newsletter and grab -20% off
+  ui:
+    your_store: your store (shop)

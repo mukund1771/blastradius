@@ -86,3 +86,68 @@ def test_workspace_package_naming_convention():
     assert workspace_package("packages/hoppscotch-data/src") == "@hoppscotch/data"
     assert workspace_package("packages/hoppscotch-selfhost-web/src/") == "@hoppscotch/selfhost-web"
     assert workspace_package("packages/shared/src") == "shared"
+
+
+# ------------------------------------------------------------------ wave-1 review: directory rules
+@pytest.mark.parametrize(("path", "expected"), [
+    # an ordinary component directory that shares a name with a special directory is still a component
+    (f"{C}/src/components/docs/Viewer.vue", FileClass.COMPONENT),
+    (f"{C}/src/components/pages/Foo.vue", FileClass.COMPONENT),
+    (f"{C}/src/components/layouts/Foo.vue", FileClass.COMPONENT),
+    (f"{C}/src/components/meta.ts", FileClass.COMPONENT),
+    (f"{C}/src/components/app/index.html", FileClass.SOURCE_OTHER),
+    (f"{C}/src/components/http/test/runner.ts", FileClass.COMPONENT),
+    (f"{C}/src/components/lang/Picker.vue", FileClass.COMPONENT),
+    (f"{C}/src/components/i18n/Switch.vue", FileClass.COMPONENT),
+    # the same file names at the package root (outside the source roots) are configuration
+    ("packages/hoppscotch-selfhost-web/meta.ts", FileClass.BUILD_CONFIG),
+    ("packages/hoppscotch-selfhost-web/index.html", FileClass.BUILD_CONFIG),
+    # PAGE and LAYOUT only directly under <root>/pages and <root>/layouts, like the router
+    (f"{C}/src/pages/docs/guide.vue", FileClass.PAGE),
+    (f"{C}/src/layouts/sub/Thing.vue", FileClass.LAYOUT),
+    # a plain test directory outside components is still a test directory
+    (f"{C}/src/test/helper.ts", FileClass.TEST),
+    # bare package names are external, scoped or not; repo files without an extension keep their own rules
+    ("vue", FileClass.EXTERNAL),
+    ("lodash-es", FileClass.EXTERNAL),
+    ("fp-ts", FileClass.EXTERNAL),
+    ("Makefile", FileClass.BUILD_CONFIG),
+    ("LICENSE", FileClass.DOCS),
+    ("Procfile", FileClass.SOURCE_OTHER),
+])
+def test_directory_rules_are_relative_to_the_configured_root(path: str, expected: FileClass):
+    assert classify_file(path, CFG) is expected
+
+
+def test_ancestor_directories_of_a_root_do_not_classify_files_under_it():
+    from blastradius.targets import CodeConfig
+
+    cfg = CodeConfig(repo="o/r", adapter="vue", roots=["docs/site/src", "tests/e2e/app/src"])
+    assert classify_file("docs/site/src/pages/index.vue", cfg) is FileClass.PAGE
+    assert classify_file("docs/site/src/components/Nav.vue", cfg) is FileClass.COMPONENT
+    assert classify_file("tests/e2e/app/src/components/A.vue", cfg) is FileClass.COMPONENT
+    assert classify_file("docs/site/README.md", cfg) is FileClass.DOCS
+
+
+def test_classify_file_is_importable_from_the_adapter_module():
+    from blastradius.code import adapter
+
+    assert adapter.classify_file is classify_file
+
+
+def test_generated_files_come_from_the_config_and_fall_back_to_the_constants():
+    from blastradius.targets import CodeConfig
+
+    plain = CodeConfig(repo="o/r", adapter="vue", roots=["pkg/a/src"])
+    assert classify_file("pkg/a/src/helpers/backend/graphql.ts", plain) is FileClass.GENERATED   # constants
+    custom = CodeConfig(repo="o/r", adapter="vue", roots=["pkg/a/src"], generated_files=["pkg/a/src/gen/out.ts"])
+    assert classify_file("pkg/a/src/gen/out.ts", custom) is FileClass.GENERATED
+    assert classify_file("pkg/a/src/helpers/backend/graphql.ts", custom) is not FileClass.GENERATED
+    suffix = CodeConfig(repo="o/r", adapter="vue", roots=["pkg/a/src"], generated_files=["gen/out.ts"])
+    assert classify_file("pkg/a/src/gen/out.ts", suffix) is FileClass.GENERATED
+    assert classify_file("pkg/a/src/xgen/out.ts", suffix) is not FileClass.GENERATED         # whole segments only
+
+
+def test_the_hoppscotch_target_lists_its_codegen_outputs():
+    assert f"{C}/src/helpers/backend/graphql.ts" in CFG.generated_files
+    assert f"{C}/src/components" in CFG.components_dirs

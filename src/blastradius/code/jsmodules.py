@@ -5,6 +5,15 @@ network): default, named (with symbol names), namespace, side-effect, `import ty
 re-exports, and `import("literal")`. `ModuleResolver` turns a specifier into a repo file using only the
 set of paths the indexer was allowed to list: relative paths, `cfg.code.alias` prefixes, workspace packages
 that are source roots here, and a documented fallback for tsconfig-style `@dir/*` aliases.
+
+Tree-sitter's `QueryCursor.captures()` returns nodes in an order that differs between processes, so every
+capture list is sorted by byte offset before anything is built from it: facts are in document order.
+
+Parsing is bounded by work, not by the clock (so the result is the same on every machine): a 149-character
+fuzz input sent tree-sitter-typescript into a parse that did not finish in 40 s, and a PR head is untrusted
+(D06). The parser is driven through a read callback with a progress callback that cancels after a budget of
+callbacks proportional to the size; real files use at most 13 callbacks per KB, the budget allows 60 per KB
+plus a floor, and a cancelled parse yields no imports and `aborted=True`.
 """
 
 from __future__ import annotations
@@ -15,7 +24,7 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 
 import tree_sitter_typescript as _tst
-from tree_sitter import Language, Node, Parser, Query, QueryCursor
+from tree_sitter import Language, Node, Parser, Query, QueryCursor, Tree
 
 from ..models import FileClass
 from ..targets import CodeConfig
@@ -48,6 +57,8 @@ class ScriptFacts:
     comment_spans: list[tuple[int, int]] = field(default_factory=list)   # byte offsets, for key scanning
     declares_locally: bool = False      # any top-level declaration besides import/export-from
     reexports: int = 0
+    has_error: bool = False             # tree-sitter recovered from a syntax error: imports may be missing
+    aborted: bool = False               # the parse exceeded its work budget: no facts were extracted
 
 
 @lru_cache(maxsize=2)
@@ -129,12 +140,43 @@ def _lazy_binding(call: Node, literal: str, out: dict[str, str]) -> None:
             return
 
 
+_PARSE_CHUNK = 64 * 1024
+_PARSE_BUDGET_FLOOR = 200           # progress callbacks (one per ~100 parser operations) always allowed
+_PARSE_BUDGET_PER_KB = 60           # measured maximum on 977 real script blocks: 12.6 per KB
+
+
+def _parse(parser: Parser, data: bytes) -> Tree | None:
+    """Parse `data`, or None when the work budget is spent (a hostile input, never a real source file)."""
+    budget = _PARSE_BUDGET_FLOOR + _PARSE_BUDGET_PER_KB * (len(data) // 1024)
+    calls = 0
+
+    def progress(_offset: int, _has_error: bool) -> bool:
+        nonlocal calls
+        calls += 1
+        return calls > budget       # True cancels the parse
+
+    def read(offset: int, _point: object) -> bytes:
+        return data[offset:offset + _PARSE_CHUNK]
+
+    try:
+        return parser.parse(read, progress_callback=progress)
+    except ValueError:              # tree-sitter reports a cancelled parse as "Parsing failed"
+        parser.reset()              # else the next parse() would resume this one, over a different document
+        return None
+
+
+def _in_document_order(nodes: Iterable[Node]) -> list[Node]:
+    return sorted(nodes, key=lambda n: (n.start_byte, n.end_byte))
+
+
 def extract_imports(source: str, *, tsx: bool = False) -> ScriptFacts:
     parser, q_import, q_other = _queries(tsx)
-    data = source.encode("utf-8")
-    root = parser.parse(data).root_node
-    facts = ScriptFacts()
-    for node in QueryCursor(q_import).captures(root).get("stmt", []):
+    tree = _parse(parser, source.encode("utf-8"))
+    if tree is None:
+        return ScriptFacts(has_error=True, aborted=True)
+    root = tree.root_node
+    facts = ScriptFacts(has_error=root.has_error)
+    for node in _in_document_order(QueryCursor(q_import).captures(root).get("stmt", [])):
         src = node.child_by_field_name("source")
         spec = _string_value(src) if src is not None else None
         if spec is None:
@@ -149,7 +191,7 @@ def extract_imports(source: str, *, tsx: bool = False) -> ScriptFacts:
             facts.imports.append(ImportBinding(spec, tuple(symbols), (), "reexport", type_only))
             facts.reexports += 1
     caps = QueryCursor(q_other).captures(root)
-    for call in caps.get("dyn", []):
+    for call in _in_document_order(caps.get("dyn", [])):
         args = call.child_by_field_name("arguments")
         first = args.named_children[0] if args is not None and args.named_children else None
         literal = _string_value(first) if first is not None else None
@@ -158,7 +200,7 @@ def extract_imports(source: str, *, tsx: bool = False) -> ScriptFacts:
             continue
         facts.imports.append(ImportBinding(literal, (), (), "dynamic"))
         _lazy_binding(call, literal, facts.lazy_bindings)
-    facts.comment_spans = [(n.start_byte, n.end_byte) for n in caps.get("comment", [])]
+    facts.comment_spans = [(n.start_byte, n.end_byte) for n in _in_document_order(caps.get("comment", []))]
     facts.declares_locally = any(
         c.type not in ("import_statement", "comment", "empty_statement")
         and not (c.type == "export_statement" and c.child_by_field_name("source") is not None)
@@ -238,7 +280,10 @@ class ModuleResolver:
         if hit is not None:
             return Resolved("file", hit, via)
         base = posixpath.normpath(base)
-        for ext in ("", ".ts", ".json"):    # a codegen output that is not committed: keep the edge, flag it
+        # a codegen output that is not committed: keep the edge, flag it, and give the node an extension so
+        # a PR path `.../generated/graphql.ts` lands on it
+        candidates = ("",) if posixpath.splitext(base)[1] else (".ts", ".json")
+        for ext in candidates:
             if classify_file(base + ext, self.cfg) is FileClass.GENERATED and any(
                     base.startswith(r + "/") for r in self.roots):
                 return Resolved("file", base + ext, via, generated_missing=True)
@@ -246,26 +291,54 @@ class ModuleResolver:
         reason = "outside the indexed source roots (asset or config)" if outside else "no such file in the indexed tree"
         return Resolved("unresolved", spec, via, reason=reason)
 
+    def _alias_bases(self, clean: str) -> list[str]:
+        """Candidate repo paths for every alias prefix that matches, longest prefix first.
+
+        An alias that already ends in `/src` also gets the stripped form of a leading `src/` in the remainder
+        (`@scope/pkg/src/x` -> `<target>/x`), because apps alias `@scope/pkg` to the package's `src`.
+        """
+        bases: list[str] = []
+        for prefix, target in self.aliases:
+            if not clean.startswith(prefix):
+                continue
+            rest = clean[len(prefix):]
+            bases.append(f"{target}/{rest}")
+            if target.endswith("/src") and rest.startswith("src/"):
+                bases.append(f"{target}/{rest[len('src/'):]}")
+        return bases
+
     def resolve(self, spec: str, importer: str) -> Resolved:
+        """Rules in order: relative, alias (when a target file exists), workspace package, inferred `@dir/*`.
+
+        An alias whose target file is missing does not end the search: the workspace and inferred rules still
+        get their turn (`@hoppscotch/common/src/x` may be the alias *and* a package path). Only when nothing
+        resolves is the first alias candidate reported, so a missing codegen output keeps its GENERATED node.
+        """
         clean = spec.split("?", 1)[0].split("#", 1)[0]
         if clean.startswith("."):
             return self._file(posixpath.join(posixpath.dirname(importer), clean), "relative", spec)
-        for prefix, target in self.aliases:
-            if clean.startswith(prefix):
-                return self._file(f"{target}/{clean[len(prefix):]}", "alias", spec)
+        alias_bases = self._alias_bases(clean)
+        for base in alias_bases:
+            hit = self._probe(base)
+            if hit is not None:
+                return Resolved("file", hit, "alias")
         pkg = package_name(clean)
         if pkg in self.packages:
             sub = clean[len(pkg):].lstrip("/")
             root = self.packages[pkg]
             if sub.startswith("src/") and root.endswith("/src"):
                 sub = sub[len("src/"):]     # the app aliases `@scope/pkg` to `@scope/pkg/src`
-            return self._file(f"{root}/{sub}" if sub else f"{root}/index", "workspace", spec)
+            hit = self._probe(f"{root}/{sub}" if sub else f"{root}/index")
+            if hit is not None or not alias_bases:
+                return self._file(f"{root}/{sub}" if sub else f"{root}/index", "workspace", spec)
         if clean.startswith("@") and "/" in clean:
             top, _, rest = clean[1:].partition("/")
             for root in self.inferred.get(top, ()):
                 hit = self._probe(f"{root}/{top}/{rest}")
                 if hit is not None:
                     return Resolved("file", hit, "inferred_alias")
+        if alias_bases:
+            return self._file(alias_bases[0], "alias", spec)
         if clean.startswith("/"):
             return Resolved("unresolved", spec, "absolute", reason="absolute path (public asset or server path)")
         return Resolved("external", package_name(clean), "package")

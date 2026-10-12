@@ -40,6 +40,11 @@ crawl:
   anchor:
     title_regex: "(?i)hoppscotch"
     min_interactive: 8
+  # Group 1 = the deployed version (CalVer). Evidence, hoppscotch.io 2026-10-12: the entry bundle
+  # /assets/index-BVV_7b8U.js (14.2 MB) holds exactly one 20yy.m.p string, `...,_3="2026.9.0",JsA={...`, which is
+  # Footer.vue's `import { version } from "~/../package.json"`; the Help menu prints it as "Hoppscotch v2026.9.0"
+  # (tests/fixtures/crawl/hoppscotch/help_menu.html), so rendered text is the fallback. The HTML shell has none.
+  version_regex: '(?:"|\bv)(20\d{2}\.\d{1,2}\.\d{1,2})(?:"|\b)'
 
 spec:
   kind: llms_full
@@ -74,6 +79,15 @@ code:
     - packages/hoppscotch-common/src/layouts/default.vue
   hub_packages:
     - "@hoppscotch/data"
+  # Codegen outputs that are imported but gitignored (packages/hoppscotch-common/gql-codegen.yml writes the first
+  # two; selfhost-web ships its own generated client). They stay linked as GENERATED nodes, never as evidence.
+  generated_files:
+    - packages/hoppscotch-common/src/helpers/backend/graphql.ts
+    - packages/hoppscotch-common/src/helpers/backend/backend-schema.json
+    - packages/hoppscotch-selfhost-web/src/api/generated/graphql.ts
+  # unplugin-vue-components scans this directory with directoryAsNamespace (see vue_components.py).
+  components_dirs:
+    - packages/hoppscotch-common/src/components
   # Verified against packages/hoppscotch-common/tsconfig.json, packages/hoppscotch-selfhost-web/tsconfig.json
   # and selfhost-web's vite.config.ts resolve.alias (2026-10-12).
   alias:

@@ -1,0 +1,276 @@
+[
+  {
+    "evidence_id": "ev_02324575a2ba",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/Selector.vue",
+    "summary": "modified packages/hoppscotch-common/src/components/environments/Selector.vue (+29 -4) class component kind BODY",
+    "span_id": "d4695cf2eaa1234a",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_0354a072cec3",
+    "kind": "reason.requirement",
+    "ref": "hoppscotch/hoppscotch#6645:req_22a2e8c41679:at_risk",
+    "summary": "requirement req_22a2e8c41679 is at_risk at possible",
+    "span_id": "7a31f19d7afe9f15",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_0dcb0dfafec0",
+    "kind": "link.i18n_key",
+    "ref": "el_30f24fa5dad0",
+    "summary": "button \"Select environment\" equals the English value of i18n key environment.select; environments/Selector.vue uses it and is rendered by the Home page",
+    "span_id": "94eb38b00902cf6c",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_19ab71e046d6",
+    "kind": "reason.requirement",
+    "ref": "hoppscotch/hoppscotch#6645:req_a3a6dbfa8d98:at_risk",
+    "summary": "requirement req_a3a6dbfa8d98 is at_risk at likely",
+    "span_id": "14ded46fc8fc0169",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_19d2e2dd495c",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/my/index.vue",
+    "summary": "modified packages/hoppscotch-common/src/components/environments/my/index.vue (+4 -0) class component kind BODY",
+    "span_id": "f98953d593431d6f",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_1c5a556668d4",
+    "kind": "gap.unmapped_code",
+    "ref": "shared-services",
+    "summary": "two changed services reach more than a quarter of the app's components within two shared steps; too broad to list",
+    "span_id": "532fe8c45b12519f",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_1c82524d7820",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:indirect:rest-send",
+    "summary": "indirect impact on Request sending: 3 control(s), confidence 0.66, via the shared current-value service",
+    "span_id": "edfc880166ec0d4b",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_1e045387db70",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:indirect:ws-url",
+    "summary": "indirect impact on WebSocket address: 1 control(s), confidence 0.38, via the shared current-value service",
+    "span_id": "ae89a50e9cabd435",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_2589e7680ccb",
+    "kind": "pr.locale_diff",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/locales/en.json@64ba4ff75eff7bef868b010947f50e9b6b326540",
+    "summary": "packages/hoppscotch-common/locales/en.json: +2 ~0 -0 keys",
+    "span_id": "79e78fb7e6967a06",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_2ed0ea495242",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "summary": "added packages/hoppscotch-common/src/components/environments/Editor.vue (+387 -0) class component kind BODY",
+    "span_id": "489e94042caa50e9",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_333ca8da0315",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:direct:back",
+    "summary": "direct impact on Back button: 1 control(s), confidence 0.90",
+    "span_id": "a12c1e3c2d8060a3",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_3835cc72df59",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:direct:selector",
+    "summary": "direct impact on Environment selector: 2 control(s), confidence 0.90",
+    "span_id": "97d17fc7bef79783",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_46547990b66b",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/services/current-environment-value.service.ts",
+    "summary": "modified packages/hoppscotch-common/src/services/current-environment-value.service.ts (+50 -0) class service kind ADDITIVE_API",
+    "span_id": "65e0b8791e71b2a9",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_53a2aee52577",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:direct:lists",
+    "summary": "direct impact on My and team environment lists: 4 control(s), confidence 0.88",
+    "span_id": "922d0009cf1b3831",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_56902424d433",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/teams/Environment.vue",
+    "summary": "modified packages/hoppscotch-common/src/components/environments/teams/Environment.vue (+8 -4) class component kind BODY",
+    "span_id": "be706dde2abd332d",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_57953b3ce1f3",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/my/Environment.vue",
+    "summary": "modified packages/hoppscotch-common/src/components/environments/my/Environment.vue (+8 -4) class component kind BODY",
+    "span_id": "5279d2227206c56a",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_71a1251f6ec1",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:indirect:secret-send",
+    "summary": "indirect impact on Secret values when sending: 2 control(s), confidence 0.55, via the shared secret-value service",
+    "span_id": "0d0f9c4633cb0bdb",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_78b39389a408",
+    "kind": "spec.quote",
+    "ref": "req_a3a6dbfa8d98",
+    "summary": "Environments let you store variables and reuse them across requests.",
+    "span_id": "b56c102898812898",
+    "run_id": "fixture-6645",
+    "source_url": "https://docs.hoppscotch.io/documentation/features/environments"
+  },
+  {
+    "evidence_id": "ev_7f62f2dfe65e",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "summary": "modified packages/hoppscotch-common/src/components/environments/teams/index.vue (+5 -0) class component kind BODY",
+    "span_id": "d4448092364e178a",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_80473c722b52",
+    "kind": "gap.access_restricted",
+    "ref": "packages/hoppscotch-common/src/components/environments/teams/index.vue",
+    "summary": "team environments render only for a signed-in user; the crawl was unauthenticated",
+    "span_id": "3110a05ee75f153f",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_82a09ba1fea1",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/locales/en.json",
+    "summary": "modified packages/hoppscotch-common/locales/en.json (+2 -0) class locale kind COPY_ONLY",
+    "span_id": "18d811a7ace8d5b7",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_87571466a3b3",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:direct:secrets",
+    "summary": "direct impact on Secret variable values: 2 control(s), confidence 0.87",
+    "span_id": "38a0e80af5da7534",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_9403433671b9",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:indirect:new-collection",
+    "summary": "indirect impact on New Collection dialog: 1 control(s), confidence 0.33, via the sidebar that hosts the Environments tab",
+    "span_id": "6c9f7ca446106cfb",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_a251650173ac",
+    "kind": "link.i18n_key",
+    "ref": "el_853b6712ec2f",
+    "summary": "button \"Back\" equals the English value of i18n key action.back, added by this PR; environments/Editor.vue uses it",
+    "span_id": "b4e108344b1a8ae7",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_b78081607646",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/services/secret-environment.service.ts",
+    "summary": "modified packages/hoppscotch-common/src/services/secret-environment.service.ts (+55 -0) class service kind ADDITIVE_API",
+    "span_id": "499873840657b139",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_b925244cdcb5",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:indirect:graphql-send",
+    "summary": "indirect impact on GraphQL request sending: 2 control(s), confidence 0.42, via the shared current-value service",
+    "span_id": "636dfe6ea8d1d0ca",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_cceeb14d61fd",
+    "kind": "pr.meta",
+    "ref": "hoppscotch/hoppscotch#6645@64ba4ff75eff7bef868b010947f50e9b6b326540",
+    "summary": "PR #6645 head 64ba4ff75eff base ac145e7f7581 (fork safwanyp/hoppscotch): 14 of 14 files",
+    "span_id": "0b9aa1b95fe04d74",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_d2cfae393db5",
+    "kind": "pr.compare",
+    "ref": "hoppscotch/hoppscotch#6645:ac145e7f7581...63273f8e599e",
+    "summary": "base is 10 commit(s) behind; 2 overlapping file(s)",
+    "span_id": "8c404759d4b04a80",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_e191b3a89b13",
+    "kind": "gap.unmapped_change",
+    "ref": "packages/hoppscotch-common/src/components/environments/Editor.vue",
+    "summary": "added file environments/Editor.vue renders no control that the crawl observed",
+    "span_id": "c6ccf1875dacb05d",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_e3ca6af3a9f8",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue",
+    "summary": "added packages/hoppscotch-common/src/components/environments/CurrentValueInput.vue (+55 -0) class component kind BODY",
+    "span_id": "5b9d4024aab6d2d9",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_e4d6dc6004af",
+    "kind": "reason.impact",
+    "ref": "hoppscotch/hoppscotch#6645:direct:sidebar",
+    "summary": "direct impact on Environments sidebar: 2 control(s), confidence 0.93",
+    "span_id": "47148b0397ce2e76",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_e934eaf645b3",
+    "kind": "spec.quote",
+    "ref": "req_22a2e8c41679",
+    "summary": "Collections allow you to organize your requests into folders.",
+    "span_id": "e954d7d54e93578c",
+    "run_id": "fixture-6645",
+    "source_url": "https://docs.hoppscotch.io/documentation/features/collections"
+  },
+  {
+    "evidence_id": "ev_ea0cca1009e9",
+    "kind": "link.i18n_key",
+    "ref": "el_12bb7a04cc57",
+    "summary": "button \"Environments\" equals the English value of i18n key tab.environments; environments/index.vue uses it and is rendered by the Home page",
+    "span_id": "5ffd2e90600ddcfe",
+    "run_id": "fixture-6645"
+  },
+  {
+    "evidence_id": "ev_eb418800dd4a",
+    "kind": "pr.file",
+    "ref": "hoppscotch/hoppscotch#6645:packages/hoppscotch-common/src/components/environments/index.vue",
+    "summary": "modified packages/hoppscotch-common/src/components/environments/index.vue (+53 -26) class component kind BODY",
+    "span_id": "033d433a8e100431",
+    "run_id": "fixture-6645"
+  }
+]
